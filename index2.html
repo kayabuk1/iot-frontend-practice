@@ -98,46 +98,76 @@
             <li><img src="" alt="桜の画像" width="300"></li>
             <li><img src="" alt="桜の画像" width="300"></li>
             </ul>
-            <!-- section*7#sec$>div.wrapper>h2{セクションタイトル$}で複数一度に作成。
-             **$**は連番ワイルドカード
+            <!-- section*7#sec$>div.wrapper>h2.section-title{セクションタイトル$}
+             で複数一度に作成。**$**は連番ワイルドカード
              sectionは意味のあるまとまり(モジュール)1つの完結したテーマを持った
              区画を意味する。 sectionはblockなのでデフォで横幅100％。
              ちなみにidとclassは同時に持てる。個人名と職業名みたいなもの
              main>div>sectionで設定するとsectionごとに色が変えにくくなる
              なのでmain>section>divが変更に柔軟に対応できる。-->
-            <section id="sec1">
+            <section id="aboutMe">
                 <div class="wrapper">
-                    <h2>セクションタイトル1</h2>
+                    <h2 class="section-title">自己紹介</h2>
                 </div>
             </section>
-            <section id="sec2">
+            <section id="skills">
                 <div class="wrapper">
-                    <h2>セクションタイトル2</h2>
+                    <h2 class="section-title">スキルリスト</h2>
+                    <!-- dl.flex-container>div.flex-contents>
+                     (dt{スキル各系統タイトル$}+dd{具体的な資格・スキル$})*4
+                     で一気に作成。 -->
+                     <dl class="flex-container">
+                        <div class="flex-contents">
+                        <!-- 二重flexbox設定に後でする為のクラス設定
+                         display:flex;で親要素をflexboxに設定した場合、
+                         直下子要素**まで**しかflexコンテンツにならないので、
+                         後でdivにもflexを設定してdtddを横に並べる。
+                         その為の2重flex。 -->
+                            <dt>IT系資格</dt>
+                            <dd>基本情報技術者試験</dd>
+                            <dd>サーティファイ主催 プログラミング能力検定Ｃ言語2級</dd>
+                            <dd>工事担任者 2級デジタル通信</dd>
+                            <dt>スキル</dt>
+                            <dd>cisco機器でのNAPT・拡張ACL設定</dd>
+                            <dd>電子回路の読解及び簡単な電子回路の作成(半田付け含む)</dd>
+                            <dd>Arduino、ATmega328Pを用いた組込み制御</dd>
+                            <dd>linux(almalinux,debian)を用いた簡単なWebサーバー設定</dd>
+                            <dd>HTML/CSSのシングルカラムレイアウトでの簡単なページの作成</dd>
+                            <dt>今後取得を目指す資格</dt>
+                            <dd>LinuC-level1</dd>
+                            <dd>CCNA</dd>
+                            <dd>工事担任者 1級デジタル通信</dd>
+                            <dd>AWS Cloud Practitioner</dd>
+                            <dd>MOS Excel 365 エキスパート or VBAエキスパート（ベーシック）</dd>
+                            <dt>その他</dt>
+                            <dd>樹木医補</dd>
+                        </div>
+                     </dl>   
                 </div>
             </section>
             <section id="sec3">
                 <div class="wrapper">
-                    <h2>セクションタイトル3</h2>
+                    <h2 class="section-title">セクションタイトル3</h2>
                 </div>
             </section>
             <section id="sec4">
                 <div class="wrapper">
-                    <h2>セクションタイトル4</h2>
+                    <h2 class="section-title">セクションタイトル4</h2>
                 </div>
             </section>
             <section id="sec5">
                 <div class="wrapper">
-                    <h2>セクションタイトル5</h2>
+                    <h2 class="section-title">セクションタイトル5</h2>
                 </div>
             </section>
             <section id="sec6">
                 <div class="wrapper">
-                    <h2>セクションタイトル6</h2>
+                    <h2 class="section-title">セクションタイトル6</h2>
                 </div>
             </section>
             <section id="sec7">
                 <div class="wrapper">
-                    <h2>セクションタイトル7</h2>
+                    <h2 class="section-title">セクションタイトル7</h2>
                 </div>
             </section>
         </main>
