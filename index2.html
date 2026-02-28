@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<!-- HTMLの親にあたる言語は「SGML」と言う超厳密で複雑な言語。
+昔のSGMLでは宣言や命令は全て大文字で書くルール有。その為、HTML4までは
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+"http://www.w3.org/TR/html4/loose.dtd">
+（※「W3Cが定めたHTML4.01の、この辞書ファイルを読み込んで解析せよ」という意味）
+の呪文を書かねばならなかった。DOCTYPEが無いとブラウザは気を利かせて
+20年前の古いHTMLだな！互換モード(QuirksMode)で動こうとしてしまい、
+レイアウトが大幅に崩れる。<!DOCTYPE html>とあると最新のHTML5だなとなる。*/ -->
+<html lang="ja">
+    <!-- htmlはWeb文書の根源＝ルート要素、ここから先は全てHTML言語ルールの世界
+     と言う宣言。逆にここの設定をCSSで変更すればページの全ての文書に適用される。 -->
+    <!-- HTMLにおける""はどこからどこまでが一塊のデータであるかを示す境界線
+     HTMLでは「型」の宣言が無い為、全て""で囲って文字列形式のデータとして、
+     親タグに渡す設計になっている。 -->
+    <head>
+    <!-- headはページのmeta情報を記載する場所。ブラウザ画面内には1pxも表示されない
+     headerはセマンティックス。headは#include,body=void main(void){}みたいなもの -->
+        <meta charset="utf-8">
+        <!-- 文字コードは、このﾊﾞｲﾅﾘﾃﾞｰﾀはどの変換テーブルを使って、文字にデコードするか
+        を記述した低レイヤーの言語。lang=jaはセマンティックなレイヤーで文章を、
+        どの言語で解釈すべきかを指定するのに必要な命令。
+        視覚情報に配慮して音声で読み上げるときに自動で日本語を選んでくれる重要。 -->
+        <!-- meta＝高次の～、～を超えた～と言う意味で、
+        ITの世界では「データについてのデータ(付帯情報)」を意味する。
+        <meta>はブラウザに表示される「見出し」や本文ではなく、ブラウザと言う
+        プログラムに対して、そのページの扱い方を指示する設定ファイル。
+        meta charset-"utf-8"でUTF-8としてデコードせよの意味。
+        タグで文章を挟む必要のない要素は「空要素」呼ばれる。 -->
+        <meta name="viewport" 
+        content="width=device-width, initial-scale=1.0">
+        <!-- デバイスに合わせた画面幅の設定。C言語ではdevice_widthの様にアンダー
+         スコアでつなぐケースが多いが、Webはkebab-caseでつなぐ。-->
+        <meta name="desicription" content="">
+        <!-- 検索エンジンへの自己紹介SEO設定 -->
+        <meta property="og:title" content="">
+        <!-- ﾎﾟｲﾝﾀ共有,OpenoGraphProtocl。カード形式でSNSで格好良く表示する
+         OGP＝俺のサイトを要約した構造体-->
+        <title>プロフィール - かやぶき</title>
+        <link rel="stylesheet" href="css/style2.css">
+        <!-- <link rel="icon" href=""> ほぼ完成したらアイコンをはめ込む！-->
+        <!-- このHTMLファイルから見てリンク先のがファイルはどういう関係？？ -->
+    </head>
+    <body id="top">
+        <!-- ユーザの目に触れる「実体」を持った領域なので「body」 -->
+         <!-- idはC言語におけるgotoやメモリアドレスと同じ役割。
+         a href="#name"と書けばそこまでジャンプしてくれる。#はidを表す記号。 -->
+        <!-- なぜbodyにidか。一番外側の要素にidをを振っておけば画面の絶対的座標0.0に行く -->
+         <header>
+            <div class="wrapper">
+            <!-- 後で複数行をタグで括る時shift+ctrl+p、wrap、divの順に入力 -->
+            <!-- wrapper＝包むもの。このクラスをなぜheaderからbodyのsectionまで
+            またいで適用させるのか？⇒コンテンツが広がっても良い最大幅(buffer)を決めて
+            それを画面の中央にmargine:auto;で設定すること。 
+            htmlやbodyにmargineを設定すると、もし背景色を設定したい時に、margine
+            の部分が塗れなくて詰む。なのでwrapperと言う透明な箱で囲う。
+            完全にレイアウト面での区分けなので意味のないだ他の箱のdivでOK-->
+                    <!-- 
+                    |-----html：サイトの最大幅-----------|
+                    |       ---wrapper---------------   |
+                    |header |h1_____________________|   |
+                    |_______|_______________________|___|       
+                    |main   |section id="aboutMe"   |   |
+                    |___    |section id="~"_________|___|  
+                    一番は時まで来ると見ずらいので全てwarpperとい箱を作ってやって
+                    中に入れる。
+                    -->
+                    <!--サイトの顔 -->
+               <h1 class="site-title"><a href="#top">プロフィール</a></h1>
+               <!-- サイト名やタイトルをクリックすると原点であるトップページに戻るのは全世界
+               共通の予測動作なのでh1＝タイトル級をクリックしたらbodyの先頭に戻る動作にする。 -->
+               <!-- タグは予約語なのでコンパイラが大文字小文字無視するが、idやclassは、
+               ユーザ定義変数名なので大文字小文字区別されて認識される。 -->
+               <nav>
+               <!-- HTML5で導入された代表的なセマンティックなタグの1つ。昔はなんでもかんでも
+                divで囲っていた。ここはサイトの案内図と明示。     -->
+                   <ul>
+                       <!-- UnOrderlistの略。ブラウザでは・が振られる。 -->
+                       <!-- Alt+Shift+↓で連続コピー -->
+                       <li><a href="#aboutMe">自己紹介</a></li>
+                       <li><a href="#skills">スキル</a></li>
+                       <li><a href="#favorite">好きなこと</a></li>
+                       <li><a href="#favoNovels">好きな作品</a></li>
+                       <li><a href="#myPlants">植物</a></li>
+                       <li><a href="#favoPlace">好きな場所</a></li>
+                       <li><a href="#favoYoutube">好きなyoutube</a></li>
+                   </ul>
+               </nav>
+            </div>    
+        </header>
+        <main>
+        <!-- サイトの主役 -->
+            <ul id="mainvisual">
+            <!-- li*3>img[width=300 alt=桜の画像]で一度に作れるEmmetという
+              []で属性を指定することも出来る-。>子要素、*繰り返し、+隣接
+              []属性を付与。-->
+            <li><img src="" alt="桜の画像" width="300"></li>
+            <li><img src="" alt="桜の画像" width="300"></li>
+            <li><img src="" alt="桜の画像" width="300"></li>
+            </ul>
+            <!-- section*7#sec$>div.wrapper>h2{セクションタイトル$}で複数一度に作成。
+             **$**は連番ワイルドカード
+             sectionは意味のあるまとまり(モジュール)1つの完結したテーマを持った
+             区画を意味する。 sectionはblockなのでデフォで横幅100％。
+             ちなみにidとclassは同時に持てる。個人名と職業名みたいなもの
+             main>div>sectionで設定するとsectionごとに色が変えにくくなる
+             なのでmain>section>divが変更に柔軟に対応できる。-->
+            <section id="sec1">
+                <div class="wrapper">
+                    <h2>セクションタイトル1</h2>
+                </div>
+            </section>
+            <section id="sec2">
+                <div class="wrapper">
+                    <h2>セクションタイトル2</h2>
+                </div>
+            </section>
+            <section id="sec3">
+                <div class="wrapper">
+                    <h2>セクションタイトル3</h2>
+                </div>
+            </section>
+            <section id="sec4">
+                <div class="wrapper">
+                    <h2>セクションタイトル4</h2>
+                </div>
+            </section>
+            <section id="sec5">
+                <div class="wrapper">
+                    <h2>セクションタイトル5</h2>
+                </div>
+            </section>
+            <section id="sec6">
+                <div class="wrapper">
+                    <h2>セクションタイトル6</h2>
+                </div>
+            </section>
+            <section id="sec7">
+                <div class="wrapper">
+                    <h2>セクションタイトル7</h2>
+                </div>
+            </section>
+        </main>
+        <footer>
+        <!-- サイトの足跡 -->
+            <address>
+            <!-- ｾﾏﾝﾃｨｯｸタグ「著作者」への連絡先情報 -->
+                <!-- dl>(dt+dd>a[href]{電話とメール})*2で一気に作成 -->
+                <dl>
+                    <dt>電話</dt>
+                    <dd><a href="tel:xxxxxxxxxxx">xxx-xxxx-xxxx</a></dd>
+                    <dt>Eメール</dt>
+                    <dd><a href="mailto:2025i10@funagi.ac.jp">2025i10@funagi.ac.jp</a></dd>
+                    <!-- href属性にはURLだけでなくて、システムへの命令(プロトコル)
+                     を書き込むことがd系る。tel:090～なら電話アプリ起動、
+                     mailto:ならメール作成宛先自動入力 -->
+                </dl>
+                <p><small>&copy; 2025 Kayabuki</small></p>
+                <!-- 「&～;」はHTMLにおけるエスケープシーケンス。正式名称は文字実体参照
+                 キーボードで打ちにくい文字や予約語を「文字」として表示させる記述。
+                 &ではじまって;で終わるのがルール。
+                 &copy;©、&lt;<、&gt;>、となっている。 -->
+                 <!-- p、ｾﾏﾝﾃｨｯｸｽ「pragrah：段落の意味」 -->
+                 <!-- small：ｾﾏﾝﾃｨｸｽ「免責事項・著作権表示」細かい文字で表示するので-->
+            </address>
+        </footer>        
+    </body>
+</html>
