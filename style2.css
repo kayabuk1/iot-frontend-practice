@@ -22,6 +22,137 @@ C言語におけるプリプロセッサ命令みたいなもの */
 }
 /* ルート要素（一番外側で全体を囲っているhtml要素＝宇宙）に対しての設定 */
 html{
-    font-size: 100px;
-    /*  */
+    font-size: 100%;
+    /* ブラウザのデフォルトのフォントサイズは16px。
+    ここで100%と記述するのは、ﾌｫﾝﾄｻｲｽﾞの基準をブラウザ設定のﾌｫﾝﾄｻｲｽﾞとする為。 */
+    scroll-behavior: smooth;
+    scroll-padding-top: 60px;
+    /* 「スクロール停止位置の余白」を指定する命令 */
+}
+/* 実際に表示されるページ全体に対する設定をbodyに記述する。 */
+body{
+    font-size: 0.9rem;
+    /* remはrootEM(Mの読み)昔の活版印刷では M が基準だったのでem。
+    root=html要素に対する比率で文字の大きさを指定する単位。 */
+    color: #383e45;
+    /* なぜfont-colorではないのか？colorはfont以外の前面に来る要素(リスト記号) 
+    などに対しての色の設定。それに文字色も含まれているという話。*/
+    font-family: 
+    /* fontは難しい。欧mac>欧win>和mac>androind/chromeOS用>和win>総称ﾌｫﾝﾄ保険
+    書く環境で最も美しく読みやすいと評価される「サンセリフ体(ゴシック体)」を
+    優先順位に従って表示させるための「フォント・フォールバック」リスト */
+        "helvetica Neue,"      ,
+        "Arial",
+         /* 欧文フォントmac/win：alphabetと数字専用 */,
+        "Hiragino Kaku Gothic ProN",
+        "Hiragino Sans",
+        /* Apple標準和文フォント、デザイナーさんに好まれる。旧/新OSの順 */,
+        "Noto Sans JP",
+        /* 汎用/Webフォント。GoogleとAdobeが共同開発した、どの環境も,
+        同じように見えることを目指したフォント。Noto=No more Tofu□の略 */,
+        "Meiryo",
+        /* Windowsf準和文フォント。文字が明瞭に見える様にの意味でmeiryo */,
+        "sans-serif",
+        /* 保険。総称ゴシックフォント。ゴシックなら何でもOK
+        sansはフランス語で無しwithoutの意味、serifは飾り。なので無装飾フォント。 */
+}
+/* リンクに対してのフォント設定、セレクタはアンカーのa */
+a{
+    color: #f24;
+    text-decoration: none;
+    /* リンク下の下線を消せる。text-decorationには、underline下線、
+    overline上線、line-through打消し線、none無装飾が含まれる。なので
+    包括的にtext-decorationというﾌﾟﾛﾊﾟﾃｨ名になっている。 */
+    /* 下線自体のﾌﾟﾛﾊﾟﾃｨを変えたいときはtext-decoration-styleﾌﾟﾛﾊﾟﾃｨ 、
+    text-decoration-colorﾌﾟﾛﾊﾟﾃｨ*/
+}
+/* 「:」はCSSの文法で疑似クラスを表す。疑似クラスはHTMLに実体がないのに
+条件に応じて実体が生成されて、さもHTMLに記述されているかのように振舞うことから。
+他良く使う疑似クラス、
+〇:avtiveクリックされた瞬間、 
+〇:foucus選択されている時
+〇:nth-child(n)親要素のn番目の子要素を狙い撃ち※カウントは1から
+〇:first-child/last-chils最初/最後の要素狙い撃ち
+〇:not特定の条件「以外」*/
+a:hover{
+    opacity: 0.7;
+/* 透明度では無くて「不透明度」な点に注意。１で不透明ど100% */
+}
+/* 画像設定 */
+img{
+    width: 100%;
+    /*バッファオーバーフローを防ぎ。画像のサイズが大きくても親要素に収める
+    安全策の為に書く。 */
+}
+
+/* センタリング対象の要素の設定。div class="wrapper"で透明な箱を
+headerとbodyを貫通するように作った。これによりbodyで指定してcontentとpaddingを
+中央揃えにしたときに、背景色が端まで塗れないなどの不具合を防ぎ、
+文字配置の自由度と一貫性が高くなる。 */
+.wrapper{
+    max-width: 960px;
+    /* センタリング親要素の幅(≒画面幅)に応じて最大960pxまでcontentを拡張する。 */
+    margin: 0 auto;
+    /* marignに渡す引数は上下余白,左右余白の順、上下余白を0,左右余白を均等割=auto */
+    text-align:center;
+    /* ligne線の意味のフランス語由来 */
+    padding: 0 5px;
+    /* PC画面は1000px以上が殆ど≒問題なし。しかしスマホ375pxなどでは、
+    content領域が端にくっついて(padding0)で読みにくい。なので、padding
+    を設定して最低限離れる幅を作る。「サイドガター横の溝」と呼ぶ。 */
+}
+section{
+/* section.wrapper{}の様にしてwrapperですでにセンタリングされているsection
+を詳細度を上げて指定して、調整することもある。詳細度が高い設定が適用。 */
+    margin-bottom: 100px;
+    /* section間の境界を分かりやすくする為にsection下に余白を設定。*/
+}
+/* サイトタイトルのリンク（ロゴの様な見た目にする）
+h1にclass ="site-title"を設定しているので、それを使う。
+aリンクは通常in-line要素なので、それをブロック要素に変更。
+そしてブロックをクリックしただけでリンク先に飛べるように調整している。
+インラインは文字としての性質を持ち（つまりその行の1文字の大きさ設定に横縦縛られる）
+もし100文字の文字列の特定の1文字にだけ100pxOK！としたら、
+折り返しの計算などとても複雑になる。
+ブロックは容器としての性質を持つ、と覚える。＝リンクも箱全体に適用される。 */
+.site-title a{
+    font-size: 1.2rem;
+    color: #ffffff;
+    line-height: 1;
+    /* line-heightの1はどんな意味の１？
+    ⇒通常文字の1.2~1.5倍程度の行間が用意されているがそれを文字ピッタリにする*/
+    background-color: #383e45;
+    padding: 0.4em;
+    /* 「em」は今の要素の設定font-sizeに対しての大きさ */
+    display: block;
+    /* in-line(その行の文字の様に扱われる)からblock(デフォで横いっぱいだけれど可変)
+    にすることで、幅や高さ上下のpaddingの設定を正確に調整することが出来る。 */
+    width: max-content;
+    /* block要素はデフォルトでは横幅いっぱいに広がるので、文字の大きさに
+    合わせて縮小させる設定を書く。 */
+}
+.site-title a:hover{
+    opacity: initial;
+    /* initialは初期値＝opacity:1;なのでサイトタイトルは透けない。
+    a:hover{}で設定した値を詳細度高くして上書き。 */
+}
+/* section class="section-title"と設定したものの設定。
+ユーザにここから新しい話題（section）が始まりますよ～！と
+分かりやすくするための設定。 */
+.section-title{
+    font-size: 2em;
+    font-weight: bold;
+    /* なぜ文字の太さがweight？⇒活版印刷時代に鉛の重さが違ったので。 */
+    border-bottom: 1px solid #383e45;
+    /* **重要重要**
+    text-decorationで下線を引かず、箱の底辺に引いたのは、
+    paddingで文字と下線の位置を調整出来る様にするため。 */
+    display:inline-block;
+    /* h2など見出しはブロック要素＝デフォルトが横幅いっぱい
+    なので箱の幅（下線）が文字に合わせて止まる様に設定している。 */
+    margin-bottom: 60px;
+    /* sectionタイトルと直下本文の間に十分な余白を設定して、
+    ここから先はsectionの本文と分かりやすくしている。 */
+    /* ↓実験設定 */
+    padding-bottom: 10px;
 }
