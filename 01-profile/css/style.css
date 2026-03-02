@@ -1,0 +1,149 @@
+@charset "UTF-8";
+
+:root{
+    --header-hegiht:60px;
+}
+*{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    box-sizing: border-box;
+}
+html{
+    font-size: 100;
+    scroll-behavior: smooth;
+}
+body{
+    font-size: 0,9rem;
+    color: #383e45;
+    font-family: 
+     "helvetica Neue",
+        "Arial",
+         /* 欧文フォントmac/win：alphabetと数字専用 */
+        "Hiragino Kaku Gothic ProN",
+        "Hiragino Sans",
+        /* Apple標準和文フォント、デザイナーさんに好まれる。旧/新OSの順 */
+        "Noto Sans JP",
+        /* 汎用/Webフォント。GoogleとAdobeが共同開発した、どの環境も,
+        同じように見えることを目指したフォント。Noto=No more Tofu□の略 */
+        "Meiryo",
+        /* Windowsf準和文フォント。文字が明瞭に見える様にの意味でmeiryo */
+        "sans-serif";
+}
+a{
+    color: #383e45;
+    text-decoration: none;
+}
+a:hover{
+    opacity: 0.7;
+}
+img{
+    width: 100%;
+}
+.wrapper{
+    max-width: 960px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 0 5px;
+}
+section{
+    margin-bottom: 100px;
+    background-color: bisque;
+}
+.section-title{
+    font-size: 2em;
+    font-weight: bold;
+    border-bottom: 1px solid #383e45;
+    margin-bottom: 60px;
+    padding-bottom: 10px;
+    background-color: aqua;
+    width: max-content;
+    margin: 0 auto;
+}
+.content-title{
+    font-size: 1rem;
+    font-weight: bold;
+    margin: 10px;
+    line-height: 1.5;
+    background-color: blue;
+}
+header{
+    box-sizing: border-box;
+    width: 100%;
+    background-color: #ffffff;
+    height:var(--header-hegiht)
+}
+header .wrapper{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+}
+header h1{
+    background-color: #383e45;
+    color: #ffffff;
+}
+header nav{
+    flex-grow: 0;
+}
+header nav ul{
+    display: flex;
+    column-gap: 20px;
+}
+#About .flex-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 30px;
+    flex-wrap: wrap;
+    background-color: yellow;
+}
+#About img{
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+}
+#About .flex-contents{
+    text-align: left;
+}
+#About .flex-contents:first-child{
+    flex-basis: 100px;
+    flex-shrink: 0;
+}
+#About .flex-contents:last-child{
+    flex-basis: 60%;
+    max-width: 300px;
+}
+#Bicycle .flex-container{
+    display: flex;
+    justify-content: space-between;
+    column-gap: 10px;
+}
+#Bicycle .flex-contents{
+    display: flex;
+    text-align: center;
+    width: max-content;
+    margin-bottom: 1.5em;
+}
+#Bicycle .flex-contents li{
+    width: 32%;
+    text-align: center;
+}
+#Bicycle img{
+    width: 100%;
+        margin-bottom: 10px;
+}
+footer{
+    background-color:#ffffff;
+    text-align: center;
+}
+footer small{
+    margin-top: 10px;
+    margin-bottom: 20px;
+     display:inline-block;
+     width: max-content;
+     font-style: normal;
+}

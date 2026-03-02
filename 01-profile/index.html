@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【HTML/CSS コーディング練習】入門編：プロフィールサイト／1カラム</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="wrapper">
+            <h1 class="site-title"><a href="#top">Profile</a></h1>
+            <nav>
+                <ul>
+                    <li><a href="#About">About</a></li>
+                    <li><a href="#Bicycle">Bicycle</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main>
+        <ul id="mainvisual">
+            <li><img src="images/mainvisual.jpg" alt="白いクロスバイク（メインビジュアル）
+                " width="100%"></li>
+        </ul>
+        <section id="About">
+            <div class="wrapper">
+                <h2 class="section-title">About</h2>
+                <div class="flex-container">
+                    <div class="flex-contents">
+                        <img src="images/about.jpg" alt="自己紹介画像">
+                    </div>
+                    <div class="flex-contents">
+                        <dl>
+                            <dt>KAKERU MIYAUHI</dt>
+                            <dd>テキストテキストテキストテキストテキストテキストテキストテキスト
+                                テキストテキストテキストテキストテキストテキストテキストテキスト
+                                テキストテキストテキストテキストテキストテキストテキストテキスト
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="Bicycle">
+            <div class="wrapper">
+                <h2 class="section-title">Bycycle</h2>
+                    <ul class="flex-container">
+                       
+                            <li>
+                                <img src="images/bicycle1.jpg" alt="Bycycle画像1">
+                                <h3 class="content-title">タイトルタイトル</h3>
+                                <p>テキストテキストテキスト</p>
+                            </li>
+                       
+                            <li>
+                                <img src="images/bicycle2.jpg" alt="Bycycle画像2">
+                                <h3 class="content-title">タイトルタイトル</h3>
+                                <p>テキストテキストテキスト</p>
+                            </li>
+                       
+                            <li>
+                                <img src="images/bicycle3.jpg" alt="Bycycle画像3">
+                                <h3 class="content-title">タイトルタイトル</h3>
+                                <p>テキストテキストテキスト</p>
+                            </li>
+                    </ul>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <small>&copy; 2020 Profile</small>
+    </footer>
+</body>
+</html>
