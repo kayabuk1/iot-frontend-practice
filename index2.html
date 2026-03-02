@@ -5,8 +5,8 @@
 "http://www.w3.org/TR/html4/loose.dtd">
 （※「W3Cが定めたHTML4.01の、この辞書ファイルを読み込んで解析せよ」という意味）
 の呪文を書かねばならなかった。DOCTYPEが無いとブラウザは気を利かせて
-20年前の古いHTMLだな！互換モード(QuirksMode)で動こうとしてしまい、
-レイアウトが大幅に崩れる。<!DOCTYPE html>とあると最新のHTML5だなとなる。*/ -->
+20年前の古いHTMLだな！互換モード(QuirksMode:クアークス変な癖)で動こうとしてしまい、
+レイアウトが大幅に崩れる。※特に昔のブラウザInternetExplorer5などは癖強だった。<!DOCTYPE html>とあると最新のHTML5だなとなる。*/ -->
 <html lang="ja">
     <!-- htmlはWeb文書の根源＝ルート要素、ここから先は全てHTML言語ルールの世界
      と言う宣言。逆にここの設定をCSSで変更すればページの全ての文書に適用される。 -->
@@ -31,6 +31,7 @@
         content="width=device-width, initial-scale=1.0">
         <!-- デバイスに合わせた画面幅の設定。C言語ではdevice_widthの様にアンダー
          スコアでつなぐケースが多いが、Webはkebab-caseでつなぐ。-->
+         <!-- VScodeなら「meta:vp + tab」で一括生成出来る。 -->
         <meta name="desicription" content="">
         <!-- 検索エンジンへの自己紹介SEO設定 -->
         <meta property="og:title" content="">
@@ -108,6 +109,31 @@
             <section id="aboutMe">
                 <div class="wrapper">
                     <h2 class="section-title">自己紹介</h2>
+                    <div class="flex-container">
+                        <div class="flex-contents">
+                            <img src="/images/IMG20240503121710.jpg" alt="自己紹介画像みかんの花" width="300">
+                        </div>
+                        <div class="flex-contents">
+                            <h3 class="content-title">かやぶき</h3>
+                            <dl class="flex-contents">
+                                <dt class="content-title">生年月日</dt>
+                                <dd><time datetime="1994-00-00"></time>1994年</dd>
+                                <dt class="content-title">出生地</dt>
+                                <dd></dd>
+                                <dt class="content-title">出身地</dt>
+                                <dd><a href="https:"
+                                    target="_blank">埼玉湾</a>
+                                <a href="" target="_blank"></a>
+                                </dd>
+                                <dt class="content-title">家族構成</dt>
+                                <dd></dd>
+                                <dt class="content-title">職歴</dt>
+                                <dd></dd>
+                                <dt class="content-title">趣味</dt>
+                                <dd>カラオケ、植物、歴史動画視聴、漫画、読書</dd>
+                            </dl>
+                        </div>
+                    </div>
                 </div>
             </section>
             <section id="skills">
@@ -117,31 +143,51 @@
                      (dt{スキル各系統タイトル$}+dd{具体的な資格・スキル$})*4
                      で一気に作成。 -->
                      <dl class="flex-container">
-                        <div class="flex-contents">
                         <!-- 二重flexbox設定に後でする為のクラス設定
                          display:flex;で親要素をflexboxに設定した場合、
                          直下子要素**まで**しかflexコンテンツにならないので、
                          後でdivにもflexを設定してdtddを横に並べる。
                          その為の2重flex。 -->
-                            <dt>IT系資格</dt>
-                            <dd>基本情報技術者試験</dd>
-                            <dd>サーティファイ主催 プログラミング能力検定Ｃ言語2級</dd>
-                            <dd>工事担任者 2級デジタル通信</dd>
-                            <dt>スキル</dt>
-                            <dd>cisco機器でのNAPT・拡張ACL設定</dd>
-                            <dd>電子回路の読解及び簡単な電子回路の作成(半田付け含む)</dd>
-                            <dd>Arduino、ATmega328Pを用いた組込み制御</dd>
-                            <dd>linux(almalinux,debian)を用いた簡単なWebサーバー設定</dd>
-                            <dd>HTML/CSSのシングルカラムレイアウトでの簡単なページの作成</dd>
-                            <dt>今後取得を目指す資格</dt>
-                            <dd>LinuC-level1</dd>
-                            <dd>CCNA</dd>
-                            <dd>工事担任者 1級デジタル通信</dd>
-                            <dd>AWS Cloud Practitioner</dd>
-                            <dd>MOS Excel 365 エキスパート or VBAエキスパート（ベーシック）</dd>
-                            <dt>その他</dt>
-                            <dd>樹木医補</dd>
-                        </div>
+                            <div class="flex-contents">
+                                <dt class="content-title">IT系資格</dt>
+                                <ul>
+                                    <li>基本情報技術者試験</li>
+                                    <li>サーティファイ主催 プログラミング能力検定Ｃ言語2級</li>
+                                    <li>工事担任者 2級デジタル通信</li>
+                                </ul>
+                            </div>
+                            <div class="flex-contents">
+                                <dt class="content-title">スキル</dt>
+                                <dd>
+                                    <ul>
+                                        <li>cisco機器でのNAPT・拡張ACL設定</li>
+                                        <li>電子回路の読解及び簡単な電子回路の作成(半田付け含む)</li>
+                                        <li>Arduino、ATmega328Pを用いた組込み制御</li>
+                                        <li>linux(almalinux,debian)を用いた簡単なWebサーバー設定</li>
+                                        <li>HTML/CSSのシングルカラムレイアウトでの簡単なページの作成</li>
+                                    </ul>
+                                </dd>
+                            </div>
+                            <div class="flex-contents">
+                                <dt class="content-title">今後取得を目指す資格</dt>
+                                <dd>
+                                    <ul>
+                                        <li>LinuC-level1</li>
+                                        <li>CCNA</li>
+                                        <li>工事担任者 1級デジタル通信</li>
+                                        <li>AWS Cloud Practitioner</li>
+                                        <li>MOS Excel 365 エキスパート or VBAエキスパート（ベーシック）</li>
+                                    </ul>
+                                </dd>
+                            </div>
+                            <div class="flex-contents">
+                                <dt class="content-title">その他</dt>
+                                <dd>
+                                    <ul>
+                                        <li>樹木医補</li>
+                                    </ul>
+                                </dd>
+                            </div>
                      </dl>   
                 </div>
             </section>

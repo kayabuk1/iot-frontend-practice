@@ -219,21 +219,173 @@ header .wrapper{
     display: flex;
     /* 子要素のh1とnavが横一列に並ぶ。 */
     justify-content: space-between;
+    /* 直下の子要素の並べ方を指定している。
+    直下の子要素は h1 と nav の2つのみ。なので左端と右端に押し付け中央が空く */
     align-items: center;
     height: 100%;
     width: 100%;
-    /* 100%は親要素のサイズ60pxに対して、 */
+    /* 100%は親要素のサイズ60pxに対して、.wrapperクラス自身がどの程度の大きさ
+    を持つかを設定する為。デフォでは height:auto; で子要素は親要素より小さく、
+    具体的には中身が24pxならcontent領域(箱)の大きさもそれと同じになる。 */
+    /* また👆の状態のまま、ではまず24pxの箱が親要素headerの左上？配置されて
+    その24pxの箱の中でaline-item:center;が行われる？ので文字が上に寄ってしまう */
 }
 header nav{
     flex-grow: 0;
     /* 親要素であるdiv.wrapperがflexに設定されるので、直下子要素のnavも
     flexitemになる。それで０は絶対に余白があっても文字の幅以上に伸びないぞ
     という設定。※左側のロゴを圧迫しないため。
+    デフォではflex-growの値は「0」になっているが、明示的に0を記述している。
      */
 }
 header nav ul{
-
+    display:flex;
+    /* display:と打つと出てくる「flex」と「flex-box」はどう違うか？
+    ⇒今は「flex」のみ。flex-boxは古い時代の仕様揺れ記述揺れの名残。
+    二重flex-boxの設定。ul直下の子要素「li」に対してもflexレイアウト適用する為
+    */
+    column-gap:20px;
+    /* flexboxのデフォルトでは縦y軸が基準軸で良いのかな？
+    ⇒NO。flexboxの基準軸のデフォルトはx軸。
+    display:flex;と設定すると子要素が横に並ぶのはその為。
+    li要素同士の間隔を20pxずつ空ける。→これはcontentに対して？ */
 }
 header nav ul a{
+    color: #383e45;
+    /* 全体設定「a」で赤字に設定しているので詳細度高いここで上書きする必要あり。 */
+}
+/* -----------------------------------------
+    ここから自己紹介に関する設定
+----------------------------------------- */
+#aboutMe .flex-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 30px;
+}
+#aboutMe .flex-contents{
+    text-align: left;
+}
+#aboutMe img{
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    /* 「object-fit」用意した箱(imgに設定した値)が、実際の画像の
+    の縦横比が合わない時に、どうやって折り合いを付けるか？
+    というﾌﾟﾛﾊﾟﾃｨ。 */
+     /***注意**　imgにheightとwidth両方設定しないと有効にならない。*/
+    object-position:center;
+    /* デフォルトは(center center)
+    X軸とY軸で指定する。
+   
+    /* デバイスが変わった時もきちんと表示される様に
+    pxではなくて、%で指定してあげた方がよい。 */
+}
+/* -----------------------------------------
+ここからスキルリストのflexコンテンツに関する設定
+----------------------------------------- */
+/*
+    __div.flex-container________________~
+    |    div.flexcon_ _div.flexcon______~
+    |    | _______   |  _________  |    ~
+    |    | |dt____|  |  |dt_____|  |    ~
+    |    |           |             |    ~
+    |    | _dd>ul__  |  _dd>ul___  |    ~
+    |    | |li____|  |  |li_____|  |    ~
+    |    | |li____|  |  |li_____|  |    ~
+    |    |___________|_____________|____~   
+    |___________________________________~
 
+*/
+#skills .flex-container{
+/* flex第一階層：カードを横に並べる親(dlに設定されたクラス) */
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+#skills .flex-contents{
+/* 第一階層の子：個別のカード(各dtddを包む箱)
+dd+dt1セットずつflexで扱う為に必要。 */
+    flex-basis: 30%;
+    flex-grow: 1;
+    min-width: 250px;
+    background-color: #f4f7f9;
+    padding: 20px;
+    border-radius: 8px;
+}
+#skills dt{
+    justify-content: center;
+}
+#skills .flex-contents ul{
+/* flex第二階層ddをflexitemにするための親 */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0;
+    margin-top: 10px;
+    justify-content: center;
+}
+#skills .flex-contents li{
+/* 第2階層dd内各liに対する設定 */
+    background-color: #6886a2;
+    color: #ffffff;
+    padding: 4px 10px;
+    font-size: 0.8em;
+    border-radius: 1em;
+}
+/* フォトギャラリーの説明文 */
+.flex-contents img{
+    aspect-ratio: 4/3;/*ｱｽﾍﾟｸﾄ比を統一する*/
+    object-fit: cover;/*画像の元のｱｽﾍﾟｸﾄ比を維持したままボックスに収まるようにサイズ調整する*/
+    object-position: top;/*画像の表示位置をボックスの上端に合わせる*/
+}
+.flex-contents p{
+    text-align: left;
+}
+#skills .content-title{
+    display: flex;
+}
+#skills .content-title dd{
+    flex-direction: column;
+    flex-grow: 0;
+}
+/* -----------------------------------------
+    ここからメインビジュアル設定
+----------------------------------------- */
+#mainvisual{
+    /* 配置設定（画像リストアイテム配置の基準とする） */
+    
+    position: relative;
+    /* ボックス設定 */
+    height: 600px;/*高さを固定*/
+    margin: 60px 0 80px;/*固定ヘッダーと重ならないように、上に余白を設ける*/
+    overflow: hidden;/*ボックスからはみ出したコンテンツは表示しない*/
+}
+
+#mainvisual li{
+    /* 配置設定（全ての画像リストの左上に重ねて表示する） */
+    position: absolute;
+    top: 0;
+    left:0 ;
+
+    /* ボックス設定 */
+    width: 100%;/*幅を画面全体に広げる（配置設定により幅が縮小するため）*/
+    
+}
+/* ここからfooter設定 */
+footer{
+    top:0;
+    left:0;
+    background-color: #ffffff;
+    border-top:  1px solid#383e45;
+    text-align: center;
+}
+footer address{
+    margin-top: 10px;
+    margin-bottom: 20px;
+    display: inline-block;
+    width: max-content;
+    font-style: normal;
 }
