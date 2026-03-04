@@ -160,10 +160,24 @@ void gradually_right() {
 
 ◇エラー14：手書きごく細コースで復帰動作（後退と前進）を繰り返し進むことが出来ない状況に。
 対処：二重ifでcomeback時の首振り角度が少し大きくなったお陰で、前進後退少し首振りを繰り返した後に少しずつ進むことは出来た。
+      首振り時の速度をMIN_SPEED 51に。
+      ⇒しかしまだ振り切れてしまうことがある。
+      ⇒delay(20)からdelay(10)に変更。
 ◇エラー15：しかし、comeback時の首振りでコースを発見することが出来ずor通りすぎる⇒その後前進⇒白紙の為comeback()を繰り返す動作になってしまった。
 対処：首振り時2回目ifの判定条件を緩める＆#define MIN_SPEED 51 //モーターストール状態防止ぎりぎりの出力25％を設置。
-      首振り速度を下限値で行う動作へ変更。
-
+      首振り速度を下限値で行う動作へ変更してコース上で止まる確率を高める。
+◇エラー15：comeback()復帰動作時の首振り方向が、右小左大右小という順で首を振るので、最初の右小で調節してループから外れ前進を繰り返す動作で、時計周りのクランクおよび急カーブは曲がれるが、
+反時計回りのクランクと急カーブが曲がれなくなっている。
+void comeback() {
+  stop_motor();
+  delay(100);
+  back_motor();
+  delay(300);
+  turning_right();
+  for (int i = 0; i < 50; i++) {
+    read_sensor();
+    if (val_C >= GRAY && (val_R >= GRAY || val_L >= GRAY)) {
+      ここでif条件がval_C >= GRAY && val_R >=GRAYで達成したら、回転方向フラグを1にして、逆なら回転方向フラグを0にしたまま復帰動作を繰り返す動作にできないだろうか？
 
 2026-03-04
 ◇今日の方針｛
@@ -271,9 +285,9 @@ void comeback() {
   for (int i = 0; i < 50; i++) {
     read_sensor();
     if (val_C >= GRAY && (val_R >= GRAY || val_L >= GRAY)) {
-      delay(20);
+      delay(10);
       read_sensor();
-      if (val_C >= GRAY ) {
+      if (val_L >= GRAY ) {
         stop_motor();
         delay(100);
         return;
@@ -287,7 +301,7 @@ void comeback() {
     if (val_C >= GRAY && (val_R >= GRAY || val_L >= GRAY)) {
       delay(20);
       read_sensor();
-      if (val_C >= GRAY ) {
+      if (val_R >= GRAY ) {
         stop_motor();
         delay(100);
         return;
@@ -301,7 +315,7 @@ void comeback() {
     if (val_C >= GRAY && (val_R >= GRAY || val_L >= GRAY)) {
       delay(20);
       read_sensor();
-      if (val_C >= GRAY && (val_R >= GRAY || val_L >= GRAY)) {
+      if (val_L >= GRAY) {
         stop_motor();
         delay(100);
         return;
