@@ -157,8 +157,12 @@ void gradually_right() {
 
 ◇エラー13：クランクが曲がれない
 対処：クランク関数の修正と復活。
+
 ◇エラー14：手書きごく細コースで復帰動作（後退と前進）を繰り返し進むことが出来ない状況に。
-対処
+対処：二重ifでcomeback時の首振り角度が少し大きくなったお陰で、前進後退少し首振りを繰り返した後に少しずつ進むことは出来た。
+◇エラー15：しかし、comeback時の首振りでコースを発見することが出来ずor通りすぎる⇒その後前進⇒白紙の為comeback()を繰り返す動作になってしまった。
+対処：首振り時2回目ifの判定条件を緩める＆#define MIN_SPEED 51 //モーターストール状態防止ぎりぎりの出力25％を設置。
+      首振り速度を下限値で行う動作へ変更。
 
 
 2026-03-04
@@ -208,11 +212,12 @@ void gradually_right() {
 #define GRAY 80
 #define MAX_SPEED 100  //analogWrite(出力最大値)
 #define HALF_SPEED 80
+#define MIN_SPEED 51 //モーターストール状態防止ぎりぎりの出力25％
 //※Read(入力)は2^10の1023までの分解能があるが出力は異なるので注意。
 // ピン配置
-#define R_SENSOR A2   //端子25番
-#define C_SENSOR A1    //端子24番
-#define L_SENSOR A0    //端子23番
+#define R_SENSOR A2  //端子25番
+#define C_SENSOR A1  //端子24番
+#define L_SENSOR A0  //端子23番
 #define RA_PHASE 4   //PD4端子6番⇔A_PAHSE/AIN1
 #define RA_ENABLE 5  //PD5端子11番PWM制御⇔A_ENABLE/AIN2
 #define LB_ENABLE 6  //PD6端子12番PWM制御⇔B_ENABLE/BIN2
@@ -225,52 +230,50 @@ volatile int val_R = 0;
 void motor_forward() {
   // ここに左右のモーターを前進させる処理を書く
   digitalWrite(RA_PHASE, 0);
-  digitalWrite(LB_PHASE, 1);//モータのどちらか片方を逆転させないと回転方向が一致しない。
+  digitalWrite(LB_PHASE, 1);  //モータのどちらか片方を逆転させないと回転方向が一致しない。
   analogWrite(RA_ENABLE, MAX_SPEED);
   analogWrite(LB_ENABLE, MAX_SPEED);
 }
 // モーター停止（ショートブレーキ）関数
 void stop_motor() {
   // ここにHブリッジを両方HIGHにする処理を書く
-  analogWrite(RA_ENABLE,0);
-  analogWrite(LB_ENABLE,0);
+  analogWrite(RA_ENABLE, 0);
+  analogWrite(LB_ENABLE, 0);
 }
 //モータ後退
-void back_motor(){
-  digitalWrite(RA_PHASE,1);
-  digitalWrite(LB_PHASE,0);
-  analogWrite(RA_ENABLE,MAX_SPEED);
-  analogWrite(LB_ENABLE,MAX_SPEED);
+void back_motor() {
+  digitalWrite(RA_PHASE, 1);
+  digitalWrite(LB_PHASE, 0);
+  analogWrite(RA_ENABLE, MAX_SPEED);
+  analogWrite(LB_ENABLE, MAX_SPEED);
 }
 //ゆっくり360度旋回※度数を指定した旋回はサーボを使わないと無理なので、
 //出力を半分に下げてゆっくり回る方式にしよう。
-void turning_right(){
-  digitalWrite(RA_PHASE,0);
-  digitalWrite(LB_PHASE,0);
-  analogWrite(RA_ENABLE,HALF_SPEED);
-  analogWrite(LB_ENABLE,HALF_SPEED);
+void turning_right() {
+  digitalWrite(RA_PHASE, 0);
+  digitalWrite(LB_PHASE, 0);
+  analogWrite(RA_ENABLE, MIN_SPEED);
+  analogWrite(LB_ENABLE, MIN_SPEED);
 }
-void turning_left(){
-  digitalWrite(RA_PHASE,1);
-  digitalWrite(LB_PHASE,1);
-  analogWrite(RA_ENABLE,HALF_SPEED);
-  analogWrite(LB_ENABLE,HALF_SPEED);
+void turning_left() {
+  digitalWrite(RA_PHASE, 1);
+  digitalWrite(LB_PHASE, 1);
+  analogWrite(RA_ENABLE, MIN_SPEED);
+  analogWrite(LB_ENABLE, MIN_SPEED);
 }
 //停止→後退→旋回(コース復帰動作)while⇒for細切れループ監視に変更
-void comeback()
-{
+void comeback() {
   stop_motor();
   delay(100);
   back_motor();
   delay(300);
   turning_right();
-  for(int i = 0; i < 50; i++)
-  {
+  for (int i = 0; i < 50; i++) {
     read_sensor();
-    if(val_C >= GRAY && (val_R >= GRAY|| val_L >= GRAY)){
+    if (val_C >= GRAY && (val_R >= GRAY || val_L >= GRAY)) {
       delay(20);
       read_sensor();
-      if(val_C >= GRAY && (val_R >= GRAY|| val_L >= GRAY)){
+      if (val_C >= GRAY ) {
         stop_motor();
         delay(100);
         return;
@@ -279,28 +282,26 @@ void comeback()
     delay(10);
   }
   turning_left();
-  for(int i = 0; i < 100; i++)
-  {
-     read_sensor();
-     if(val_C >= GRAY && (val_R >= GRAY|| val_L >= GRAY)){
+  for (int i = 0; i < 100; i++) {
+    read_sensor();
+    if (val_C >= GRAY && (val_R >= GRAY || val_L >= GRAY)) {
       delay(20);
       read_sensor();
-      if(val_C >= GRAY && (val_R >= GRAY|| val_L >= GRAY)){
+      if (val_C >= GRAY ) {
         stop_motor();
         delay(100);
         return;
       }
     }
-   delay(10);
+    delay(10);
   }
   turning_right();
-  for(int i = 0; i < 50; i++)
-  {
+  for (int i = 0; i < 50; i++) {
     read_sensor();
-    if(val_C >= GRAY && (val_R >= GRAY|| val_L >= GRAY)){
+    if (val_C >= GRAY && (val_R >= GRAY || val_L >= GRAY)) {
       delay(20);
       read_sensor();
-      if(val_C >= GRAY && (val_R >= GRAY|| val_L >= GRAY)){
+      if (val_C >= GRAY && (val_R >= GRAY || val_L >= GRAY)) {
         stop_motor();
         delay(100);
         return;
@@ -315,38 +316,38 @@ void comeback()
 //mapping＝対応付ける、割り当てるが元。
 void gradually_right() {
   digitalWrite(RA_PHASE, 0);
-  digitalWrite(LB_PHASE, 1);//モータのどちらか片方を逆転させないと回転方向が一致しない。
+  digitalWrite(LB_PHASE, 1);  //モータのどちらか片方を逆転させないと回転方向が一致しない。
   int r_val = analogRead(R_SENSOR);
-  int speed_up = map(r_val,0,1023,HALF_SPEED,MAX_SPEED);
-  int speed_down = map(r_val,0,1023,HALF_SPEED,51);//反比例させる。
+  int speed_up = map(r_val, 0, 1023, HALF_SPEED, MAX_SPEED);
+  int speed_down = map(r_val, 0, 1023, HALF_SPEED, MIN_SPEED);  //反比例させる。
   analogWrite(RA_ENABLE, speed_down);
   analogWrite(LB_ENABLE, speed_up);
 }
 //左へ修正する関数（左輪を遅く、右輪を速く）
 //※左センサーが黒白境界。黒白境界時シリアル値450を想定
-void gradually_left(){
+void gradually_left() {
   digitalWrite(RA_PHASE, 0);
-  digitalWrite(LB_PHASE, 1);//モータのどちらか片方を逆転させないと回転方向が一致しない。
+  digitalWrite(LB_PHASE, 1);  //モータのどちらか片方を逆転させないと回転方向が一致しない。
   int l_val = analogRead(L_SENSOR);
-  int speed_up = map(l_val,0,1023,HALF_SPEED,MAX_SPEED);
-  int speed_down = map(l_val,0,1023,HALF_SPEED,64);//反比例させる。
+  int speed_up = map(l_val, 0, 1023, HALF_SPEED, MAX_SPEED);
+  int speed_down = map(l_val, 0, 1023, HALF_SPEED, MIN_SPEED);  //反比例させる。
   analogWrite(RA_ENABLE, speed_up);
-  analogWrite(LB_ENABLE, speed_down); 
+  analogWrite(LB_ENABLE, speed_down);
 }
 //右クランク対応関数
-void turn_right90(){
-  motor_forward();//少しだけ前進して、タイヤの回転軸をコーナーに合わせる。
+void turn_right90() {
+  motor_forward();  //少しだけ前進して、タイヤの回転軸をコーナーに合わせる。
   delay(150);
-  turning_right();//右旋回を開始
-  while(analogRead(R_SENSOR) > BLACK){
-  }//ソフトウェアでのループとハードウエアのループは連動していない。
+  turning_right();  //右旋回を開始
+  while (analogRead(R_SENSOR) > BLACK) {
+  }  //ソフトウェアでのループとハードウエアのループは連動していない。
   //マイコンで出力を一度ONにしたら、stopと言うまでONのまま。
-  while(analogRead(R_SENSOR) < WHITE){
+  while (analogRead(R_SENSOR) < WHITE) {
   }
   stop_motor();
 }
 //左クランク対応関数
-void turn_left90(){
+void turn_left90() {
   /*「→＝車体」
  □
 →□//車体前方3マスセンサーと考える。
@@ -371,18 +372,18 @@ void turn_left90(){
    ■■■■■■■↖　
                　 　　　　
   */
-  motor_forward();//少しだけ前進して、タイヤの回転軸をコーナーに合わせる。
+  motor_forward();  //少しだけ前進して、タイヤの回転軸をコーナーに合わせる。
   delay(150);
-  turning_left();//左旋回を開始
-  while(analogRead(L_SENSOR) > BLACK){
-  }//ソフトウェアでのループとハードウエアのループは連動していない。
+  turning_left();  //左旋回を開始
+  while (analogRead(L_SENSOR) > BLACK) {
+  }  //ソフトウェアでのループとハードウエアのループは連動していない。
   //マイコンで出力を一度ONにしたら、stopと言うまでONのまま。ラッチ(latch:保持)と言う仕組み。
-  while(analogRead(L_SENSOR) < WHITE){
+  while (analogRead(L_SENSOR) < WHITE) {
   }
   stop_motor();
 }
 //センサー読み込み機能
-void read_sensor(){
+void read_sensor() {
   val_L = analogRead(L_SENSOR);
   val_C = analogRead(C_SENSOR);
   val_R = analogRead(R_SENSOR);
@@ -411,9 +412,9 @@ void setup() {
   pinMode(RA_ENABLE, OUTPUT);
   pinMode(LB_ENABLE, OUTPUT);
   pinMode(LB_PHASE, OUTPUT);
-  pinMode(L_SENSOR,INPUT);
-  pinMode(C_SENSOR,INPUT);
-  pinMode(R_SENSOR,INPUT);
+  pinMode(L_SENSOR, INPUT);
+  pinMode(C_SENSOR, INPUT);
+  pinMode(R_SENSOR, INPUT);
 }
 // --- 4. メインループ（トップダウンの論理） ---
 void loop() {
@@ -421,21 +422,21 @@ void loop() {
   val_L = analogRead(L_SENSOR);
   val_C = analogRead(C_SENSOR);
   val_R = analogRead(R_SENSOR);
-// /*
+  // /*
   Serial.print("左");
   Serial.print(val_L);
   Serial.print("中");
   Serial.print(val_C);
   Serial.print("右");
   Serial.println(val_R);
-// */
-if (val_L < WHITE  && val_C < WHITE && val_R < WHITE){
+  // */
+  if (val_L < WHITE && val_C < WHITE && val_R < WHITE) {
     delay(20);
-    read_sensor(); // 白白白or黒黒黒コース復帰動作を発動！
-  if (val_L < WHITE  && val_C < WHITE && val_R < WHITE){
-    comeback(); // 白白白or黒黒黒コース復帰動作を発動！
+    read_sensor();  // 白白白or黒黒黒コース復帰動作を発動！
+    if (val_L < WHITE && val_C < WHITE && val_R < WHITE) {
+      comeback();  // 白白白or黒黒黒コース復帰動作を発動！
+    }
   }
-}
 #if 0
 /*if (val_L < WHITE && val_C < WHITE && val_R < WHITE) {
     comeback(); // 白白白コース復帰動作を発動！
@@ -444,7 +445,7 @@ if (val_L < WHITE  && val_C < WHITE && val_R < WHITE){
     comeback(); // 白白白or黒黒黒コース復帰動作を発動！
   }
 */
-#endif  
+#endif
   // 【優先度2】黒黒白左クランクの検知（左と中央が同時に黒）
   /*else if (val_L > BLACK && val_C > BLACK) {
     turn_left90();
