@@ -68,11 +68,13 @@ section{
     line-height: 1.5;
     background-color: blue;
 }
+
+/* ここからheaderの設定 */
 header{
     box-sizing: border-box;
     width: 100%;
     background-color: #ffffff;
-    height:var(--header-hegiht)
+    height:var(--header-hegiht);
 }
 header .wrapper{
     display: flex;
@@ -81,9 +83,11 @@ header .wrapper{
     height: 100%;
     width: 100%;
 }
-header h1{
+header h1 a{
+    font-size: 70%;
     background-color: #383e45;
     color: #ffffff;
+    padding: 5% 20%;
 }
 header nav{
     flex-grow: 0;
@@ -92,6 +96,11 @@ header nav ul{
     display: flex;
     column-gap: 20px;
 }
+header nav ul a{
+    font-size: 70%;
+}
+
+/* ここからmainコンテンツの設定 */
 #About .flex-container{
     display: flex;
     justify-content: center;
