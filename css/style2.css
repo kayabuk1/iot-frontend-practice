@@ -30,6 +30,7 @@ C言語におけるプリプロセッサ命令みたいなもの */
     サイズ計算式content-box:表示幅 = width +padding +border
                 border-box:width ={(conntent-border-padding) +padding +border)}
                 もしborder:10px;としたら中身が10px縮む*/
+    outline: 1px solid red;
 }
 /* ルート要素（一番外側で全体を囲っているhtml要素＝宇宙）に対しての設定 */
 html{
