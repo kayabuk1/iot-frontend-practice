@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        *{
+            background-color: rgba(0, 0, 255, 0.1); /* 半透明の青 */
+            background-clip: content-box;
+            outline: 1px outset red;
+        }
+        section{
+            margin: 20px auto;
+            padding: 20px;
+            /* outline: 1px dashed red; */
+            /* background-color:black; */
+        }
+        h1{
+            margin: 0.2rem 0;
+            font-size: 1.5rem;
+            /* color:blue; */
+        }
+        .grid-container-step1{
+            display: grid;
+        }
+        .item{
+            /* background-color: whitesmoke; */
+            /* outline: 1px solid red; */
+            /* box-shadow: inset 0 0 0 2px red; */
+        }
+    </style>
+
+</head>
+<body>
+    <section>
+        <h1></h1>
+        <div class="grid-container-step1">
+            <div class="item">1</div>
+            <div class="item">2</div>
+            <div class="item">3</div>
+            <div class="item">4</div>
+        </div>
+    </section>
+</body>
+</html>
