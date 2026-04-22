@@ -264,6 +264,100 @@
                      /* コンテナ内における行の配置設定：行の間に均等な余白を設ける */
                      align-content: space-between;
             }
+            .container-step11{
+                display: grid;
+                /* ｸﾞﾘｯﾄﾞｺﾝﾃﾅに設定（親要素） */
+                    grid-template-columns: repeat(2,1fr);
+                    /* 可変の列を3つ作る。fr=fraction = 比率・分数、分け前の省略形
+                        1fr:1fr:1fr;で1:1:1になる。 */
+                    /* 行の設定 */
+                    grid-template-rows: 150px;
+                    /* grid-template-rows: 80px 80px; */
+                    /* 例：80pxの行を2つ作る */
+                gap: 15px;/*行と列の隙間を15pxにする*/
+
+                /* 暗黙的グリッドに対する設定 */
+                /* 暗黙的グリッドを行方向に追加して行け！ */
+                grid-auto-flow: row;
+                /* 暗黙的グリッドの行サイズを設定：1つ目100px、2つ目50px */
+                grid-auto-rows: 100px 50px;
+            }
+            .item-a{
+                grid-column: 1/3;
+                /* grid-row: 1/3; */
+            }
+            .item-d{
+                grid-row: 1/3;
+                /* grid-column: 3; */
+                /* grid-row: 1 / 3; は、
+                grid-row-start: 1; と grid-row-end: 3; 
+                という2つの異なるプロパティを1行にまとめたショートハンド */
+
+                /* gird-rowとgrid-columnが競合した場合はgird-rowが
+                優先されて配置される。 
+               * 優先度「高」：行と列の両方が指定されているアイテム 
+                （今回は該当者なし）
+               * 優先度「中」：行（Row）だけが指定されているアイテム 
+                ここで アイテムD が呼ばれます。
+                Dは「1〜2行目を使いたい」と主張しているため、
+                ブラウザは一番左の空いている列、つまり「1列目の1行目〜2行目」 
+                にDをバチッと固定します。
+               * 優先度「低」：列（Column）だけが指定されているアイテム、
+                および指定なしのアイテム ようやくここで、HTMLの順番通りに
+                未配置のアイテム（A、B、C）が呼ばれます。
+                アイテムA: 「1〜2列目を使いたい」と主張しますが、
+                すでにDが1列目の1〜2行目を占有してしまっています。
+                AはDと重なることはできないため、空いている行を探し、
+                結果として3行目の1〜2列目に押し出されてしまいます。
+                アイテムB・C: 残った空きマスに順番に流し込まれます。*/
+            }
+            .container-step12{
+                display: grid;
+                /* ｸﾞﾘｯﾄﾞｺﾝﾃﾅに設定（親要素） */
+                    grid-template-columns: 150px;
+                    /* 可変の列を3つ作る。fr=fraction = 比率・分数、分け前の省略形
+                        1fr:1fr:1fr;で1:1:1になる。 */
+                    /* 行の設定 */
+                    grid-template-rows: repeat(2,1fr);
+                    /* grid-template-rows: 80px 80px; */
+                    /* 例：80pxの行を2つ作る */
+                gap: 15px;/*行と列の隙間を15pxにする*/
+
+                /* 暗黙的グリッドに対する設定 */
+                /* 暗黙的グリッドを行方向に追加して行け！ */
+                grid-auto-flow: column;
+                /* 暗黙的グリッドの行サイズを設定：1つ目100px、2つ目50px */
+                grid-auto-columns: 100px 50px;
+            }
+            .item-a{
+                grid-column: 1/3;
+                /* grid-row: 1/3; */
+            }
+            .item-d{
+                grid-row: 1/3;
+                /* grid-column: 3; */
+                /* grid-row: 1 / 3; は、
+                grid-row-start: 1; と grid-row-end: 3; 
+                という2つの異なるプロパティを1行にまとめたショートハンド */
+
+                /* gird-rowとgrid-columnが競合した場合はgird-rowが
+                優先されて配置される。 
+               * 優先度「高」：行と列の両方が指定されているアイテム 
+                （今回は該当者なし）
+               * 優先度「中」：行（Row）だけが指定されているアイテム 
+                ここで アイテムD が呼ばれます。
+                Dは「1〜2行目を使いたい」と主張しているため、
+                ブラウザは一番左の空いている列、つまり「1列目の1行目〜2行目」 
+                にDをバチッと固定します。
+               * 優先度「低」：列（Column）だけが指定されているアイテム、
+                および指定なしのアイテム ようやくここで、HTMLの順番通りに
+                未配置のアイテム（A、B、C）が呼ばれます。
+                アイテムA: 「1〜2列目を使いたい」と主張しますが、
+                すでにDが1列目の1〜2行目を占有してしまっています。
+                AはDと重なることはできないため、空いている行を探し、
+                結果として3行目の1〜2列目に押し出されてしまいます。
+                アイテムB・C: 残った空きマスに順番に流し込まれます。*/
+            }
         </style>
 
     </head>
@@ -368,6 +462,36 @@
                 <div class="item ">2</div>
                 <div class="item ">3</div>
                 <div class="item ">4</div>
+            </div>
+        </section>
+        <section>
+            <h1>Step11:明示的グリッドと暗黙的グリッドの組み合わせ（行方向）</h1>
+            <div class="container-step11">
+                <div class="item ">1</div>
+                <div class="item ">2</div>
+                <div class="item ">3</div>
+                <div class="item ">4</div>
+                <div class="item ">5</div>
+                <div class="item ">6</div>
+                <div class="item ">7</div>
+                <div class="item ">8</div>
+                <div class="item ">9</div>
+                <div class="item ">10</div>
+            </div>
+        </section>
+        <section>
+            <h1>Step12:明示的グリッドと暗黙的グリッドの組み合わせ（列方向）</h1>
+            <div class="container-step12">
+                <div class="item ">1</div>
+                <div class="item ">2</div>
+                <div class="item ">3</div>
+                <div class="item ">4</div>
+                <div class="item ">5</div>
+                <div class="item ">6</div>
+                <div class="item ">7</div>
+                <div class="item ">8</div>
+                <div class="item ">9</div>
+                <div class="item ">10</div>
             </div>
         </section>
     </body>
