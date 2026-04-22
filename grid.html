@@ -15,7 +15,7 @@
 
         <style>
             *{ 
-            background-color: rgba(0, 0, 255, 0.1); /* 半透明の青 */
+            background-color: rgba(0, 128, 255, 0.1); /* 半透明の青 */
             background-clip: content-box;
             outline: 1px outset red;
 
@@ -224,6 +224,46 @@
                     auto-fitに変える */
                     gap: 15px;
             }
+             .container-step9{
+                display: grid;
+                /* ｸﾞﾘｯﾄﾞｺﾝﾃﾅに設定（親要素） */
+                /* ↓から格子状に設定するプロパティ。列と行で分ける必要がある */
+                    /* 列の設定 */
+                    grid-template-columns: 
+                    repeat(auto-fill,minmax(200px,1fr));
+                    /* 列数行数を下辺にする場合はrepeat()の引数を
+                    auto-fitに変える */
+                    gap: 15px;
+            }
+            .container-step10{
+                /* コンテナの高さを広げる */
+                height: 400px;
+                display: grid;
+                /* ｸﾞﾘｯﾄﾞｺﾝﾃﾅに設定（親要素） */
+                /* ↓から格子状に設定するプロパティ。列と行で分ける必要がある */
+                    /* 列の設定 */
+                    grid-template-columns: repeat(2,200px);
+                    /* 作りたい列数分、各列の大きさを指定する。
+                        例：100pxの列を3つ分など。子要素が4つある場合は
+                        折り返されて2行目先頭に並ぶ。 */
+                    /* 行の設定 */
+                    grid-template-rows: repeat(2,150px);
+                    /* 例：80pxの行を2つ作る */
+                    gap: 15px;
+
+                    justify-items:stretch;
+                    align-items:end;
+                    /* デフォルト状態（何も指定しない場合）： 
+                    Gridのセル内の配置ルールは、デフォルトで 
+                    stretch（引き伸ばす） に設定されています。
+                    そのため、アイテムは「与えられた
+                     200px × 150px のマス目いっぱいにまで自分を拡張しろ！」
+                     と動き、マス目と同じ大きさの箱になります。 */
+                     /* コンテナ内における列の配置設定 */
+                     justify-content: center;
+                     /* コンテナ内における行の配置設定：行の間に均等な余白を設ける */
+                     align-content: space-between;
+            }
         </style>
 
     </head>
@@ -302,8 +342,28 @@
             </div>
         </section>
         <section>
-            <h1>Step8:画面サイズに応じて柔軟にグリッドセルを組み替える</h1>
+            <h1>Step8:画面サイズに応じて柔軟にグリッドセルを組み替える
+                （空白セルを折り畳む）</h1>
             <div class="container-step8">
+                <div class="item ">1</div>
+                <div class="item ">2</div>
+                <div class="item ">3</div>
+                <div class="item ">4</div>
+            </div>
+        </section>
+        <section>
+            <h1>Step9:画面サイズに応じて柔軟にグリッドセルを組み替える
+                （空白セルを折り畳まない）</h1>
+            <div class="container-step9">
+                <div class="item ">1</div>
+                <div class="item ">2</div>
+                <div class="item ">3</div>
+                <div class="item ">4</div>
+            </div>
+        </section>
+        <section>
+            <h1>Step10:グリッドトラックを整列する</h1>
+            <div class="container-step10">
                 <div class="item ">1</div>
                 <div class="item ">2</div>
                 <div class="item ">3</div>
