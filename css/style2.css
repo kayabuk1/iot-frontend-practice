@@ -57,15 +57,15 @@ body{
     優先順位に従って表示させるための「フォント・フォールバック」リスト */
         "helvetica Neue,"      ,
         "Arial",
-         /* 欧文フォントmac/win：alphabetと数字専用 */,
+         /* 欧文フォントmac/win：alphabetと数字専用 */
         "Hiragino Kaku Gothic ProN",
         "Hiragino Sans",
-        /* Apple標準和文フォント、デザイナーさんに好まれる。旧/新OSの順 */,
+        /* Apple標準和文フォント、デザイナーさんに好まれる。旧/新OSの順 */
         "Noto Sans JP",
         /* 汎用/Webフォント。GoogleとAdobeが共同開発した、どの環境も,
-        同じように見えることを目指したフォント。Noto=No more Tofu□の略 */,
+        同じように見えることを目指したフォント。Noto=No more Tofu□の略 */
         "Meiryo",
-        /* Windowsf準和文フォント。文字が明瞭に見える様にの意味でmeiryo */,
+        /* Windowsf準和文フォント。文字が明瞭に見える様にの意味でmeiryo */
         "sans-serif",
         /* 保険。総称ゴシックフォント。ゴシックなら何でもOK
         sansはフランス語で無しwithoutの意味、serifは飾り。なので無装飾フォント。 */
@@ -265,7 +265,7 @@ header nav ul a{
     column-gap: 30px;
 }
 #aboutMe .flex-contents{
-    text-align: left;
+    justify-content: center;
 }
 #aboutMe img{
     width: 100px;
@@ -282,6 +282,19 @@ header nav ul a{
    
     /* デバイスが変わった時もきちんと表示される様に
     pxではなくて、%で指定してあげた方がよい。 */
+}
+#aboutMe dl{
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: 1em;
+}
+#aboutMe dt.content-title{
+    text-align-last:justify;
+}
+#aboutMe dd{
+    text-align: left;
+    justify-content: center;
+    margin: 10px 0;
 }
 /* -----------------------------------------
 ここからスキルリストのflexコンテンツに関する設定
@@ -389,4 +402,23 @@ footer address{
     display: inline-block;
     width: max-content;
     font-style: normal;
+}
+footer address dl{
+    display:grid;
+    grid-template-columns: max-content max-content;
+    column-gap:1em;
+}
+footer address dt{
+    text-align-last:justify ;
+}
+footer address dd{
+    text-align: left;
+}
+footer small {
+    display: flex;
+    padding-top: 1em;
+    justify-content: center;
+}
+footer small p{
+    padding-top: 1em;
 }
