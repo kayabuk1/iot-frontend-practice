@@ -154,6 +154,7 @@ aリンクは通常in-line要素なので、それをブロック要素に変更
     /* initialは初期値＝opacity:1;なのでサイトタイトルは透けない。
     a:hover{}で設定した値を詳細度高くして上書き。 */
 }
+
 /* section class="section-title"と設定したものの設定。
 ユーザにここから新しい話題（section）が始まりますよ～！と
 分かりやすくするための設定。 */
@@ -422,3 +423,27 @@ footer small {
 footer small p{
     padding-top: 1em;
 }
+/* -------------------------
+ブレイクポイント（800px以下）
+----------------------------*/
+@media screen and (width <= 800px){
+    .section-title{
+        font-size: 1.6rem;    /*フォントサイズを小さくする画面幅が小さい為改行されないようにする*/
+    }
+    
+    #about .container{
+        flex-direction: row;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
