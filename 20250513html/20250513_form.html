@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            outline: 1px solid red;
+            background-color: rgba(0, 128, 255, 0.1); /* 半透明の青 */
+            background-clip: content-box;
+        }
+    </style>
+</head>
+
+<body>
+    <section>
+        <h1>ユーザ登録フォーム</h1>
+        <form action="http://192.168.11.6/~iot00/form.php" method="get" >
+            <p>
+                <label for="name">名前</label>
+                <input type="text" name="name" id="name"
+                 value="" required placeholder="必須入力だよ">
+            </p>
+            <p>
+                <label for="password">パスワード</label>
+                <input type="password" name="password" id="password"
+                 required placeholder="必須">
+            </p>
+            <p>
+                <label for="email">メールアドレス</label>
+                <input type="email" name="email" id="email">
+            </p>
+            <p>
+                <input type="radio" name="gender" id="male" value="male"
+                 checked>
+                <label for="male">男性</label>
+                <input type="radio" name="gender" id="female" value="female">
+                <label for="female">女性</label>
+                <input type="radio" name="gender" id="non">
+                <label for="non">分からない</label>
+            </p>
+            <p>
+                <input type="checkbox" name="agreement" id="agreement"
+                 required>
+                <label for="agreement">利用規約に同意する</label>
+            </p>
+            <p><button>ユーザ登録</button></p>
+        </form>
+        <h1>商品お問い合わせフォーム</h1>
+        <form action="http://192.168.11.6/~iot00/form.php" method="POST">
+            <p>
+                <label for="about">お問い合わせの種類</label>
+                <select name="about" id="about" required>
+                    <option value="">選択してください</option>
+                    <option value="product" selected>商品について</option>
+                    <option value="delivery">配送について</option>
+                </select>
+            </p>
+            <p>
+                <label for="detail">お問い合わせ内容</label>
+                <textarea name="detail" id="detail" 
+                required placeholder="必須入力">こんな感じで入力
+したらいんじゃない</textarea>
+            </p>
+            <p><button>送信</button></p>
+        </form>
+    </section>
+</body>
+</html>
