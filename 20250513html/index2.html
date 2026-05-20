@@ -82,6 +82,12 @@
                共通の予測動作なのでh1＝タイトル級をクリックしたらbodyの先頭に戻る動作にする。 -->
                <!-- タグは予約語なのでコンパイラが大文字小文字無視するが、idやclassは、
                ユーザ定義変数名なので大文字小文字区別されて認識される。 -->
+               <input type="checkbox" id="menu-button" class="menu-button">
+               <label for="menu-button" class="menu-icon">
+                    <span class="line"></span>
+                    <!-- ハンバーガメニューの線として使うためにspanをいれた。
+                     汎用コンテナ要素＝つまり文章構造として何も意味を持ってない -->
+               </label>
                <nav>
                <!-- HTML5で導入された代表的なセマンティックなタグの1つ。昔はなんでもかんでも
                 divで囲っていた。ここはサイトの案内図と明示。     -->
