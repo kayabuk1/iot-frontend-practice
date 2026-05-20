@@ -83,7 +83,8 @@ a{
 /* 「:」はCSSの文法で疑似クラスを表す。疑似クラスはHTMLに実体がないのに
 条件に応じて実体が生成されて、さもHTMLに記述されているかのように振舞うことから。
 他良く使う疑似クラス、
-〇:avtiveクリックされた瞬間、 
+〇:avtiveクリックされた瞬間、
+〇:checkedチェックが入った時だけ 
 〇:foucus選択されている時
 〇:nth-child(n)親要素のn番目の子要素を狙い撃ち※カウントは1から
 〇:first-child/last-chils最初/最後の要素狙い撃ち
@@ -213,6 +214,23 @@ header{
     background-color: #ffffff;
     border-bottom: 1px solid #383e45;
 }
+/* --------------------------
+ハンバーガーリストを作る為の設定
+------------------------------
+labelに設定したclass="menu-icon"
+inputに設定したclass="menu-button"に基づいて「非表示」する
+方法は2つ
+display: none;を設定する方法と
+visibility: hidden; (デフォはvisible見える)を設定する方法がある。 
+display: none;は完全消去
+visibility; hidden;は不透明化＝その要素の為に確保された場所は残る。*/
+.menu-button{
+    display: none;
+}
+.menu-icon{
+    display: none;
+}
+
 header .wrapper{
 /* header div.wrapperと書くとタグを将来変更したときに、CSSまで直さないと
 行けなくなる。タグ＝データ型の様なもの。型に依存しない設定の方が変更に強い。
@@ -442,6 +460,131 @@ footer small p{
     #about .container{
         flex-direction: column; /*列方向に整列（縦長の画面に合わせてアイテムを1列に表示）*/
         row-gap: 30px;
+    }
+    /* サイトタイトルの設定 */
+    /* ↓ヘッダーの設定で隠れてしまったサイトタイトルがクリック出来る様にする */
+    .site-title{
+        z-index: 1; /*position:absoluteで絶対配置したnavより前面に
+        表示させて、サイトタイトルがクリック出来る様にする。*/
+    }
+    /*---------------------------------
+    ヘッダーの設定
+    -----------------------------------*/
+    header nav ul{
+        /* flexコンテナを設定 */
+        flex-direction: column;
+        column-gap: 0;/*20pxだったのでそれを0にする*/
+        /*↓ul,navなど要素を重ねて画面一杯に広がるようにする*/
+        position:absolute;/*
+        position:static以外が設定されている一番近い祖先要素
+        が基準になる→ header position:fixed→headerが基準になる*/
+        top:0;
+        left:0;
+        right: 0;
+        /* ↓見にくいので背景色を設定 */
+        background-color: #fffe;
+        /* ↓ヘッダーがnavで隠れないように余白を設ける */
+        padding-top: var(--header-height, 60px);
+
+        /* 座標変換 transformプロパティでクリック時に位置を変化させる
+        ※positionプロパティを触って崩したくないのでtransformを使う */
+        transform: translateY(-100%);
+    }
+    /* ↓マウスが上に乗ったときに項目色が反転するようにする。
+    liではなく a 要素に指定することで文字以外クリックしたときに移動出来る様にする */
+    header nav a{
+        /* ↓アンカーはデフォはインライン要素なのでこのままでは横一杯に広がらない
+        なので、display:blockで無理やりブロック要素に変更する。 */
+        display: block;
+        /* 項目の文字周辺のクリック出来る領域を広げたい＝paddingを増やす */
+        padding: 1em;
+    }
+    header nav a:hover{ /*色反転設定*/
+        color: #fff;
+        background-color:#383e45 ;
+        opacity: initial;
+    }
+    /*---------------------------------
+    ↓ハンバーガーリストを作る設定
+    -----------------------------------*/
+    .menu-icon{
+        /*↓ spanの親要素であるlabel.menu-iconをdisplay:flex; に設定する
+        ことで、直下の子要素であるspanの位置を自由に配置することが出来る*/
+        /* display: block;↓に変更 */
+        display: flex;
+        /* ↓設定するときに要素が0×0では設定しにくいのでとりあえずborderを引く */
+        /* border: 2px solid blue; flexにした段階で消去
+         ↓ 直下の子要素spanの配置を設定する*/
+         justify-content: center; /*アイコンの中心線を横中央に整列*/
+         align-items: center; /*アイコンの中心線を縦中央に整列*/
+        
+        z-index: 1; /*navの後ろの隠れてぼやけるのでz-indexも指定*/
+        /* ↓位置を右上にしてやる */
+        position: absolute;
+        /* positionを設定した時だけ,top,left,right,bottomの設定できるので、
+        ↓こんなにシンプルなプロパティ名になっている。特殊なプロパティ */
+         top: 10px;
+         right: 10px;
+         bottom: 10px; /*topとbottomを固定したことによって上下に引き伸ばされる
+        位置指定は画面サイズが変わった時も同じ位置に置きたい＝px指定*/
+        /* ↓ハンバーガーリストを綺麗な正方形にする */
+        aspect-ratio: 1/1;
+        /*　↓マウスカーソルが乗ったときにだけ変化させたい＝cursorプロパティ*/
+        cursor: pointer;
+    }
+    /* ↓ハンバーガーメニューの三本線を実際に表現する
+    span要素に設定したlineクラスを使う。
+    一本しかないが⇒とりあえず中心の一本を作成する。 */
+    header .menu-icon .line{
+        /* ↓ span要素をボックス設定（横長のブロック要素に変更して、
+        背景色を設定することで線を表現）※spanはデフォはインライン要素 */
+        display: block;
+        width: 30px;
+        height: 2px;
+        background-color: #383e45;
+        /*↓ 疑似要素（::after,::befor）を
+        中心線を基準に配置するためposition:relative;を設定する*/
+        position: relative;
+    }
+    /* ↓　ハンバーガーメニューアイコンの上下の線を
+    「疑似要素」::afterと::beforeを
+    使って、インライン要素をhtmlで空になっているspan></span>の間に要素を
+    挿入する。※contentプロパティとセットで使う。
+    contentは挿入したい中身を設定するプロパティ 
+    ※CSSで要素を挿入するときは、::before,::afterの最大2つしか表示できない*/
+    header .menu-icon .line::before,
+    header .menu-icon .line::after{
+        content: "";
+        display: block;
+        width: 30px;
+        height: 2px;
+        background-color: #383e45;
+        /* ↓ 中心線spanを基準に絶対配置する */
+        position: absolute;
+    }
+    header .menu-icon .line::before{
+        /* y軸は下方向が正になる */
+        top: -10px;
+     }
+    header .menu-icon .line::after{
+         bottom: -10px;
+    }
+
+    /*---------------------------------
+    ↓ 後続兄弟結合子を使い、
+    疑似クラス以外の対象に変化を起こす
+    -----------------------------------*/
+    header .menu-button:checked ~ nav ul{
+    /* ↑ input要素(checbox).menu-buttonがチェックされた時に、
+    同じ階層のnavの直下のul要素を指定したいので、
+    :checked ~ nav ulという書き方になる
+    チェックボックス事態は非表示になっているが、そのラベルをクリックすることで
+    チェックボックスをON/OFF切り替える事ができる。 */
+    transform: none; /*none; を設定することで設定した座標遷移を取り消せる。*/
+    }
+    /* ↓ハンバーガー中心線の変化の設定 */
+    header .menu-button:checked ~ .menu-icon .line{
+        opacity: 0;
     }
 
     /*---------------------------------
