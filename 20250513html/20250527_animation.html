@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,
+     initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        /* ↓ @でアニメーションの動きを決める。関数別で作って参照する感じ？
+        アニメーションに使えるプロパティがまだ整理出来ていない。ごっちゃに
+        なっているな。animation:で使えるものと、@keyframesの中で使える
+        プロパティがごっちゃになっている
+        @keyframes
+            中で使えるプロパティ: transform（回転、拡大、移動）、
+            background-color、opacity など、**「見た目の変化（値）」**に
+            関するプロパティを書きます。
+        animation ＝ 【関数呼び出し（実行命令）】
+            役割: 呼び出したい設計図の名前を指定し、
+            「何秒かけて、何回、どんなペースで再生するか」という
+            再生環境を指示します
+            C言語的イメージ: btn_animation(2s, ease, 2); のように、
+            引数を渡して関数を実行（コール）している状態です。
+            中で使えるプロパティ: 時間や回数といった**
+            「再生のルール」**に関するプロパティだけを書きます。 */
+        @keyframes btn-animation{
+            0%{
+                transform: scale(1) rotate(0);
+            }
+            50%{
+                transform: scale(1) rotate(-360deg);
+            }
+            100%{
+                /* ↓rotate-360degを省くとrotate(0)のデフォルト値を
+                指定したのと同じになって逆回転しながら小さくなってしまう。 */
+                transform: scale(0) rotate(-360deg);
+            }
+        }
+        @keyframes move{
+            from{
+                left: 0;
+            }
+            to{/*↓画面の横幅はpx指定でなく％なので、移動も%指定にして
+                やる必要がある。
+                100％にすると、ボールが100px分、はみ出してしまうので
+                ―100pxを設定してやる必要がある。
+                ↑これはボールの座標の基準が左上だから？？
+                calc(x‐y)ではエラーになる。
+                calc(x - y)にしないとダメ。
+                これはweb系のプロパティがケバブケースで繋がっている
+                ことが多いから？
+                ⇒マイナスの数値（-100px や -10deg など）
+                もし calc(100%-100px) とスペースを空けずに書いてしまうと、
+                ブラウザの解析エンジンはこれを引き算の式として認識できず、
+                **「『100%』という値と、『-100px』というマイナスの値が2つ
+                並んでいるな（文法エラー）」**と誤認して計算を放棄してしまう*/
+                left: calc(100% - 100px);
+                /* ★もしプロパティにrightを設定すると？
+                ⇒プロパティが異なるとアニメーションで繋いでくれなく
+                なってしまうので、瞬間移動をする。 */
+            }
+        }
+        @keyframes bounce {
+            from{
+                translate: 0 0;
+            }
+            90%{
+                translate: 0 300px;
+                scale: 1 1;
+            }
+            to{
+                translate: 0 320px;
+                /* ↓下についたときにボールが潰れて見える様にする。
+                spect-raitoプロパティでは変化できなかったのはなぜ？
+                ただ、潰れた分下枠線に付かなくなったので、その分を
+                translateに反映させる。(100-100*0.6)/2=20px+300=320px
+                aspect-ratio（縦横比）というプロパティは、
+                **「幅（width）か高さ（height）のどちらかが auto（未定）
+                である場合」**にのみ、もう一方の長さから逆算して比率を合わせる
+                という機能を持っています。 両方が 100px と明確に指定されている
+                状態では、ブラウザは「縦横100pxの絶対的な固定命令が優先だ」と判断し、
+                aspect-ratio の命令を無視してしまうのです。 */
+                scale: 1.4 0.6;
+            }          
+        }
+        button{
+            font-size: 2rem;/*少しデフォルトだとボタンが小さいので2倍に*/
+            /* ↓作ったアニメーションを適用しないと動かない 
+            forwardsを追加するとアニメーション後の変化が維持される。*/
+            animation: btn-animation 2s ease  2  forwards 2s;
+            /* animation: 
+                name 
+                duration (必須): アニメーション1回分の「再生時間」です
+                timing-function 、変化のペース（加速・減速のカーブ）です
+                delay 
+                iteration-count 
+                direction : 再生方向です。一回終わった後に「逆再生」で戻る
+                    （alternate）などの指定ができます
+                fill-mode;  終わった後の状態です。デフォルトでは元の姿
+                    （0%の状態）に戻りますが、forwards を指定すると、
+                    最後（100%）の状態をキープして止まります。
+                    なぜforwardsにそんな意味があるのだろうか？
+                    ⇒時間軸における『前方（未来・終了地点）』」**を
+                    意味している*/
+        }
+        .field{
+            border: 1px solid black;
+            height: 400px;
+            /* ↓ballが跳ねる基準にする為、div.filedにrelativeを
+            設定。 */
+            position: relative;
+        }
+        .ball{
+            display: block;
+            width: 100px;
+            height: 100px;
+            border: 1px solid green;
+            background-color: yellow;
+            box-sizing: border-box;
+            border-radius: 50%;
+            /* filedを基準に変化させるのでこちらにはabsoluteを設定 */
+            position: absolute;
+            /* ↓alternateは再生、逆再生を交互にしてくれる意味。
+            animationを複数適用させたい場合は , で区切って指定する。
+            2回animetionと書くと上書きされてしまう。
+            timing-functionをease-inにすることで、最初上でゆっくり、
+            最後下で早くでバウンドしている動きに見える様になる。
+            ※altenateを指定した場合は、ease-in等変化の仕方も逆再生になる
+             */
+            animation: 
+                /* ↓var()関数はカスタムプロパティ（ユーザ変数）を
+                参照する為の関数。 
+                ただこのままでは、片方のチェックボックスが外れただけで、
+                どちらの動きも止まってしまうとのこと。
+                それはなぜ？
+                片方のチェックが外れた時、裏側で何が起きるか？】
+                例えば「バウンド」のチェックを外すと、--play-bounce 
+                という変数が未定義（空っぽ）になります。
+                すると、ブラウザは「var(--play-bounce) の中身がないぞ！
+                文法エラー（無効な値）だ！」と判定します。
+                C言語のコンパイルエラーと同じように、
+                CSSでは**「1行（1つのプロパティ宣言）の中に1つでも
+                致命的なエラーが含まれていると、そのプロパティ全体
+                （行ごと）を無効化（破棄）して初期値に戻す」**
+                という絶対ルールがあります。
+                つまり、move 側は正常に値が入っていても、
+                カンマ（,）で繋がれた同じ animation プロパティ内に
+                無効な var() が存在した瞬間、
+                「この animation の設定は全部チャラだ！」
+                と道連れにされてしまうのです。*/
+                move 4s linear infinite 
+                    alternate var(--play-move, paused),
+                bounce 0.6s ease-in infinite 
+                    alternate var(--play-bounce, paused);
+        }
+        /* チェックボックスでアニメーションON/OFF出来る様にする。
+        #bouce:checked ~ .ball{}では駄目？な理由は？
+        . なぜ #bounce:checked ~ .ball では駄目なのか？
+        結論から言うと、**「.ball は #bounce と同じ階層（兄弟）には
+        いないから。
+        A ~ B は、「Aと同じ親を持つ（同じ階層にいる）B」しか探せない。 */
+        #bounce:checked ~ .field .ball{
+        /* ↓カスタムプロパティを使い、バウンドチェックボックスに
+        チェックがされた時に、アニメーションが再生？されるようにする */
+            --play-bounce: running;
+        }
+        #move:checked ~ .field .ball{
+            --play-move: running;
+        }
+    </style>
+</head>
+<body>
+    <button>ボタン</button>
+    <section>
+        <!-- 最後のchekedどんな意味だっけ？なぜnameとid同じ名前を2つも
+         振らないといけないのだっけ？
+         ⇒最初からチェックボックスにチェックを入れた状態（ON）にしておく」
+         **ための属性 
+         ① id の役割 ＝ 「ポインタの番地（ラベルとの紐付け）」
+        id は、HTMLの世界で要素を特定するための「一意の住所」です。
+        今回一番重要なのは、隣にある <label for="bounce"> と
+        紐付けるためです。ラベルの for 属性は、「id が bounce の
+        要素をクリックしたことにしろ」というポインタのような役割を
+        持っています。
+        これがあるおかげで、小さな四角いチェックボックスではなく、
+        「バウンド」という文字をクリックしてもチェックの
+        ON/OFFが切り替わります。
+        ② name の役割 ＝ 「サーバーに送る時の変数名」
+        name は、お問い合わせフォームなどで**「入力されたデータを
+        サーバー（PHPなど）に送信する際のキー（変数名）」**になります。
+        「チェックボックスがONになっていますよ」というデータをサーバー
+        に送る時、「bounce という名前のデータがONです」と
+        伝えるためのラベルです。-->
+        <input type="checkbox" name="bounce" id="bounce" checked>
+        <label for="bounce">バウンド</label>
+        <input type="checkbox" name="move" id="move" checked>
+        <label for="move">移動</label>
+        <div class="field"><span class="ball"></span></div>
+    </section>
+</body>
+</html>
