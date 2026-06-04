@@ -1,0 +1,325 @@
+@charset "utf-8";
+
+/* グローバル設定 */
+:root {
+    /* :?rootも疑似クラス？ */
+    /* カスタムプロパティ設定（JSから動的に上書きされる） */
+    --grid-size: 3;                 /* パズルの1辺の分割数 */
+    --piece-move-duration: 100ms;   /* ピース移動のアニメーション時間 */
+
+    font-size: 12px;
+}
+
+/* デフォルトスタイルのリセット設定 */
+* {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    box-sizing: border-box;
+    outline: 1px solid red;
+}
+
+/* 画面全体のスタイル設定（メインカードを常に画面中央に配置） */
+body {
+    background-color: #f0f2f5;
+    padding: 10px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+/* メインカードの設定 */
+.game-card {
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+/* 部品の縦配置の設定（等間隔に整列） */
+.space-y {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* ボタンの設定 */
+button {
+    width: 100%;
+    padding: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+}
+
+/* メインボタンの設定 */
+.btn-primary {
+    background-color: #4f46e5;
+    color: #ffffff;
+}
+
+.btn-primary:enabled:hover {
+    background-color: #3b31c4;
+}
+
+/* サブボタンの設定 */
+.btn-secondary {
+    background-color: #555555;
+    color: #ffffff;
+}
+
+.btn-secondary:enabled:hover {
+    background-color: #333333;
+}
+
+/* ボタンの横配置の設定 */
+.btn-group {
+    display: flex;
+    gap: 6px;
+}
+
+/* 非活性ボタンの設定（JSから動的にボタンを非活性にした場合に適用される） */
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 非表示要素の設定（JSから動的に表示／非表示を切り替えるために使用） */
+.hidden {
+    display: none;
+}
+
+/*******************************
+ * タイトルセクションの設定
+ *******************************/
+.title-section {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.title-section h1 {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.title-section p {
+    color: #666666;
+    margin-top: 4px;
+}
+
+/*******************************
+ * 設定エリアの設定
+ *******************************/
+ /* フォームグループの設定 */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-group label {
+    font-weight: bold;
+}
+
+/* プルダウンの設定 */
+select {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1.2rem;
+}
+
+/* ファイル選択ボタンの設定（標準UIは非表示にしてラベル経由でアクセスさせる） */
+#image-file {
+    display: none;
+}
+
+/* ファイル選択ボタンのラベルの設定（ドラッグ＆ドロップゾーンに適したスタイルにする） */
+#image-file-lbl {
+    font-size: 1rem;
+    font-weight: normal;
+    text-align: center;
+    color: #4f46e5;
+    cursor: pointer;
+    /* ドラッグ領域が押せるのを示す為にﾎﾟｲﾝﾀに変えている。
+    また:hoverでカーソルを合わせた時に背景色を濃くしている。 */
+
+    border: 2px dashed #b0b7ff;
+    border-radius: 5px;
+    background-color: #f0f7ff;
+    padding: 30px 0;
+}
+
+/* ドラッグ＆ドロップゾーンのホバー時、ドラッグ中の設定 */
+#image-file-lbl:hover,
+#image-file-lbl.dragging {
+    background-color: #e0e7ff;
+}
+/* JavaScriptで、動的にクラス.draggingを生成する様に記述するとのこと。
+画像ファイルを上にドラッグした時はhoverではないとのこと。 */
+
+/*******************************
+ * ゲームエリアの設定
+ *******************************/
+/* ステータスバーの設定 */
+.status-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9f9f9;
+    border: 1px solid #dddddd;
+    padding: 0.7rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+/* ステータス表示の設定（ピースシャッフル中にJSから動的に適用される） */
+.status-shuffling {
+    color: #ff9900;
+}
+
+/* ステータス表示の設定（ゲームプレイ中にJSから動的に適用される） */
+/* 画面の表示を動的に変えたい場合は、変えたい要素にクラス名を付けてやること
+で変えることが標準的な手法とのこと。ただし文字はJavaScriptで
+設定してないとダメ。 */
+.status-playing {
+    color: #009900;
+}
+
+/* プレビュー表示をパズル盤面に重ねるための基準を設定 */
+.board-and-preview {
+    position: relative;
+}
+
+/* パズル盤面の設定 */
+.puzzle-board {
+    /* htmlの2番目のセクションのol要素に設定されているクラス。 */
+    aspect-ratio: 1 / 1;
+    background-color: #dddddd;
+    display: grid;
+    overflow: hidden;
+    /* 難易度に応じてマス目を均等に分割
+    （JSからカスタムプロパティを動的に書き換えることで分割数が変わる）
+    CSSとJavaScriptの連携で実現しているが、この辺はかなり難しいとのこと。
+    :rootで設定したカスタムプロパティの初期値をJavaScriptの処理で書き換える
+    という操作をしているとのこと。 */
+    grid-template-columns: repeat(var(--grid-size), 1fr);
+    grid-template-rows: repeat(var(--grid-size, 1fr));
+    /* repeat関数は第一引数が繰返しの回数、第二引数がセルの大きさ。
+    1frはfractionが全て1対1の均等になるように画像を分割。
+    varはどんな関数だっけ？ */
+}
+
+/* プレビュー表示の設定 */
+#original-preview {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    /* background-image: url("../images/dog.jpg"); */
+    background-size: cover;
+    background-position: center;
+}
+
+/* カスタムプロパティの宣言（ピースのインデックスを記録するための変数） */
+@property --piece-index {
+    syntax: "<integer>";
+    inherits: true;
+    initial-value: 0;
+}
+
+/* ピースの設定 */
+.puzzle-piece {
+    border: 1px solid #ffffff;
+    overflow: hidden;
+    position: relative;
+    /* ピースのスライド動作をアニメーション化
+    （JSからカスタムプロパティを動的に書き換えることでスライド速度が変わる） */
+    /* 難易度によってシャッフル回数が変わるため、
+    スライド速度の調整によりシャッフル完了までの時間を一定にする
+    :rootで定めらた100msを難易度選択によってJavaScriptで動的に書き換える。*/
+    transition: transform var(--piece-move-duration);
+    /* ピースのインデックスを記録（ピース上に表示する画像の
+    トリミング位置を算出するために使用） */
+    --piece-index: sibling-index();
+    /* シブリングインデックスという関数が使われると兄弟要素の中何番目の要素か
+    を算出していくれるとのこと。この--piece-indexカスタムプロパティを
+    画像のli>div.piece-imgで使っているとのこと。divはliの中に入っているので
+    常に一人っ子なので、その親であるliのクラスpuzzle-pieceで,
+    sibling-indexを使っているとのこと。 */
+}
+
+/* ピース上の画像の設定 */
+.piece-image {
+    /* サイズをパズル盤面に合わせる（ピースサイズ × ピース数）
+    第二セクションのol>li>div内で表示する画像ピースに適用されているクラス
+    ばらばらにシャッフル後のdiv内のpiece-imageは実は元の画像と同じ大きさ。
+    画像をトリミングすることでピースを再現しているとのこと。
+    その設定はwidthプロパティで計算することで再現。 */
+    aspect-ratio: 1 / 1;
+    width: calc((100% + 2px) * var(--grid-size));
+    /* widthの100%は親要素に対して100%。
+    分割されたグリッドコンテナの大きさのままだと、その大きさに合わせて画像が
+    表示されてしまう。ピースの大きさと画像を不一致にさせる為、
+    ピースの大きさ＊分割数で画像を元の大きさに直しているとのこと。 */
+
+    /* 画像のドラッグ操作を不可とするため背景として表示 
+    通常htmlのimg要素として画像が表示されている場合はドラック操作が
+    出来てしまうとのこと。
+    JavaScriptで画像操作を無効設定することもできるが、中々難易度が高いので
+    今回は背景として表示しているとのこと。*/
+    background-image: url("../images/dog.jpg");
+    background-size: cover;
+    background-position: center;
+
+    /* トリミング位置の設定（ピースのインデックスと1辺の分割数を基に算出） */
+    /* Y軸：ピースサイズ × 行インデックス（ピースインデックス ÷ 1辺の分割数） */
+    /* X軸：ピースサイズ × 列インデックス（ピースインデックス ÷ 1辺の分割数 の剰余） */
+    position: absolute;
+    top: calc((-100% - 2px) 
+    * round(down, (var(--piece-index) - 1) / var(--grid-size), 1) - 1px);
+    left: calc((-100% - 2px) 
+    * mod(var(--piece-index) - 1, var(--grid-size)) - 1px);
+    /* ↑ピースの大きさのどの位置に画像を表示するかで、画像がピースごとに
+    分割される様にしているとのこと。
+    100％は親要素＝ピースの大きさを示している。
+    計算の考えはピース何個分画像座標を移動させて表示するかという考えとのこと。
+    座標の基準はピースの左上。例えば1つ目のピースは座標が０，０
+    2つ目のピースは一ピース分ズレて表示、1ピース分,0
+    -100%なのは画像を⇒ではなく、←にずらしたいから。
+    ピースが何個目のピースか（ピースインデックス）から行列インデックスも
+    も計算で割り出しているのこと。 
+    例えば5番目のピースなら、行＝(5-1)/*3 = 4/3 = 1あまり１
+    （0始まりなので―1している）。この1あまり1が行と列を表しているとのこと。
+    行インデックス4/3=1（0行目から始まるので2行目）
+    列インデックス4%3=1(0列目から始まるので2列目)よって中央のピースになる。*/
+}
+
+/*******************************
+ * ゲームクリアエリアの設定
+ *******************************/
+.clear-container {
+    text-align: center;
+    padding: 10px 0;
+}
+
+.clear-container h2 {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+}
+
+.clear-container .message {
+    font-size: 1.3rem;
+}
+
+.clear-container .score-box {
+    background-color: #e0e7ff;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin: 10px auto;
+}

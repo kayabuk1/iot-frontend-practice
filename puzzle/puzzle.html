@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,
+     initial-scale=1.0">
+    <title>パズル</title>
+    <!-- CSSとメインプログラム（JavaScript）のインポート -->
+    <link rel="stylesheet" href="css/style.css">
+    <script type="module" src="js/script.js"></script>
+</head>
+
+<body>
+    <!-- ゲーム画面を中央に配置するメインカード -->
+     <!-- こいつCSSを設定することで常に中央に表示されるようにしている。 -->
+    <main class="game-card">
+
+        <!-- ゲームのタイトルセクション
+         JavaScriptを完成させて、画像をインポート出来る様になっても
+         見出しは変わらず表示されるようにしている。 -->
+        <div class="title-section">
+            <h1>スライドパズル</h1>
+            <p>画像をスライドして元に戻そう！</p>
+        </div>
+
+        <!-- 1. 設定エリア（ゲーム開始前のみ表示）
+         ゲームの状況に応じて3つのsectionが切り替わって表示される様に
+         なっている。 -->
+         <!-- id属性が降ってある要素は、JavaScriptで何らかの操作をしたい
+          要素が対象にしてあるとのこと。 -->
+        <section id="setup-area" class="space-y">
+            <!-- プリセット画像の選択 -->
+            <p class="form-group">
+                <label for="image-select">画像の選択</label>
+                <select name="image-select" id="image-select">
+                    <!-- なぜlbelとの紐づけでlabel側はidでなくてforと、
+                     言葉が異なっているのだっけ？nameはサーバにデータ送信
+                     時の辞書のキー？にみたいになっているのだっけ？ -->
+                    <option value="images/dog.jpg">犬</option>
+                    <!-- optionタグは初めて見たな、詳しく解説して欲しい。
+                     valudeのファイルパスは同じにならないとダメとのこと。 -->
+                </select>
+                <!-- ユーザー独自の画像アップロード用
+                 実際にはサーバとはやり取りせず、ブラウザとだけやり取りするので
+                 アップロードではないとのこと。正確な用語では何と言うのだろうか？ -->
+                <input type="file" name="image-file" id="image-file"
+                 accept="image/*">
+                 <!-- input要素がtypeで選択した値によって変わるのすっかり忘れて
+                  しまっていた、、、。そもそもinput要素についての知識があやふやだ。
+                  input要素と選択できるtypeについて詳しく解説してほしい。 -->
+                <!-- accept属性とは？マイム？とはで
+                 ユーザーに選択して欲しいファイルの分類を記述？
+                 /の後ろに画像のさらに種類、拡張子を指定することも出来る -->
+                  <label for="image-file" id="image-file-lbl">
+                    <!-- labelのidがforと異なっているのはどこかで使っているのだろうか。
+                     デフォルトの部品は非表示にしてラベルだけ表示にしているとのこと。 -->
+                    ローカルの画像ファイル<br>
+                    （クリックして選択 または ドラッグ＆ドロップ）
+                </label>
+            </p>
+
+            <!-- 難易度（分割数）の選択 -->
+            <p class="form-group">
+                <label for="grid-select">難易度（ピース数）</label>
+                <select name="grid-select" id="grid-select">
+                    <!-- ↑プルダウンメニューの設定のセット -->
+                    <option value="3">初級（3 × 3）</option>
+                    <option value="4">中級（4 × 4）</option>
+                    <option value="5">上級（5 × 5）</option>
+                    <!-- ↑動的にプルダウンの選択に応じて、画像分割数が
+                     変化するようにするとのこと。 -->
+                </select>
+            </p>
+
+            <!-- ゲーム開始のトリガーとなるボタン -->
+            <button id="start-btn" class="btn-primary">ゲーム開始</button>
+        </section>
+
+        <!-- 2. ゲームプレイエリア（ゲーム開始後に表示） -->
+        <section id="game-area" class="space-y hidden">
+            <!-- classが2つ振ってある状態。2つ目のhiddenをcssで設定することで
+             非表示にしている。 -->
+            <!-- 手数、状態、時間のステータスバー -->
+            <div class="status-group">
+                <p>手数: <span id="move-counter">0</span>回</p>
+                <!-- span要素で挟まれた文章をJavaScriptで上書きしていく -->
+                <p id="status-lbl">シャッフル中...</p>
+                <!-- ↑はp要素の全てを書き換えるのでspanは使わない。 -->
+                <p>時間: <span id="timer">00:00</span></p>
+            </div>
+
+            <!-- パズル盤面（※JSでピースを動的に生成するため、
+             HTML側は空にしておく） -->
+            <div class="board-and-preview">
+                <ol id="puzzle-board" class="puzzle-board">
+                    <!-- JavaScriptによって <li> 要素がここに生成される -->
+                    <!-- ので書いても使われないが、動的に生成される要素が
+                     分かりやすい様に記述しているだけ。 -->
+                    <!-- <li class="puzzle-piece"><div class="piece-image"></div></li>
+                    <li class="puzzle-piece"><div class="piece-image"></div></li>
+                    <li class="puzzle-piece"><div class="piece-image"></div></li>
+                    <li class="puzzle-piece"><div class="piece-image"></div></li>
+                    <li class="puzzle-piece"><div class="piece-image"></div></li>
+                    <li class="puzzle-piece"><div class="piece-image"></div></li>
+                    <li class="puzzle-piece"><div class="piece-image"></div></li>
+                    <li class="puzzle-piece"><div class="piece-image"></div></li>
+                    <li class="puzzle-piece hidden"><div class="piece-image"></div></li>
+                    -->
+                    <!-- 右下のピースだけ↑非表示にする為、最後だけ2つ目のクラス
+                     .hiddenも設定している。cssでdisplay:noneになっている。 -->
+                    <!-- ↑は画像を表示するのにimg要素を使っていないとのころ。
+                     divで背景画像を設定することで表示される様にしているとのこと。 -->
+                </ol>
+                <!-- お手本表示用（デフォルトは非表示） -->
+                <p id="original-preview" class="hidden"></p>
+                <!-- ol要素とお手本画像p要素をdivで並列に囲うことで、画像を同じ
+                 位置に重ねることが出来るとのこと。※cssでposition:absoluteを
+                 設定しているとのこと。お手本ボタンが押されたらhiddenを取り払う
+                 ことで表示、非表示を切り替えているとのこと。 -->
+            </div>
+
+            <!-- プレイ中のコントロールボタン -->
+            <p class="btn-group">
+                <button id="preview-btn" class="btn-secondary">お手本を開く</button>
+                <!-- お手本を開くボタンは一度押すと、お手本を閉じるに表示が変更される
+                 様にJavaScriptで設定しているとのこと。 -->
+                <button id="back-btn" class="btn-secondary">設定に戻る</button>
+                <!-- ↑設定に戻るボタンが押された時もJSで.hiddenをつけ外しすることで、
+                 表示/非表示を切り替えているとのこと。 -->
+            </p>
+        </section>
+
+        <!-- 3. ゲームクリアエリア（クリア時のみ表示） -->
+        <section id="clear-area" class="clear-container hidden">
+            <h2>ゲームクリア！</h2>
+            <p class="message">おめでとうございます！パズルが完成しました。</p>
+
+            <!-- 結果発表ボックス -->
+            <p class="score-box">
+                かかった時間: <span id="final-time">00:00</span><br>
+                かかった手数: <span id="final-moves">0</span>回
+            </p>
+            <button id="restart-btn" class="btn-primary">
+                もう一度遊ぶ（設定に戻る）</button>
+        </section>
+    </main>
+</body>
+
+</html>
