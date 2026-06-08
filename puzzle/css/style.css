@@ -271,7 +271,7 @@ select {
     出来てしまうとのこと。
     JavaScriptで画像操作を無効設定することもできるが、中々難易度が高いので
     今回は背景として表示しているとのこと。*/
-    background-image: url("../images/dog.jpg");
+    /* background-image: url("../images/dog.jpg"); */
     background-size: cover;
     background-position: center;
 
