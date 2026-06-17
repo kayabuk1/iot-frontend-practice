@@ -40,6 +40,8 @@ const restartBtn = document.querySelector('#restart-btn');
 // -----------------------------------------
 let gridSize; //ピースの分割数を表す変数。(選択された難易度)
 let imgUrl;//中身を後で書き換えるのでletに。
+let pieces; //シャッフル時のピース並び順管理用配列
+let blankIndex; //空白ピース位置（盤面上空白ピース位置管理用変数）
 // --------------------------------------------
 // イベントリスナーの登録
 // --------------------------------------------
@@ -128,6 +130,12 @@ function initPuzzle(){
     // ●setProperty('設定したいpropatyName', 変更したい値)を使う。
     document.documentElement.style.setProperty(
         '--grid-size', gridSize);
+    
+    //↓ピース並び順管理配列を空の配列として初期化
+    // 下のforの中で繰り返し中で配列にピースを追加していく
+    pieces = []; 
+    // console.log(pieces) //で出力してみると（確認用）
+    // console.log(pieces.length) //←配列の要素数を.lengthﾌﾟﾛﾊﾟﾃｨにｱｸｾｽして表示
 
     // ↓ピース追加処理の繰り返し（総ピース分繰り返す）
     for(let i = 0; i < totalPieces; i++){
@@ -136,6 +144,12 @@ function initPuzzle(){
         //HTMLのclass属性として"puzzle-piece"という文字列を
         // ｾｯﾄせよという命令
         piece.classList.add('puzzle-piece')
+
+        //148行目 ピースのｶｽﾀﾑﾃﾞｰﾀ属性に正しい位置(index)を保存
+        // dataset.以降は好きな変数名を付ける(ｲﾝｽﾀﾝｽ変数を作成)
+        // ピースを作成した順番は i と同じなので for中にiを代入
+        piece.dataset.correctIndex = i;
+
         // ↓ 最後の要素（空白ピース）だけ判定してhiddenを付与する。
         // ===は厳密等価演算子。型が等しいかまで判定する。両方数値OK。
         if (i === totalPieces - 1) piece.classList.add('hidden');
@@ -155,9 +169,19 @@ function initPuzzle(){
         // 重い画面描画処理が最小で済む。
         puzzleBoard.appendChild(piece);
         console.log(piece)
+
+        // ↓ピース並び順管理配列にピースを追加※piece="li"作ったピース
+        pieces.push(piece);
+        
         }
         // puzzleBoard.removeChild(document.querySelector('.puzzle-piece')) replaceChildren();を使うのでコメントアウト
+        console.log(pieces); //並び順管理配列追加動作確認用
+
+        // ↓空白ピースの位置を記録。totalpiecesは0始まりなので-1しておく
+        blankIndex = totalPieces - 1;
+        console.log(blankIndex);
 }
+
 // ↑毎回無名関数を記述するのは面倒なので、関数定義して、
 // 引数に関数オブジェクト自体※()は付けると実行しろの意になってしまう。
 // を渡して、実行する。
@@ -696,4 +720,193 @@ function initPuzzle(){
     書いたのと同じ。取得した <html> 要素に対して HTMLのタグ内に
     直接 style="..." を埋め込む為のメンバが 要素.style でアクセス出来る
 }
+
+//------------------------------------
+◆↓6/17水の授業の内容
+【ステップ 2】パズル盤面の動的生成
+パズルゲームの肝となる盤面（グリッド）をJavaScriptの繰り返し処理を使って
+動的に組み立てます。
+2.1 作業内容
+済：難易度（パズルの1辺の分割数）に応じた総ピース数（1辺の分割数2）を求め、
+  ループ処理を使って総ピース数分の <li> 要素を動的に生成してください。
+●：各ピースの正しい位置（0 から 総ピース数-1 までのインデックス）を、
+   後で判別できるように「カスタムデータ属性（data-correct-index）」として
+   各要素に埋め込んでください。
+済：最後の1ピース（右下のピース）は空白とするため、
+    非表示用のクラスを適用させてください。
+●：作成したピース群を順番にグローバルな配列「pieces」に保存し、
+   パズル盤面上のピースの並び順を管理できるようにしてください。
+●：「空白ピース」の位置（インデックス）を管理するグローバル変数
+   「blankIndex」を作成してください。
+//------------------------------------
+●１．シャッフル時のピース位置を変えるグローバル変数 pieces を作成
+// ４０行目辺り---------------------------------------
+// グローバル変数の宣言を↓にまとめる
+// -----------------------------------------
+let gridSize; //ピースの分割数を表す変数。(選択された難易度)
+let imgUrl;//中身を後で書き換えるのでletに。
+●let pieces; //シャッフル時のピース並び順管理用配列
+
+●2．initPuzzle関数内{}でpiecesを空の配列として初期化
+※JSにはlist型などの配列型のようなデータ型はない。
+  7つのプリミティブ型以外は、オブジェクトになる。
+  下の記述、pieces = [];これはArryクラスから
+  Arrayオブジェクトを生成していることになる。
+  const array = new Array(arrayLength);でも配列を作ることができる。
+   document.documentElement.style.setProperty(
+        '--grid-size', gridSize);
+    
+140行目付近//↓ピース並び順管理配列を空の配列として初期化
+    ●pieces = [];
+    ●console.log(pieces) で出力してみると（確認用）
+      ↓F12コンソールパズル開始押下後のログ
+      []length: 0[[Prototype]]: Array(0) 
+      ↑要素数ゼロのArrayオブジェクトが作られているのがわかる。
+    ●console.log(pieces.length) //←配列の要素数を.lengthﾌﾟﾛﾊﾟﾃｨにｱｸｾｽして表示
+    ※arrayには色々なﾒｿｯﾄﾞとﾌﾟﾛﾊﾟﾃｨが用意されている。
+      ↓代表的なもの。
+      要素を追加する場合はappendではなく、array.push("3");など
+      array.pop();→最後の要素を取出す。引数はいらない。戻り値があるので代入可能
+      array.shift();→popの逆、先頭の要素を取出す。引数なし。
+      .unshift("1","2");→push("3");の逆。先頭に要素を追加する。
+
+●        //148行目 ピースのｶｽﾀﾑﾃﾞｰﾀ属性に正しい位置(index)を保存
+        // dataset.以降は好きな変数名を付ける(ｲﾝｽﾀﾝｽ変数を作成)
+        // ピースを作成した順番は i と同じなので for中にiを代入
+        ●piece.dataset.correctIndex = i;
+        
+        ↓コンソール結果、data-correct-index="x"が追加されているのがわかる。
+        script.js:171 <li class=​"puzzle-piece" data-correct-index=​"0">​…​</li>​
+script.js:171 <li class=​"puzzle-piece" data-correct-index=​"1">​…​</li>​
+
+５．●【ステップ 3】スライド操作の実装
+●プレイヤーがピースをクリックしたりキーボードを押したりしたときに、
+    「そのピースが動かせる状態か」を算出し、配列内の位置を「スワップ」する
+    アルゴリズムを構築します。
+3.1 作業内容
+●現在「空白ピース」が位置しているインデックス（blankIndex）を基準に、
+    その上下左右に隣接しているピースのインデックスを計算して配列で返す
+     getMovableIndices() 関数を作成してください。
+●ユーザーが任意のピースをクリックした際、そのピースが上記で求めた
+    「移動可能リスト」に含まれているかをチェックし、含まれていれば
+    空白ピースと位置を入れ替える（配列内の要素をスワップする）処理を
+    記述してください。
+
+●jsフォルダの中に新しく model.js というファイルを作ってそちらで作業する。
+ ※このままブラウザ画面ではステップ3の内容は作業しにくいとのこと。
+   まずはコンソール上で動作させる。
+●HTML<scriptのsorceにこのファイルを追加する。
+ ※コンソールで動けばよいので type="module"は書かない
+     <script type="module" src="js/script.js"></script>
+12行目    ●<script src="js/model.js"></script>
+●// console.log("model.js");
+// ●まずは３＊３のパズルのつもりで作っていく。
+// ●script.jsファイルと同じようにグローバル変数を宣言していく。
+// ↓1辺の分割数
+let gridSize = 3;
+// ↓ピース並び順管理配列※ここでは実験なので、直接値書き込み
+let pieces = ['１','２','３','４','５','６','７','８','　'];
+// ↓空白ピース位置記憶用変数
+let blankIndex = 8;
+// ↑これでメインjsファイルと同じような条件を書けた。
+/**
+ * ピース管理配列内のピースを１辺の分割数に応じて、
+ * ２次元でコンソールに出力する処理
+function printPuzzle(){
+    console.log(pieces);
+    for (let i=0; i < gridSize**2; i+=gridSize){
+        let tempArray = [];
+        for(let j=0; j < gridSize; j++){
+            // console.log(pieces[i+j],end="");
+            tempArray.push(pieces[i+j]);
+        }
+        console.log(tempArray);
+    }
+}
+●HTML<scriptのsorceにこのファイルを追加する。
+ ※コンソールで動けばよいので type="module"は書かない
+     <script type="module" src="js/script.js"></script>
+12行目    ●<script src="js/model.js"></script>
+●まずは３＊３のパズルのつもりで作っていく。
+
+次●現在「空白ピース」が位置しているインデックス（blankIndex）を基準に、
+    その上下左右に隣接しているピースのインデックスを計算して配列で返す
+     getMovableIndices() 関数を作成してください。
+
+// ↓空白を探してから求めなくて良いとのこと。なので没。
+function getMovableIndices_test()
+{   
+    let blanekNeigbers = [];
+    for(let i=0; i < gridSize; i++)
+    {
+        for(let j=0; j < gridSize; j++)
+        {   
+            console.log([i*gridSize+j])
+            if (pieces[i*gridSize+j] == false) 
+            {
+                blankIndex = i*gridSize+j;
+                console.log([blankIndex]);
+
+                if(blankIndex % gridSize != 0){
+                    blanekNeigbers.push(blankIndex-1);
+                    console.log([blankIndex-1]);
+                }
+                if(blankIndex % gridSize != (gridSize-1)){
+                    blanekNeigbers.push(blankIndex+1);
+                    console.log([blankIndex+1]);
+                }
+                if(0 <= (blankIndex-gridSize)){
+                    blanekNeigbers.push(blankIndex-gridSize);
+                    console.log([blankIndex-gridSize]);
+                }
+                if((gridSize**2 - gridSize) > blankIndex){
+                    blanekNeigbers.push(blankIndex+gridSize);
+                    console.log([blankIndex+gridSize]);
+                }
+            }
+        }
+    }
+    return blanekNeigbers;
+}
+
+// ↓グローバル変数blankIndexを元に出力が変わる様にとのことなので変更。
+/**
+ * 移動可能なピース（空白ﾋﾟｰｽと隣接するﾋﾟｰｽ）の位置を配列で返す処理
+ * @returns {Array<number>}移動可能なピースの位置index配列
+ */ /*
+function getMovableIndices()
+{   
+    let blanekNeigbers = [];
+
+    if(blankIndex % gridSize != 0){
+        blanekNeigbers.push(blankIndex-1);
+        console.log([blankIndex-1]);
+    }
+    if(blankIndex % gridSize != (gridSize-1)){
+        blanekNeigbers.push(blankIndex+1);
+        console.log([blankIndex+1]);
+    }
+    if(0 <= (blankIndex-gridSize)){
+        blanekNeigbers.push(blankIndex-gridSize);
+        console.log([blankIndex-gridSize]);
+    }
+    if((gridSize**2 - gridSize) > blankIndex){
+        blanekNeigbers.push(blankIndex+gridSize);
+        console.log([blankIndex+gridSize]);
+    }
+    return blanekNeigbers;
+}
+/*
+済：ユーザーが任意のピースをクリックした際、そのピースが上記で求めた
+「移動可能リスト」に含まれているかをチェックし、
+●含まれていれば
+空白ピースと位置を入れ替える（配列内の要素をスワップする）処理を
+記述してください。
 */
+/**
+ * 引数で指定されたピースが移動可能な場合のみ移動する処理
+ * @param {string} piece 移動対処ピースは文字列で渡すこと
+ */
+function tryMovePiece(piece){
+
+}
