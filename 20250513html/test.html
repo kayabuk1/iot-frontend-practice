@@ -84,7 +84,46 @@
         footer{background-color:#333333; color:#f9f9f9;
         margin:0;}
         footer p{padding:1em; margin:0 auto; width:max-content;}
+        
+        /* =========================================================
+   📱 スマホ・タブレット向けメディアクエリ（767px以下で発動）
+   ========================================================= */
+@media screen and (max-width: 767px) {
 
+    /* 1. ヘッダーのレイアウト変更（縦並びにして溢れるのを防ぐ） */
+    header {
+        height: auto; /* 高さを70px固定から、中身に合わせて自動で伸びるように変更 */
+        padding-bottom: 10px; 
+    }
+    header .wrapper {
+        flex-direction: column; /* 横並びから縦並びに変更 */
+        justify-content: center;
+    }
+    header nav ul {
+        padding-right: 0;
+        margin-top: 10px; /* タイトルとメニューの間に隙間を作る */
+    }
+
+    /* 2. メインビジュアルの高さ調整 */
+    #mainvisual {
+        height: 300px; /* PCでは600pxだったものを半分に縮小 */
+        margin-top: 90px; /* 縦に伸びたヘッダーの分、開始位置を下にずらす */
+    }
+    #mainvisual h2 {
+        font-size: 1.5rem; /* スマホ用に文字も少し小さく */
+    }
+
+    /* 3. Our Menu のグリッド（表）を2列から1列に変更！ */
+    #ourmenu dl {
+        grid-template-columns: 1fr; /* ⭕ ここが魔法！ 1fr 1fr だったものを 1fr に上書き */
+        grid-row-gap: 20px;         /* 縦に並ぶので、縦の隙間を追加 */
+    }
+
+    /* 4. Contactフォームの幅を画面いっぱいに広げる */
+    #contact {
+        width: 90%; /* PCでは40%に制限していた幅を、スマホ画面の90%まで広げる */
+    }
+}
      </style>
 </head>
 <body id="top">
