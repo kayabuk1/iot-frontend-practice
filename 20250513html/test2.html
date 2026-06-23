@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,
+     initial-scale=1.0">
+    <title>Cofe Tech</title>
+    <!-- <link rel="stylesheet" href="style.css"> -->
+     <style>
+        :root{--header-height:70px;}
+        *{outline: 1px solid red;
+            background-color: rgba(0, 128, 255, 0.1);
+            background-clip: content-box;
+            margin: 0; padding: 0; list-style: none;
+            box-sizing: border-box;}
+        html{font-size: 100%; scroll-behavior: smooth;
+            scroll-padding-top: var(--header-height,70px);}
+        body{font-size: 0.9rem; color: #333333; 
+            background-color: #f9f9f9; accent-color: #c0392b;
+            font-family: Arial, Helvetica, sans-serif;}
+        
+
+
+     </style>
+</head>
+<body id="top">
+    <header>
+        <div class="wrapper">
+            <h1 class="site-title"><a href="#top">Cofe Tech</a></h1>
+            <nav>
+                <ul>
+                    <li><a href="#top">Home</a></li>
+                    <li><a href="#ourmenu">Menu</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="mainvisual">
+            <div class="mainvis-container">
+                <img src="" alt="メインビジュアルサイトイメージ画像">
+                <div class="img-center-txt">
+                    <h2>Cafe Tech</h2>
+                    <p>至福の一杯を、あなたに。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="ourmenu">
+            <div class="wrapper">
+                <h2 class="section-title">Our Menu</h2>
+                <div class="grid-container">
+                    <dl>
+                        <div class="grid-img-content">
+                            <img src="" alt="">
+                        </div>
+                        <dt>こだわりのコーヒー</dt>
+                        <dd>厳選された</dd>
+                        <p>￥５００</p>
+                        <div class="grid-img-content">
+                            <img src="" alt="">
+                        </div>
+                        <dt>本日のケーキ</dt>
+                        <dd>季節のフルーツを</dd>
+                        <p>￥６００</p>
+                    </dl>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact">
+            <h2 class="section-title">Contac Us</h2>
+            <p>ご質問、ご要望など</p>
+            <form action="" method="POST">
+                <p><label for="name">お名前</label></p>
+                <p><input type="text" name="name" id="name" required
+                    placeholder="山田太郎"></p>
+                <p><label for="email">メールアドレス</label></p>
+                <p><input type="email" name="email" id="email" required
+                    placeholder="example@cafe-tech.com"></p>
+                <p><label for="detail">お問い合わせ内容</label></p>
+                <p><textarea name="detail" id="detail" required
+                    placeholder="お問い合わせ内容を"></textarea></p>
+                <div><button>送信する</button></div>
+            </form>
+
+        </section>
+    </main>
+
+    <footer>
+        <p><small>&copy;</small></p>
+    </footer>
+    
+</body>
+</html>
