@@ -7,28 +7,109 @@
     <title>Cofe Tech</title>
     <!-- <link rel="stylesheet" href="style.css"> -->
      <style>
-        :root{--header-height:70px;}
-        *{outline: 1px solid red;
+        @charset "UTF-8";
+        :root {--header-height:70px;}
+        * {outline: 1px solid red;
             background-color: rgba(0, 128, 255, 0.1);
             background-clip: content-box;
             margin: 0; padding: 0; list-style: none;
             box-sizing: border-box;}
-        html{font-size: 100%; scroll-behavior: smooth;
+        html {font-size: 100%; scroll-behavior: smooth;
             scroll-padding-top: var(--header-height,70px);}
-        body{font-size: 0.9rem; color: #333333; 
+        body {font-size: 0.9rem; color: #333333; 
             background-color: #f9f9f9; accent-color: #c0392b;
             font-family: Arial, Helvetica, sans-serif;}
-        a{color:#333333; text-decoration: none;}
-        a:hover{opacity: 0.8;}
-        a:active{opacity: 0.5;}
-        img{max-width: 100%;}
-        .wrapper{max-width: 960px; margin: 0 auto; 
-            text-align: center; padding: 0 5px;}
+        a {color:#333333; text-decoration: none;}
+        a:hover {opacity: 0.8;}
+        a:active {opacity: 0.5;}
+        img {max-width: 100%;}
+        .wrapper {max-width: 960px; margin: 0 auto; 
+            text-align: center; padding: 0 5p}
+            
+        section {margin-bottom:100px;}
+        .section-title{font-size:2em; text-decoration-line: underline;
+            text-decoration-color: #c0392b; text-underline-offset: 0.15em;
+            text-decoration-thickness: 3%;}
         
-        header{position: fixed; top: 0; left: 0;
-            box-sizing: border-box;}
-        
+        header {position: fixed; top: 0; left: 0; z-index:2;
+            height:var(--header-height,70px); width:100%;
+            /* ↑のwidth100%は対親bodyではなく、画面全体viewportに対して。
+            position;fixed;を設定した瞬間親子関係から切り離されグローバル化 */
+            background-color: #f9f9f9dd;}
+        header .wrapper {display: flex; justify-content: space-between;
+            align-items: center; height: 100%; width: 100%;}
+            /* .wrapperにかけた命令が利いているのも忘れずに
+    max-width: 960px; margin: 0 auto; text-align: center; padding: 0 5px; */
+        .site-title a {padding: 0.1em 0.2em 0.1em 0.4em; color: #c0392b;}
+        header nav {flex-grow: 0;}
+        header nav ul {display: flex; column-gap: 20px; padding-right: 10px;}
 
+        #mainvisual {position: relative; height: 600px;
+            margin:var(--header-height,70px) 0 50px; overflow:hidden;}
+        #mainvisual .mainvis-container {position: absolute; top: 0; left: 0;
+            height:100%; width:100%;}
+        #mainvisual img { width: 100%; height: 100%; object-fit: cover;}
+        #mainvisual .img-center-txt {color:#f9f9f9; position: absolute;
+             top: 50%; left: 50%; z-index: 1; 
+             transform: translate(-50%, -50%); background-color: transparent;
+             text-align: center; }
+        #mainvisual h2 {font-size: 2.3em; padding-bottom: 0.2em;
+            text-align-last: justify; letter-spacing: 0.05em;}
+
+        #ourmenu h2 {padding-bottom: 0.8em;}
+        #ourmenu dl.grid-container {display: grid; 
+            grid-template-columns: 1fr 1fr;grid-column-gap: 3%;
+             text-align: left;}
+        #ourmenu div.grid-content {border-radius: 5px; border: 1px solid #f9f9f9;
+            overflow:hidden; background-color: rgb(255, 255, 255);}
+        #ourmenu img {width:100%; aspect-ratio:10/3; object-fit: cover;
+            object-position: 0% 30%;}
+        #ourmenu dt {font-weight: bold; padding:1em;}
+        #ourmenu dd {padding:1em;}
+        #ourmenu p {color:#c0392b; font-weight:bold; padding:1em;}
+
+        #contact {width:40%; margin:0 auto 5%; text-align: center;}
+        #contact h2 {padding-bottom: 0.8em;}
+        #contact p {padding: 1em;}
+        #contact form {display:flex; flex-direction: column; 
+            text-align: left; border:1px solid #f9f9f9; border-radius: 5px;
+            overflow: hidden; width:100%; background-color:#fff;}
+        #contact label{font-weight: bold; display:block; padding-bottom: 0.6em;}
+        #contact input {border-radius: 3px; width: 100%; overflow:hidden;
+            padding:1em; border:1px solid #ccc;}
+        #contact textarea{width: 100%; height:6em; padding:1em;
+            border-radius: 3px; overflow:hidden;}
+        #contact .btn-container{display: flex; justify-content: center;
+            border-radius: 3px; overflow:hidden; height:100%;
+            padding:0; margin:1em; background-color: #c0392b;}
+        #contact button {color:#f9f9f9; border:none; cursor:pointer;
+            width: 100%; padding:1em;}
+
+        footer {background-color:#333333; color:#f9f9f9;}
+        footer p {padding:1em; margin:0 auto; width:max-content;}
+
+        @media screen and (max-width:767px)
+        {   
+            .section-title {font-size:1.5em;}
+
+            header {height: auto; padding:10px 0;}
+            .site-title{font-size:2em; letter-spacing: 0.03em;}
+            header .wrapper{ flex-direction:column; justify-content: center; }
+            header nav {width: 100%;}
+            header ul {flex-direction: row; width:100%; padding: 0 1em 0;
+                margin-top: 10px; font-size: 1em; justify-content:center;
+                letter-spacing: 0.1em;}
+            header li a{width:100%;}
+
+            #mainvisual {height: 300px; margin-top: 96px;}
+            #mainvisual h2 {font-size:1.5rem; text-align-last: initial; }
+            #mainvisual p {white-space: nowrap; font-size:0.8em;}
+
+            #ourmenu dl.grid-container {grid-template-columns: 1fr;
+                grid-row-gap:3%;}
+            
+            #contact {width:90%;}
+        }
 
      </style>
 </head>
@@ -49,7 +130,7 @@
     <main>
         <section id="mainvisual">
             <div class="mainvis-container">
-                <img src="images/dog.jpg" 
+                <img src="../images/dog.jpg" 
                 alt="メインビジュアルサイトイメージ画像">
                 <div class="img-center-txt">
                     <h2>Cafe Tech</h2>
@@ -61,24 +142,26 @@
         <section id="ourmenu">
             <div class="wrapper">
                 <h2 class="section-title">Our Menu</h2>
-                <div class="grid-container">
-                    <dl>
-                        <div class="grid-img-content">
-                            <img src="images/dog.jpg" 
-                            alt="コーヒイメージ画像">
+                    <dl class="grid-container">
+                        <div class="grid-content">
+                            <div class="grid-img-content">
+                                <img src="../images/dog.jpg"
+                                alt="コーヒイメージ画像">
+                            </div>
+                            <dt>こだわりのコーヒー</dt>
+                            <dd>厳選された</dd>
+                            <p>￥５００</p>
                         </div>
-                        <dt>こだわりのコーヒー</dt>
-                        <dd>厳選された</dd>
-                        <p>￥５００</p>
-                        <div class="grid-img-content">
-                            <img src="images/dog.jpg" 
-                            alt="ケーキイメージ画像">
+                        <div class="grid-content">
+                            <div class="grid-img-content">
+                                <img src="../images/dog.jpg"
+                                alt="ケーキイメージ画像">
+                            </div>
+                            <dt>本日のケーキ</dt>
+                            <dd>季節のフルーツを</dd>
+                            <p>￥６００</p>
                         </div>
-                        <dt>本日のケーキ</dt>
-                        <dd>季節のフルーツを</dd>
-                        <p>￥６００</p>
                     </dl>
-                </div>
             </div>
         </section>
 
@@ -86,16 +169,19 @@
             <h2 class="section-title">Contac Us</h2>
             <p>ご質問、ご要望など</p>
             <form action="" method="POST">
-                <p><label for="name">お名前</label></p>
-                <p><input type="text" name="name" id="name" required
-                    placeholder="山田太郎"></p>
-                <p><label for="email">メールアドレス</label></p>
-                <p><input type="email" name="email" id="email" required
-                    placeholder="example@cafe-tech.com"></p>
-                <p><label for="detail">お問い合わせ内容</label></p>
-                <p><textarea name="detail" id="detail" required
-                    placeholder="お問い合わせ内容を"></textarea></p>
-                <div><button>送信する</button></div>
+                <p><label for="name">お名前</label>
+                    <input type="text" name="name" id="name" required
+                    placeholder="山田太郎">
+                </p>
+                <p><label for="email">メールアドレス</label>
+                    <input type="email" name="email" id="email" required
+                    placeholder="example@cafe-tech.com">
+                </p>
+                <p><label for="detail">お問い合わせ内容</label>
+                    <textarea name="detail" id="detail" required
+                    placeholder="お問い合わせ内容を"></textarea>
+                </p>
+                <div class="btn-container"><button>送信する</button></div>
             </form>
 
         </section>
