@@ -1,0 +1,112 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    list-style: none;
+}
+
+body {
+    font-family: 
+        "Helvetica Neue",
+        "Arial",
+        "Hiragino Kaku Gothic ProN",
+        "Hiragino Sans",
+        sans-serif;
+    color: #333333;
+    background-color: #f9f9f9;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+header {
+    background-color: #ffffff;
+    width: 100%;
+    height: 70px;
+    border-bottom: 1px solid #00000033;
+}
+
+header h1 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #c0392b;
+}
+
+header nav a {
+    font-weight: bold;
+}
+
+header nav a:hover {
+    color: #c0392b;
+}
+
+section h2 {
+    width: max-content;
+    text-align: center;
+    font-size: 2rem;
+    margin: 0 auto 40px;
+    border-bottom: 3px solid #c0392b;
+}
+
+#menu img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+#menu h3 {
+    font-size: 1.25rem;
+    margin-bottom: 10px;
+}
+
+.contact-text {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #666666;
+    line-height: 1.6;
+}
+
+.contact-form {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    border: 1px solid #0003;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.form-group textarea {
+    height: 6em;
+}
+
+footer {
+    background-color: #333333;
+    color: #ffffff;
+    text-align: center;
+    padding: 20px 0;
+}
+
+footer small {
+    font-size: 0.8rem;
+}
