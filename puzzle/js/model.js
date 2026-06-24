@@ -121,14 +121,57 @@ function getMovableIndices()
 //     = document.querySelector(`.data-correct-index=${movalePieceStr[i]}`);
 //     }
 // }
-const movalePieceStr = string(blanekNeigbers)
-li.dataCorrectIndex.addEventListener('click' ,tryMovePiece);
-function tryMovePiece(movalePieceStr){
-    if (li.dataCorrectIndex === movalePieceStr) {
-        // ↑クリックされたのが動かせる配列リストindexと一致するならと書きたいのだけれど、、、
+// ----------------------------------------------------
+// ↓前回独力で取り組んだが作ることは出来なかった。
+// 6月24日(水)はこの tryMovePiece関数の作成の続きから。
+// ----------------------------------------------------
+// const movalePieceStr = string(blanekNeigbers)
+// li.dataCorrectIndex.addEventListener('click' ,tryMovePiece);
+// function tryMovePiece(movalePieceStr){
+//     if (li.dataCorrectIndex === movalePieceStr) {
+//         // ↑クリックされたのが動かせる配列リストindexと一致するならと書きたいのだけれど、、、
 
-        // ↑クリックされたピースと空白の位置を入れ替える
-        blankIndex,movalePieceStr[動かせる配列index] = movalePieceStr[動かせる配列index],blankIndex;        
-        // ↑blankとの配列番号を入れ替える。
+//         // ↑クリックされたピースと空白の位置を入れ替える
+//         blankIndex,movalePieceStr[動かせる配列index] = movalePieceStr[動かせる配列index],blankIndex;        
+//         // ↑blankとの配列番号を入れ替える。
+//     }
+// }
+let wantMovePiece = '８';
+function tryMovePiece(wantMovePiece){
+    // ●↓この関数を作る上で役に立つarrayｵﾌﾞｼﾞｪｸﾄメソッドの紹介
+    // includes()：配列の中に特定の要素が含まれているかどうかを
+    //             true or false で返してくれる。
+    // indexOf()：arrayの中から対象の要素の場所を教えてくれる。
+    //          対象の要素が含まれていないときは -1が返ってくる。
+    // ●↓どう使うか？
+    // １．indexOf()を使ってユーザーが動かしたい！と選択したピースが
+    //     ピースがピース管理配列上のどの位置にあるか＝インデックスを
+    // 取得する。
+    // ２．前回作ったgetMovablesIndices()を 使って、移動可能な
+    //     ﾋﾟｰｽｲﾝﾃﾞｯｸｽ配列を取得。
+    // ３．includes()を使って、移動可能ﾋﾟｰｽｲﾝﾃﾞｯｸｽ配列に、
+    //     移動させたいﾋﾟｰｽｲﾝﾃﾞｯｸｽが含まれるかを確認すれば良い。
+    // ４．含まれていた場合は、移動させたいピースと移動可能ﾋﾟｰｽｲﾝﾃﾞｯｸｽ
+    //     の位置をスワップすればOK。
+    console.log(`動かしたいピースは${wantMovePiece}`);
+    console.log(pieces);
+    let cpIndex = pieces.indexOf(wantMovePiece);
+    console.log(cpIndex);
+    let bpIndexies = getMovableIndices();
+    console.log(bpIndexies);
+    if (bpIndexies.includes(cpIndex)){;
+        [pieces[blankIndex], pieces[cpIndex]] =
+         [pieces[cpIndex], pieces[blankIndex]];
+        blankIndex = cpIndex;
+        console.log(blankIndex);
+        console.log(cpIndex,bpIndexies); 
+        console.log(pieces);//←デバック用
+        console.log("ピースを入れ替えました。")
+    } else {
+        console.log("そのピースは動かせません。\
+            wantMovePieceに違うピースインデックスを代入してください。");
+        console.log(getMovableIndices());
     }
+    printPuzzle();
+    getMovableIndices();
 }
