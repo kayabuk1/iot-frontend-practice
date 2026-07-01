@@ -336,7 +336,7 @@ function movePiece(wantMovePieceIndex,movableIndexies){
 
 
     console.log(`blankIndexを更新しました：${blankIndex}`);
-    console.log(cpIndex,movableIndexies); 
+    console.log(wantMovePieceIndex,movableIndexies); 
     console.log(pieces);//←デバック用
     console.log("ピースを入れ替えました。");  
 }
@@ -401,19 +401,19 @@ function updatePiecePosition(movedPiece){
     // `translate(calc(int(${cpIndex}/3) - int(${blankIndex}/3)*100)%,\
     // calc(int(${cpIndex}%3) - int(${blankIndex}%3)*100)%);`;
     // ●↑では間違い。
-    console.log(piece.dataset.correctIndex);
-    let movedIndex = pieces.indexOf(movedPiece);
-    console.log(movedIndex);
-    pieces[movedIndex].style.transform = 
+    console.log(movedPiece.dataset.correctIndex);
+    let currentIndex = pieces.indexOf(movedPiece);
+    console.log(currentIndex);
+    movedPiece.style.transform = 
     `translate(
         calc(
-                (${movedIndex%gridSize} 
-                - ${piece.dataset.correctIndex%gridSize}
+                (${currentIndex%gridSize} 
+                - ${movedPiece.dataset.correctIndex%gridSize}
                 )*100%
             ),
         calc(
-                (${Math.floor(movedIndex/gridSize)} 
-                - ${Math.floor(piece.dataset.correctIndex/gridSize)}
+                (${Math.floor(currentIndex/gridSize)} 
+                - ${Math.floor(movedPiece.dataset.correctIndex/gridSize)}
                 )*100%
             )
      )`;
