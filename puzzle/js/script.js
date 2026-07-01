@@ -289,13 +289,14 @@ function tryMovePiece(wantMovePiece){
     //     の位置をスワップすればOK。
     console.log(`動かしたいピースは${wantMovePiece}`);
     console.log(`piecesの１次元配列表示：${pieces}`);
-    let cpIndex = pieces.indexOf(wantMovePiece);
-    console.log(`選択されたピース(cp※chiced piece)は：${cpIndex}`);
+    let wantMovePieceIndex = pieces.indexOf(wantMovePiece);
+    console.log
+    (`選択されたピース(cp※chiced piece)は：${wantMovePieceIndex}`);
     let movableIndexies = getMovableIndices();
     console.log
     (`動かせるピースの位置(movableIndexies)は：${movableIndexies}`);
-    if (movableIndexies.includes(cpIndex)){
-        movePiece(cpIndex,movableIndexies)
+    if (movableIndexies.includes(wantMovePieceIndex)){
+        movePiece(wantMovePieceIndex,movableIndexies)
         // movePiece(cpIndex);
         // ↑ なぜ引数が足りないのに動く（エラーにならない）のか？
 // 呼び出し側（引数は1つだけ）
@@ -319,16 +320,21 @@ function tryMovePiece(wantMovePiece){
  * 空白ﾋﾟｰｽを交換する処理をする関数
  * @param {number} index 移動ピースのｲﾝﾃﾞｯｸｽを渡す
  */
-function movePiece(wantMoveIndex,movableIndexies){
+function movePiece(wantMovePieceIndex,movableIndexies){
     // 「入れ子（2重関数定義）」になっていない独立した関数同士では、
     // 必ず【実行時に実引数として渡し、仮引数で受け取る】必要がある。
-    let cpIndex = pieces.indexOf(wantMovePiece);
-    // ↑pieceというli要素からindexだけ取り出す。
-    [pieces[blankIndex], pieces[cpIndex]] =
-        [pieces[cpIndex], pieces[blankIndex]];
-    updatePiecePosition(cpIndex,blankIndex);
-    blankIndex = cpIndex;
-    // ↑空白ピース位置を更新する
+    [pieces[blankIndex], pieces[wantMovePieceIndex]] =
+        [pieces[wantMovePieceIndex], pieces[blankIndex]];
+    let movedpieceindex = wantMovePieceIndex
+    // ↑スワップ後にわかりやすい名前に変更
+    blankIndex = movedpieceindex;
+    // ↑空白ピース位置ｲﾝﾃﾞｯｸｽ自体を更新する
+
+    let movedPiece = pieces[blankIndex];
+    // updatePiecePosition()に渡すのはliというDOM要素自体にする
+    updatePiecePosition(movedPiece);
+
+
     console.log(`blankIndexを更新しました：${blankIndex}`);
     console.log(cpIndex,movableIndexies); 
     console.log(pieces);//←デバック用
@@ -361,8 +367,8 @@ function printPuzzle(){
  * （ﾋﾟｰｽ順番管理配列上の位置と画面表示上の位置を合わせる）
  * ↓つまりこれを配列順序更新後に呼び出せばよい。
  */
-function updatePiecePosition(cpIndex,blankIndex){
-    console.log(cpIndex);
+function updatePiecePosition(movedPiece){
+    console.log(movedPiece);
 
     // pieces[8].style.transform = 'translate(0%, 100%)';
     // %単位で移動値を指定すると、「その要素自身の大きさ」
@@ -395,8 +401,8 @@ function updatePiecePosition(cpIndex,blankIndex){
     // `translate(calc(int(${cpIndex}/3) - int(${blankIndex}/3)*100)%,\
     // calc(int(${cpIndex}%3) - int(${blankIndex}%3)*100)%);`;
     // ●↑では間違い。
-    console.log(pieces.dataset.correctIndex);
-    let movedIndex = pieces.indexOf(cpIndex);
+    console.log(piece.dataset.correctIndex);
+    let movedIndex = pieces.indexOf(movedPiece);
     console.log(movedIndex);
     pieces[movedIndex].style.transform = 
     `translate(
