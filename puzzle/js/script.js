@@ -188,13 +188,18 @@ function initPuzzle(){
             // ●→クリックされたときにその分移動させる処理を作っていくとのこと。 
 
             //↓ピースの画面表示位置を更新する処理関数をすぐに呼び出す
-            updatePiecePosition(piece,blankIndex);
+            console.log(getMovableIndices())
+            console.log(getMovableIndices().includes(piece))
+            if(getMovableIndices().includes(piece)){
+                updatePiecePosition(piece,blankIndex);
+            }
         })
 
         // ↓ピース並び順管理配列にピースを追加※piece="li"作ったピース
         pieces.push(piece);
         
-        }
+        } //←for文の終わり
+
         // puzzleBoard.removeChild(document.querySelector('.puzzle-piece')) replaceChildren();を使うのでコメントアウト
         console.log(pieces); //並び順管理配列追加動作確認用
 
@@ -346,7 +351,7 @@ function printPuzzle(){
  * （ﾋﾟｰｽ順番管理配列上の位置と画面表示上の位置を合わせる）
  * ↓つまりこれを配列順序更新後に呼び出せばよい。
  */
-function updatePiecePosition(cpIndex,blankIndex){
+function updatePiecePosition(piece,blankIndex){
     console.log(pieces);
 
     // pieces[8].style.transform = 'translate(0%, 100%)';
@@ -376,9 +381,31 @@ function updatePiecePosition(cpIndex,blankIndex){
     // blankIndexとcpIndexは使えそうだな。
     // 考えるときは具体例を。今回の[8]にblankIndexが移動した後は、
     // blankIndex=5, cpIndex=8
-    pieces[cpIndex].style.transform = 
-    `translate(calc(int(${cpIndex}/3) - int(${blankIndex}/3)*100)%,\
-    calc(int(${cpIndex}%3) - int(${blankIndex}%3)*100)%);`;
+    // pieces[cpIndex].style.transform = 
+    // `translate(calc(int(${cpIndex}/3) - int(${blankIndex}/3)*100)%,\
+    // calc(int(${cpIndex}%3) - int(${blankIndex}%3)*100)%);`;
+    // ●↑では間違い。
+    console.log(piece.dataset.correctIndex);
+    let movedIndex = pieces.indexOf(piece);
+    console.log(movedIndex);
+    pieces[movedIndex].style.transform = 
+    `translate(
+        calc(
+                (${movedIndex%gridSize} 
+                - ${piece.dataset.correctIndex%gridSize}
+                )*100%
+            ),
+        calc(
+                (${Math.floor(movedIndex/gridSize)} 
+                - ${Math.floor(piece.dataset.correctIndex/gridSize)}
+                )*100%
+            )
+     )`;
+//●次： このままではクリックされた時に必ず実行されてしまう。
+// （元の位置－動かした位置が同じなので、ピースは動かないが、
+// 毎回重い処理の計算を行ってtranslate0%,0%が付与されてしまう。
+// それでは非効率なので、移動可能ピースがクリックされた時だけ
+// uodatePiecePosition関数が実行されるようにする。
 
 }
 
