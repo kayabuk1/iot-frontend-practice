@@ -187,12 +187,18 @@ function initPuzzle(){
             // ●各ﾋﾟｰｽにはstyleプロパティがインラインでtransformが設定されている。
             // ●→クリックされたときにその分移動させる処理を作っていくとのこと。 
 
-            //↓ピースの画面表示位置を更新する処理関数をすぐに呼び出す
-            console.log(getMovableIndices())
-            console.log(getMovableIndices().includes(piece))
-            if(getMovableIndices().includes(piece)){
-                updatePiecePosition(piece,blankIndex);
-            }
+            //↓●ピースの画面表示位置を更新する処理関数をすぐに呼び出す
+            // console.log(getMovableIndices())デバッグ用
+            // console.log(piece)
+            // console.log(getMovableIndices().includes(piece))
+            // if(tryMovePiece(piece)===true){
+            // // ↑tryMovePiece(piece)
+            //     updatePiecePosition(piece,blankIndex);
+            // }●↑この書き方では、後でtryMove関数を経由しない処理
+            // （移動可能かどうかの判定が不要な処理）
+            // ピースのシャッフルをする時に、連動させることができない
+            // ので、movePieceの中にupdatePiecePosition関数を
+            // 組み込んでしまうほうが良いとのこと。
         })
 
         // ↓ピース並び順管理配列にピースを追加※piece="li"作ったピース
@@ -313,12 +319,16 @@ function tryMovePiece(wantMovePiece){
  * 空白ﾋﾟｰｽを交換する処理をする関数
  * @param {number} index 移動ピースのｲﾝﾃﾞｯｸｽを渡す
  */
-function movePiece(cpIndex,movableIndexies){
+function movePiece(wantMoveIndex,movableIndexies){
     // 「入れ子（2重関数定義）」になっていない独立した関数同士では、
     // 必ず【実行時に実引数として渡し、仮引数で受け取る】必要がある。
+    let cpIndex = pieces.indexOf(wantMovePiece);
+    // ↑pieceというli要素からindexだけ取り出す。
     [pieces[blankIndex], pieces[cpIndex]] =
         [pieces[cpIndex], pieces[blankIndex]];
+    updatePiecePosition(cpIndex,blankIndex);
     blankIndex = cpIndex;
+    // ↑空白ピース位置を更新する
     console.log(`blankIndexを更新しました：${blankIndex}`);
     console.log(cpIndex,movableIndexies); 
     console.log(pieces);//←デバック用
@@ -351,8 +361,8 @@ function printPuzzle(){
  * （ﾋﾟｰｽ順番管理配列上の位置と画面表示上の位置を合わせる）
  * ↓つまりこれを配列順序更新後に呼び出せばよい。
  */
-function updatePiecePosition(piece,blankIndex){
-    console.log(pieces);
+function updatePiecePosition(cpIndex,blankIndex){
+    console.log(cpIndex);
 
     // pieces[8].style.transform = 'translate(0%, 100%)';
     // %単位で移動値を指定すると、「その要素自身の大きさ」
@@ -385,8 +395,8 @@ function updatePiecePosition(piece,blankIndex){
     // `translate(calc(int(${cpIndex}/3) - int(${blankIndex}/3)*100)%,\
     // calc(int(${cpIndex}%3) - int(${blankIndex}%3)*100)%);`;
     // ●↑では間違い。
-    console.log(piece.dataset.correctIndex);
-    let movedIndex = pieces.indexOf(piece);
+    console.log(pieces.dataset.correctIndex);
+    let movedIndex = pieces.indexOf(cpIndex);
     console.log(movedIndex);
     pieces[movedIndex].style.transform = 
     `translate(
