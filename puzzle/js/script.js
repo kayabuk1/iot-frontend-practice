@@ -327,13 +327,13 @@ function movePiece(wantMovePieceIndex,movableIndexies){
         [pieces[wantMovePieceIndex], pieces[blankIndex]];
     let movedpieceindex = wantMovePieceIndex
     // ↑スワップ後にわかりやすい名前に変更
-    blankIndex = movedpieceindex;
-    // ↑空白ピース位置ｲﾝﾃﾞｯｸｽ自体を更新する
 
     let movedPiece = pieces[blankIndex];
     // updatePiecePosition()に渡すのはliというDOM要素自体にする
     updatePiecePosition(movedPiece);
-
+    
+    blankIndex = movedpieceindex;
+    // ↑空白ピース位置ｲﾝﾃﾞｯｸｽ自体を更新する
 
     console.log(`blankIndexを更新しました：${blankIndex}`);
     console.log(wantMovePieceIndex,movableIndexies); 
@@ -402,6 +402,7 @@ function updatePiecePosition(movedPiece){
     // calc(int(${cpIndex}%3) - int(${blankIndex}%3)*100)%);`;
     // ●↑では間違い。
     console.log(movedPiece.dataset.correctIndex);
+    console.log(`movedpiece：${movedPiece}`)
     let currentIndex = pieces.indexOf(movedPiece);
     console.log(currentIndex);
     movedPiece.style.transform = 
