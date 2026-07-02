@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1.同期処理（タイマー）</title>
+</head>
+<body>
+    <section>
+        <h1>1.同期処理（タイマー）</h1>
+        <p>3秒経過したらログを出力する処理を同期的に
+            (時間が経過するまで待機して)実行する</p>
+        <button id="start">スタート</button>
+    </section>
+    <section>
+        <label for="console">コンソール</label><br>
+        <textarea name="console" id="console" rows="10" cols="100" readonly>
+        </textarea>
+        <button id="clear-console">クリア</button>
+    </section>
+
+    <script>
+        const console = {
+            // consoleを上書きして、id=consoleの値として出力するように
+            // している。JSでは{}で囲ったものがオブジェクトになり、今回は
+            // logというメソッドオブジェクトを指定している。
+            // =>はアロー演算子 function(str) と(str)=>は等価。
+            log: (str) =>{
+                document.querySelector('#console').value += `${str}\n`
+                // +=引数でもらった文字列自身をvalueに\n付で追加している。
+            }
+        };
+        document.querySelector('#clear-console').addEventListener
+        ('click', ()=>{       
+            document.querySelector('#console').value = '';
+            }
+        ); //valueの中身を今度は""で上書き＝クリア"
+        
+        document.querySelector('#start').addEventListener('click',()=>
+        {
+            const countTime = 3;
+            console.log(`${countTime}秒間のタイマーを開始しました。`);
+            const endTimeString = wait(countTime);
+            console.log(`${countTime}秒が経過しました。(${endTimeString})`);
+        });
+        // ↓JSには何秒間待機するという組込み関数がないので、自作する
+        function wait(seconds){ 
+            const start = new Date().getTime();
+            while(new Date().getTime() < start+seconds*1000);
+            // getTimeで取得できるのはミリ秒なので*1000をする
+            // 今回は{}何もさせることがないので{}省力。ビジーループ。
+            return new Date().toLocaleString();
+            // toLoaclStringﾒｿｯﾄﾞを使うと日時を実行地域？に合わせた形式で戻す
+        }
+    </script>
+</body>
+</html>
