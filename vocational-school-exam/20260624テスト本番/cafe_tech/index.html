@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, 
+    initial-scale=1.0">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Cafe Tech</title>
+</head>
+
+<body id="home">
+<header>
+    <div class="wrapper">
+        <h1 class="site-title"><a href="#home">Cafe Tech</a></h1>
+        <nav>
+            <ul class="sidenav-container">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#menu">Menu</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <section id="mainvisual">
+        <div class="mainvis-container">
+            <img src="images/hero.png" alt="Cafe Tech 内観">
+        </div>
+        <div class="img-center-txt">
+            <h1>Cafe Tech</h1>
+            <p>至高の一杯を、あなたに。</p>
+        </div>
+    </section>
+
+    <section id="menu">
+        <h2>Our Menu</h2>
+        <dl class="grid-container">
+            <div class="grid-content">
+                <img src="/images/coffee.png" alt="こだわりコーヒー"
+                width="300">
+                <dt><h3>こだわりコーヒ</h3></dt>
+                <dd>厳選されたアラビカ豆を100%使用し、店舗で丁寧に自家焙煎した香りとコク深い一杯です。</dd>
+                <p>¥500</p>
+            </div>
+            <div class="grid-content">
+                <img src="images/cake.png" alt="本日のケーキ"
+                width="300">
+                <dt><h3>本日のケーキ</h3></dt>
+                <dd>季節のフルーツをふんだんに使用した、甘さ控え目でコーヒーにぴったり合う手作りケーキです。</dd>
+                <p>¥600</p>
+            </div>
+        </dl>
+
+    </section>
+
+    <section id="contact">
+        <h2 class="section-title">Contact Us</h2>
+        <p class="contact-text">ご質問、ご要望などございましたら、下記のフォームよりお気軽にお問い合わせください。</p>
+        <form action="#" method="post" class="contact-form">
+            <div class="form-group">
+                <label>お名前</label>
+                <input type="text" id="name" name="name" required placeholder="山田 太郎">
+            </div>
+            <div class="form-group">
+                <label>メールアドレス</label>
+                <input type="email" id="email" name="email" required placeholder="example@cafe-tech.com">
+            </div>
+            <div class="form-group">
+                <label>お問い合わせ内容</label>
+                <textarea id="message" name="message" required placeholder="お問い合わせ内容をご記入ください"></textarea>
+            </div>
+            <button type="submit" class="submit-btn">送信する</button>
+        </form>
+    </section>
+</main>    
+<footer>
+    <p><small>&copy;2026 Cafe Tech. All rights reserved.</small></p>
+</footer>
+</body>
+</html>
