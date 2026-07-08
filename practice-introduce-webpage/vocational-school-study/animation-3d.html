@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        :root {
+            --line-length: 200px;
+            --margin: calc(var(--line-length) * 0.4);
+            --font-size: calc(var(--line-length) * 0.6);
+            --cube-center: calc(var(--line-length) * 0.5);
+            --triangle-height: calc(var(--line-length) / 2 * sqrt(3));
+            --triangle-center-to-bottom: calc(var(--triangle-height) / 3);
+            --pyramid-center-x: calc(var(--line-length) * 0.5);
+            --pyramid-center-y: calc(var(--triangle-height) * 3 / 4);
+            --pyramid-rotate-angle: calc(90deg - acos(1 / 3));
+        }
+        section {
+            margin: var(--margin);
+            position: relative;
+            font-size: var(--font-size);
+        }
+        .face {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: visible;
+            color: white;
+        }
+        .front {
+            background: #666b;
+        }
+        .back {
+            background: #0d0b;
+        }
+        .right {
+            background: #d00b;
+        }
+        .left {
+            background: #00db;
+        }
+        .top {
+            background: #dd0b;
+        }
+        .bottom {
+            background: #d0db;
+        }
+
+        #cube {
+            width: var(--line-length);
+            height: var(--line-length);
+            transform-style: preserve-3d;
+            transform: rotateY(30deg) rotateX(30deg);
+            animation: rotate 6s infinite;
+        }
+        #cube .front {
+            transform: translateZ(var(--cube-center));
+        }
+        #cube .back {
+            transform: rotateY(180deg) translateZ(var(--cube-center));
+        }
+        #cube .right {
+            transform: rotateY(90deg) translateZ(var(--cube-center));
+        }
+        #cube .left {
+            transform: rotateY(-90deg) translateZ(var(--cube-center));
+        }
+        #cube .top {
+            transform: rotateX(90deg) translateZ(var(--cube-center));
+        }
+        #cube .bottom {
+            transform: rotateX(-90deg) translateZ(var(--cube-center));
+        }
+
+        #pyramid {
+            width: var(--line-length);
+            height: var(--triangle-height);
+            transform-style: preserve-3d;
+            transform-origin: var(--pyramid-center-x) var(--pyramid-center-y);
+            transform: rotateY(30deg) rotateX(30deg);
+            animation: rotate 6s infinite;
+        }
+        #pyramid .face {
+            clip-path: polygon(50% 0, 0 100%, 100% 100%);
+            transform-origin: 50% 100%;
+            align-items: end;
+            line-height: 1.1;
+        }
+        #pyramid .front {
+            transform: translateZ(var(--triangle-center-to-bottom)) rotateX(var(--pyramid-rotate-angle));
+        }
+        #pyramid .right {
+            transform: rotateY(120deg) translateZ(var(--triangle-center-to-bottom)) rotateX(var(--pyramid-rotate-angle));
+        }
+        #pyramid .left {
+            transform: rotateY(-120deg) translateZ(var(--triangle-center-to-bottom)) rotateX(var(--pyramid-rotate-angle));
+        }
+        #pyramid .bottom {
+            transform: translateZ(var(--triangle-center-to-bottom)) rotateX(90deg) rotateY(180deg);
+        }
+
+        @keyframes rotate {
+            50% {
+                transform: rotateY(390deg) rotateX(30deg);
+            }
+            100% {
+                transform: rotateY(390deg) rotateX(390deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <section id="cube">
+        <div class="face front">1</div>
+        <div class="face back">2</div>
+        <div class="face right">3</div>
+        <div class="face left">4</div>
+        <div class="face top">5</div>
+        <div class="face bottom">6</div>
+    </section>
+    <section id="pyramid">
+        <div class="face front">1</div>
+        <div class="face right">2</div>
+        <div class="face left">3</div>
+        <div class="face bottom">4</div>
+    </section>
+</body>
+
+</html>

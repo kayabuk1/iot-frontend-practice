@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        section {
+            margin: 20px;
+        }
+
+        #bar-graph {
+            width: 800px;
+            border: 1px solid #666;
+            border-radius: 5px;
+            background: linear-gradient(to right, #ccc3, #ccc);
+            display: flex;
+            flex-direction: column;
+            align-items: start;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .bar {
+            font-size: 30px;
+            border: 1px solid #666;
+            border-radius: 5px;
+            box-sizing: border-box;
+            flex-basis: 2em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform: translateX(calc(-100% + 15px));
+            transition: transform 0.8s;
+        }
+
+        .bar-25 {
+            background: linear-gradient(to right, #0dd3, #0dd);
+            width: 25%;
+        }
+        
+        .bar-50 {
+            background: linear-gradient(to right, #d0d3, #d0d);
+            width: 50%;
+        }
+        
+        .bar-75 {
+            background: linear-gradient(to right, #dd03, #dd0);
+            width: 75%;
+        }
+        
+        .bar-100 {
+            background: linear-gradient(to right, #0d03, #0d0);
+            width: 100%;
+        }
+
+        #bar-graph:hover>.bar {
+            transform: translateX(0);
+        }
+
+        @property --area1 {
+            syntax: "<percentage>";
+            inherits: false;
+            initial-value: 0%;
+        }
+        @property --area2 {
+            syntax: "<percentage>";
+            inherits: false;
+            initial-value: 0%;
+        }
+        @property --area3 {
+            syntax: "<percentage>";
+            inherits: false;
+            initial-value: 0%;
+        }
+        @property --area4 {
+            syntax: "<percentage>";
+            inherits: false;
+            initial-value: 0%;
+        }
+        #pie-chart {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            border: 1px solid #666;
+            border-radius: 50%;
+            background:conic-gradient(
+                #d0d3 0,
+                #d0d var(--area1),
+                #0dd3 var(--area1),
+                #0dd var(--area2),
+                #dd03 var(--area2),
+                #dd0 var(--area3),
+                #0d03 var(--area3),
+                #0d0 var(--area4),
+                #ccc3 0,
+                #ccc 100%
+            );
+            transition-property: --area1, --area2, --area3, --area4;
+            transition-duration: 0.8s;
+        }
+        .area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            font-size: 30px;
+            translate: -50% -50%;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .area-10 {
+            transform: rotate(0.05turn) translateY(-150px) rotate(-0.05turn);
+        }
+        .area-20 {
+            transform: rotate(0.2turn) translateY(-150px) rotate(-0.2turn);
+        }
+        .area-30 {
+            transform: rotate(0.45turn) translateY(-150px) rotate(-0.45turn);
+        }
+        .area-40 {
+            transform: rotate(0.8turn) translateY(-150px) rotate(-0.8turn);
+        }
+        #pie-chart:hover {
+            --area1: 10%;
+            --area2: 30%;
+            --area3: 60%;
+            --area4: 100%;
+        }
+        #pie-chart:hover > .area {
+            opacity: 1;
+            transition: opacity 0.3s 0.5s;
+        }
+    </style>
+</head>
+
+<body>
+    <section id="bar-graph">
+        <div class="bar bar-25">25%</div>
+        <div class="bar bar-50">50%</div>
+        <div class="bar bar-75">75%</div>
+        <div class="bar bar-100">100%</div>
+    </section>
+    <section id="pie-chart">
+        <div class="area area-10">10%</div>
+        <div class="area area-20">20%</div>
+        <div class="area area-30">30%</div>
+        <div class="area area-40">40%</div>
+    </section>
+</body>
+
+</html>
