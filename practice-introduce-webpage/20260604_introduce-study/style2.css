@@ -1,0 +1,785 @@
+/* 全体として影響範囲の広さの順に設定を記載する */
+/* -------------------------------------
+    ここからサイト全体の設定
+---------------------------------------- */
+@charset "UTF-8";
+/* CSSファイルがUTF-8という文字コードで書かれていることを宣言
+CSSにおける「@」は「At-rule」CSSエンジンに対する特殊な指示やmeta情報の
+目印C言語におけるプリプロセッサ命令みたいなもの */
+
+/* C言語の #define に相当する設定 */
+ :root{
+    --header-height:60px;
+    /* ヘッダーの高さを指定。「--header」先頭の--2つは、この後に続く単語は
+    ユーザが勝手に決めたオリジナル変数ですよ～と言う目印。*/
+ }
+
+/* 全ての要素のデフォルトのスタイルをリセットする(予め余白等が設定されている。) */
+*{
+/* 「*」は「ユニバーサルセレクタ」HTMLに存在する全ての要素をターゲットにする */
+    margin: 0;
+    padding: 0;
+     /* ブラウザごとに設定されているサイズの異なるデフォ余白を一括で初期化する 。
+    ※ブラウザはh2,p,ulなどにデフォルトで余白を付けているので精密なレイアウトに支障*/
+    list-style: none;
+    /* リスト記号を削除。ulやolにつく・や1.などを削除。デフォルトで設定されているが
+    これを削除するのが定石になっている。*/
+    box-sizing: border-box;
+    /* 箱のサイズ計算時に「パディングと枠線」を含める設定。デフォルト
+    はcontent-box。width:300px;と設定してもpadding:10px;を足すと
+    320pxになる。
+    サイズ計算式content-box:表示幅 = width +padding +border
+                border-box:width ={(conntent-border-padding) +
+                padding +border)}
+                もしborder:10px;としたら中身が10px縮む*/
+    outline: 1px solid red;
+}
+/* ルート要素（一番外側で全体を囲っているhtml要素＝宇宙）に対しての設定 */
+html{
+    font-size: 100%;
+    /* ブラウザのデフォルトのフォントサイズは16px。
+    ここで100%と記述するのは、ﾌｫﾝﾄｻｲｽﾞの基準をブラウザ設定のﾌｫﾝﾄｻｲｽﾞとする為。 */
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--header-height,60px);
+    /* 「スクロール停止位置の余白」を指定する命令 
+    var()は引き渡された変数の中身を引っ張り出してくるゲッター関数
+    第二引数は第一引数が設定されていない時の保険。*/
+}
+/* 実際に表示されるページ全体に対する設定をbodyに記述する。 */
+body{
+    font-size: 0.9rem;
+    /* remはrootEM(Mの読み)昔の活版印刷では M が基準だったのでem。
+    root=html要素に対する比率で文字の大きさを指定する単位。 */
+    color: #383e45;
+    /* なぜfont-colorではないのか？colorはfont以外の前面に来る要素
+    (リスト記号) 
+    などに対しての色の設定。それに文字色も含まれているという話。*/
+    font-family: 
+    /* fontは難しい。
+    欧mac>欧win>和mac>androind/chromeOS用>和win>総称ﾌｫﾝﾄ保険
+    書く環境で最も美しく読みやすいと評価される「サンセリフ体(ゴシック体)」を
+    優先順位に従って表示させるための「フォント・フォールバック」リスト */
+        "helvetica Neue,"      ,
+        "Arial",
+         /* 欧文フォントmac/win：alphabetと数字専用 */
+        "Hiragino Kaku Gothic ProN",
+        "Hiragino Sans",
+        /* Apple標準和文フォント、デザイナーさんに好まれる。旧/新OSの順 */
+        "Noto Sans JP",
+        /* 汎用/Webフォント。GoogleとAdobeが共同開発した、どの環境も,
+        同じように見えることを目指したフォント。Noto=No more Tofu□の略 */
+        "Meiryo",
+        /* Windowsf準和文フォント。文字が明瞭に見える様にの意味でmeiryo */
+        "sans-serif",
+        /* 保険。総称ゴシックフォント。ゴシックなら何でもOK
+        sansはフランス語で無しwithoutの意味、serifは飾り。なので無装飾フォント。 */
+}
+/* リンクに対してのフォント設定、セレクタはアンカーのa */
+a{
+    color: #f24;
+    text-decoration: none;
+    /* リンク下の下線を消せる。text-decorationには、underline下線、
+    overline上線、line-through打消し線、none無装飾が含まれる。なので
+    包括的にtext-decorationというﾌﾟﾛﾊﾟﾃｨ名になっている。 */
+    /* 下線自体のﾌﾟﾛﾊﾟﾃｨを変えたいときはtext-decoration-styleﾌﾟﾛﾊﾟﾃｨ 、
+    text-decoration-colorﾌﾟﾛﾊﾟﾃｨ*/
+}
+/* 「:」はCSSの文法で疑似クラスを表す。疑似クラスはHTMLに実体がないのに
+条件に応じて実体が生成されて、
+さもHTMLに記述されているかのように振舞うことから。
+他良く使う疑似クラス、
+〇:avtiveクリックされた瞬間、
+〇:checkedチェックが入った時だけ 
+〇:foucus選択されている時
+〇:nth-child(n)親要素のn番目の子要素を狙い撃ち※カウントは1から
+〇:first-child/last-chils最初/最後の要素狙い撃ち
+〇:not特定の条件「以外」*/
+a:hover{
+    opacity: 0.7;
+/* 透明度では無くて「不透明度」な点に注意。１で不透明ど100% */
+}
+/* 画像設定 */
+img{
+    max-width: 100%;
+    /*バッファオーバーフローを防ぎ。画像のサイズが大きくても親要素に収める
+    安全策の為に書く。 */
+}
+
+/* センタリング対象の要素の設定。div class="wrapper"で透明な箱を
+headerとbodyを貫通するように作った。これによりbodyで指定してcontentとpaddingを
+中央揃えにしたときに、背景色が端まで塗れないなどの不具合を防ぎ、
+文字配置の自由度と一貫性が高くなる。 */
+
+/* -------------------------------------
+    ここからサイト全体で使うモジュール群の設定
+---------------------------------------- */
+.wrapper{
+    max-width: 960px;
+    /* センタリング親要素の幅(≒画面幅)に応じて最大960pxまでcontentを拡張する。 */
+    margin: 0 auto;
+    /* marignに渡す引数は上下余白,左右余白の順、
+    上下余白を0,左右余白を均等割=auto */
+    text-align:center;
+    /* ligne線の意味のフランス語由来 */
+    padding: 0 5px;
+    /* PC画面は1000px以上が殆ど≒問題なし。しかしスマホ375pxなどでは、
+    content領域が端にくっついて(padding0)で読みにくい。なので、padding
+    を設定して最低限離れる幅を作る。「サイドガター横の溝」と呼ぶ。 */
+}
+section{
+/* section.wrapper{}の様にしてwrapperですでにセンタリングされているsection
+を詳細度を上げて指定して、調整することもある。詳細度が高い設定が適用。 */
+    margin-bottom: 100px;
+    /* section間の境界を分かりやすくする為にsection下に余白を設定。*/
+}
+/* サイトタイトルのリンク（ロゴの様な見た目にする）
+h1にclass ="site-title"を設定しているので、それを使う。
+aリンクは通常in-line要素なので、それをブロック要素に変更。
+そしてブロックをクリックしただけでリンク先に飛べるように調整している。
+インラインは文字としての性質を持ち（つまりその行の1文字の大きさ設定に横縦縛られる）
+もし100文字の文字列の特定の1文字にだけ100pxOK！としたら、
+折り返しの計算などとても複雑になる。
+ブロックは容器としての性質を持つ、と覚える。＝リンクも箱全体に適用される。 */
+.site-title a{
+    font-size: 1.2rem;
+    color: #ffffff;
+    line-height: 1;
+    /* line-heightの1はどんな意味の１？
+    ⇒通常文字の1.2~1.5倍程度の行間が用意されているがそれを文字ピッタリにする*/
+    background-color: #383e45;
+    padding: 0.4em;
+    /* 「em」は今の要素の設定font-sizeに対しての大きさ */
+    display: block;
+    /* in-line(その行の文字の様に扱われる)からblock(デフォで横いっぱいだけれど可変)
+    にすることで、幅や高さ上下のpaddingの設定を正確に調整することが出来る。 */
+    width: max-content;
+    /* block要素はデフォルトでは横幅いっぱいに広がるので、文字の大きさに
+    合わせて縮小させる設定を書く。 */
+}
+.site-title a:hover{
+    opacity: initial;
+    /* initialは初期値＝opacity:1;なのでサイトタイトルは透けない。
+    a:hover{}で設定した値を詳細度高くして上書き。 */
+}
+
+/* section class="section-title"と設定したものの設定。
+ユーザにここから新しい話題（section）が始まりますよ～！と
+分かりやすくするための設定。 */
+.section-title{
+    font-size: 2em;
+    font-weight: bold;
+    /* なぜ文字の太さがweight？⇒活版印刷時代に鉛の重さが違ったので。 */
+    border-bottom: 1px solid #383e45;
+    /* **重要重要**
+    text-decorationで下線を引かず、箱の底辺に引いたのは、
+    paddingで文字と下線の位置を調整出来る様にするため。 */
+    display:inline-block;
+    /* h2など見出しはブロック要素＝デフォルトが横幅いっぱい
+    なので箱の幅（下線）が文字に合わせて止まる様に設定している。 */
+    margin-bottom: 60px;
+    /* sectionタイトルと直下本文の間に十分な余白を設定して、
+    ここから先はsectionの本文と分かりやすくしている。 */
+    /* ↓実験設定 */
+    padding-bottom: 10px;
+}
+.content-title{
+    font-size: 1rem;
+    /* コンテンツ本文(bodyの0.9rem)より少し大きくかつ主張しすぎないサイズに */
+    font-weight: bold;
+ /*ボックス設定*/
+    margin: 10px 0;
+    /* コンテンツの本文同士が密着しすぎるのを防ぐ */
+    line-height: 1.5;
+    /*和文と欧文の行の高さを統一する（ﾌﾚｯｸｽｺﾝﾃﾝﾂの表示位置を揃えるため）
+    なぜこれで表示位置を揃えられるのか？
+    ⇒alphabetにはgたpの様に下に突き出る部分(ディセンダー)があり、
+    逆に和文は正方形の枠に収まる性質がある。その為、
+    デフォ設定では欧文和文混じりの時にpx単位で高さがズレることが起きる。
+    行の高さは1.5（16px*1.5）＝24pxと定義すると英文和文もこの枠に合わせて
+    表示されるようになる。*/
+}
+/* -------------------------------------
+    ここからヘッダーの設定
+---------------------------------------- */
+header{
+/* 画面上部に張り付く壊れないナビゲーションバーを作る設定 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    /* header要素を通常のHTMLの文章の流れから引きはがして、ブラウザ画面の
+    左上の座標(0,0)に絶対固定する。 */
+    z-index: 1;
+    /* スクロールした時に、ヘッダーが常に上に表示されるように優先度を1にする */
+    box-sizing: border-box;
+    /* border-bottomの1pxがheightの60pxより外側に膨らんで、オーバーフロー
+    を起こして、レイアウト崩壊などを防ぐ。 */
+    height: var(--header-height,60px);
+    width: 100%;
+    /* position:fixedを指定するとブロック要素特有のデフォルトで横幅いっぱいに
+    広がる性質が失われてcontent領域まで縮小してしまうので、それを補正。 */
+    background-color: #ffffff;
+    border-bottom: 1px solid #383e45;
+}
+/* --------------------------
+ハンバーガーリストを作る為の設定
+------------------------------
+labelに設定したclass="menu-icon"
+inputに設定したclass="menu-button"に基づいて「非表示」する
+方法は2つ
+display: none;を設定する方法と
+visibility: hidden; (デフォはvisible見える)を設定する方法がある。 
+display: none;は完全消去
+visibility; hidden;は不透明化＝その要素の為に確保された場所は残る。*/
+.menu-button{
+    display: none;
+}
+.menu-icon{
+    display: none;
+}
+
+header .wrapper{
+/* header div.wrapperと書くとタグを将来変更したときに、CSSまで直さないと
+行けなくなる。タグ＝データ型の様なもの。型に依存しない設定の方が変更に強い。
+またdivまで書かなくても要素が特定できるのなら、蛇足は付けない。必要十分な
+ものだけ記述する原則もあると思われる。 */
+    display: flex;
+    /* 子要素のh1とnavが横一列に並ぶ。 */
+    justify-content: space-between;
+    /* 直下の子要素の並べ方を指定している。
+    直下の子要素は h1 と nav の2つのみ。なので左端と右端に押し付け中央が空く */
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    /* 100%は親要素のサイズ60pxに対して、.wrapperクラス自身がどの程度の大きさ
+    を持つかを設定する為。デフォでは height:auto; で子要素は親要素より小さく、
+    具体的には中身が24pxならcontent領域(箱)の大きさもそれと同じになる。 */
+    /* また👆の状態のまま、ではまず24pxの箱が親要素headerの左上？配置されて
+    その24pxの箱の中でaline-item:center;が行われる？ので文字が上に寄ってしまう */
+}
+header nav{
+    flex-grow: 0;
+    /* 親要素であるdiv.wrapperがflexに設定されるので、直下子要素のnavも
+    flexitemになる。それで０は絶対に余白があっても文字の幅以上に伸びないぞ
+    という設定。※左側のロゴを圧迫しないため。
+    デフォではflex-growの値は「0」になっているが、明示的に0を記述している。
+     */
+}
+header nav ul{
+    display:flex;
+    /* display:と打つと出てくる「flex」と「flex-box」はどう違うか？
+    ⇒今は「flex」のみ。flex-boxは古い時代の仕様揺れ記述揺れの名残。
+    二重flex-boxの設定。ul直下の子要素「li」に対してもflexレイアウト適用する為
+    */
+    column-gap:20px;
+    /* flexboxのデフォルトでは縦y軸が基準軸で良いのかな？
+    ⇒NO。flexboxの基準軸のデフォルトはx軸。
+    display:flex;と設定すると子要素が横に並ぶのはその為。
+    li要素同士の間隔を20pxずつ空ける。→これはcontentに対して？ */
+}
+header nav ul a{
+    color: #383e45;
+    /* 全体設定「a」で赤字に設定しているので詳細度高いここで上書きする必要あり。 */
+}
+/* -----------------------------------------
+    ここから自己紹介に関する設定
+----------------------------------------- */
+#aboutMe .flex-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 30px;
+}
+#aboutMe .flex-contents{
+    justify-content: center;
+}
+#aboutMe img{
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    /* 「object-fit」用意した箱(imgに設定した値)が、実際の画像の
+    の縦横比が合わない時に、どうやって折り合いを付けるか？
+    というﾌﾟﾛﾊﾟﾃｨ。 */
+     /***注意**　imgにheightとwidth両方設定しないと有効にならない。*/
+    object-position:center;
+    /* デフォルトは(center center)
+    X軸とY軸で指定する。
+   
+    /* デバイスが変わった時もきちんと表示される様に
+    pxではなくて、%で指定してあげた方がよい。 */
+}
+#aboutMe dl{
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: 1em;
+}
+#aboutMe dt.content-title{
+    text-align-last:justify;
+}
+#aboutMe dd{
+    text-align: left;
+    justify-content: center;
+    margin: 10px 0;
+}
+/* -----------------------------------------
+ここからスキルリストのflexコンテンツに関する設定
+----------------------------------------- */
+/*
+    __div.flex-container________________~
+    |    div.flexcon_ _div.flexcon______~
+    |    | _______   |  _________  |    ~
+    |    | |dt____|  |  |dt_____|  |    ~
+    |    |           |             |    ~
+    |    | _dd>ul__  |  _dd>ul___  |    ~
+    |    | |li____|  |  |li_____|  |    ~
+    |    | |li____|  |  |li_____|  |    ~
+    |    |___________|_____________|____~   
+    |___________________________________~
+
+*/
+#skills .flex-container{
+/* flex第一階層：カードを横に並べる親(dlに設定されたクラス) */
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+#skills .flex-contents{
+/* 第一階層の子：個別のカード(各dtddを包む箱)
+dd+dt1セットずつflexで扱う為に必要。 */
+    flex-basis: 30%;
+    flex-grow: 1;
+    min-width: 250px;
+    background-color: #f4f7f9;
+    padding: 20px;
+    border-radius: 8px;
+}
+#skills dt{
+    justify-content: center;
+}
+#skills .flex-contents ul{
+/* flex第二階層ddをflexitemにするための親 */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0;
+    margin-top: 10px;
+    justify-content: center;
+}
+#skills .flex-contents li{
+/* 第2階層dd内各liに対する設定 */
+    background-color: #6886a2;
+    color: #ffffff;
+    padding: 4px 10px;
+    font-size: 0.8em;
+    border-radius: 1em;
+}
+/* フォトギャラリーの説明文 */
+.flex-contents img{
+    aspect-ratio: 4/3;/*ｱｽﾍﾟｸﾄ比を統一する*/
+    object-fit: cover;/*画像の元のｱｽﾍﾟｸﾄ比を維持したままボックスに収まるようにサイズ調整する*/
+    object-position: top;/*画像の表示位置をボックスの上端に合わせる*/
+}
+.flex-contents p{
+    text-align: left;
+}
+#skills .content-title{
+    display: flex;
+}
+#skills .content-title dd{
+    flex-direction: column;
+    flex-grow: 0;
+}
+/* -----------------------------------------
+    ここからメインビジュアル設定
+----------------------------------------- */
+#mainvisual{
+    /* 配置設定（画像リストアイテム配置の基準とする） */
+    
+    position: relative;
+    /* ボックス設定 */
+    height: 600px;/*高さを固定*/
+    margin: 60px 0 80px;/*固定ヘッダーと重ならないように、上に余白を設ける*/
+    overflow: hidden;/*ボックスからはみ出したコンテンツは表示しない*/
+}
+
+#mainvisual li{
+    /* 配置設定（全ての画像リストの左上に重ねて表示する） */
+    position: absolute;
+    top: 0;
+    left:0 ;
+
+    /* ボックス設定 */
+    width: 100%;/*幅を画面全体に広げる（配置設定により幅が縮小するため）*/
+    height: 100%; /*高さをメインビジュアルの高さまで拡げる（画面縮小時に
+    画像が縮まない様にする為）*/
+    
+}
+#mainvisual img{
+    width: 100%;
+    height: 100%; /*画像の大きさを完全にmainvisualに合わせる*/
+    object-fit: cover;
+}
+
+/* ここからfooter設定 */
+footer{
+    top:0;
+    left:0;
+    background-color: #ffffff;
+    border-top:  1px solid#383e45;
+    text-align: center;
+}
+footer address{
+    margin-top: 10px;
+    margin-bottom: 20px;
+    display: inline-block;
+    width: max-content;
+    font-style: normal;
+}
+footer address dl{
+    display:grid;
+    grid-template-columns: max-content max-content;
+    column-gap:1em;
+}
+footer address dt{
+    text-align-last:justify ;
+}
+footer address dd{
+    text-align: left;
+}
+footer small {
+    display: flex;
+    padding-top: 1em;
+    justify-content: center;
+}
+footer small p{
+    padding-top: 1em;
+}
+/* -------------------------
+ブレイクポイント（800px以下）
+----------------------------*/
+@media screen and (width <= 800px){
+    .section-title{
+        font-size: 1.6rem;    /*フォントサイズを小さくする画面幅が小さい為改行されないようにする*/
+    }
+    
+    #about .container{
+        flex-direction: column; /*列方向に整列（縦長の画面に合わせてアイテムを1列に表示）*/
+        row-gap: 30px;
+    }
+    /* サイトタイトルの設定 */
+    /* ↓ヘッダーの設定で隠れてしまったサイトタイトルがクリック出来る様にする */
+    .site-title{
+        z-index: 1; /*position:absoluteで絶対配置したnavより前面に
+        表示させて、サイトタイトルがクリック出来る様にする。*/
+    }
+    /*---------------------------------
+    ヘッダーの設定
+    -----------------------------------*/
+    header nav ul{
+        /* flexコンテナを設定 */
+        flex-direction: column;
+        column-gap: 0;/*20pxだったのでそれを0にする*/
+        /*↓ul,navなど要素を重ねて画面一杯に広がるようにする*/
+        position:absolute;/*
+        position:static以外が設定されている一番近い祖先要素
+        が基準になる→ header position:fixed→headerが基準になる*/
+        top:0;
+        left:0;
+        right: 0;
+        /* ↓見にくいので背景色を設定 */
+        background-color: #fffe;
+        /* ↓ヘッダーがnavで隠れないように余白を設ける */
+        padding-top: var(--header-height, 60px);
+
+        /* 座標変換 transformプロパティでクリック時に位置を変化させる
+        ※positionプロパティを触って崩したくないのでtransformを使う */
+        transform: translateY(-100%);
+        transition: all 0.5s;
+    }
+    /* ↓マウスが上に乗ったときに項目色が反転するようにする。
+    liではなく a 要素に指定することで文字以外クリックしたときに移動出来る様にする */
+    header nav a{
+        /* ↓アンカーはデフォはインライン要素なのでこのままでは横一杯に広がらない
+        なので、display:blockで無理やりブロック要素に変更する。 */
+        display: block;
+        /* 項目の文字周辺のクリック出来る領域を広げたい＝paddingを増やす */
+        padding: 1em;
+    }
+    header nav a:hover{ /*色反転設定*/
+        color: #fff;
+        background-color:#383e45 ;
+        opacity: initial;
+    }
+    /*---------------------------------
+    ↓ハンバーガーリストを作る設定
+    -----------------------------------*/
+    .menu-icon{
+        /*↓ spanの親要素であるlabel.menu-iconをdisplay:flex; に設定する
+        ことで、直下の子要素であるspanの位置を自由に配置することが出来る*/
+        /* display: block;↓に変更 */
+        display: flex;
+        /* ↓設定するときに要素が0×0では設定しにくいのでとりあえずborderを引く */
+        /* border: 2px solid blue; flexにした段階で消去
+         ↓ 直下の子要素spanの配置を設定する*/
+         justify-content: center; /*アイコンの中心線を横中央に整列*/
+         align-items: center; /*アイコンの中心線を縦中央に整列*/
+        
+        z-index: 1; /*navの後ろの隠れてぼやけるのでz-indexも指定*/
+        /* ↓位置を右上にしてやる */
+        position: absolute;
+        /* positionを設定した時だけ,top,left,right,bottomの設定できるので、
+        ↓こんなにシンプルなプロパティ名になっている。特殊なプロパティ */
+         top: 10px;
+         right: 10px;
+         bottom: 10px; /*topとbottomを固定したことによって上下に引き伸ばされる
+        位置指定は画面サイズが変わった時も同じ位置に置きたい＝px指定*/
+        /* ↓ハンバーガーリストを綺麗な正方形にする */
+        aspect-ratio: 1/1;
+        /*　↓マウスカーソルが乗ったときにだけ変化させたい＝cursorプロパティ*/
+        cursor: pointer;
+    }
+    /* ↓ハンバーガーメニューの三本線を実際に表現する
+    span要素に設定したlineクラスを使う。
+    一本しかないが⇒とりあえず中心の一本を作成する。 */
+    header .menu-icon .line{
+        /* ↓ span要素をボックス設定（横長のブロック要素に変更して、
+        背景色を設定することで線を表現）※spanはデフォはインライン要素 */
+        display: block;
+        width: 30px;
+        height: 2px;
+        background-color: #383e45;
+        /*↓ 疑似要素（::after,::befor）を
+        中心線を基準に配置するためposition:relative;を設定する*/
+        position: relative;
+        /* ★↓変化を滑らかにするアニメーション設定 
+        :checked 側（変化後）に書いてしまうと、
+        **「行きはヨイヨイ、帰りは瞬間移動」**というバグ
+        （片道切符のアニメーション）が発生してしまいます。*/
+        transition: all 0.5s;
+    }
+    /* ↓　ハンバーガーメニューアイコンの上下の線を
+    「疑似要素」::afterと::beforeを
+    使って、インライン要素をhtmlで空になっているspan></span>の間に要素を
+    挿入する。※contentプロパティとセットで使う。
+    contentは挿入したい中身を設定するプロパティ 
+    ※CSSで要素を挿入するときは、::before,::afterの最大2つしか表示できない*/
+    header .menu-icon .line::before,
+    header .menu-icon .line::after{
+        content: "";
+        display: block;
+        width: 30px;
+        height: 2px;
+        background-color: #383e45;
+        /* ↓ 中心線spanを基準に絶対配置する */
+        position: absolute;
+        /* ★↓変化を滑らかにするアニメーション設定 */
+        transition: all 0.5s;
+    }
+    header .menu-icon .line::before{
+        /* y軸は下方向が正になる */
+        top: -10px;
+     }
+    header .menu-icon .line::after{
+         bottom: -10px;
+    }
+
+    /*---------------------------------
+    ↓ 後続兄弟結合子を使い、
+    疑似クラス以外の対象に変化を起こす
+    -----------------------------------*/
+    header .menu-button:checked ~ nav ul{
+    /* ↑ input要素(checbox).menu-buttonがチェックされた時に、
+    同じ階層のnavの直下のul要素を指定したいので、
+    :checked ~ nav ulという書き方になる
+    チェックボックス事態は非表示になっているが、
+    そのラベルをクリックすることで
+    チェックボックスをON/OFF切り替える事ができる。 */
+    transform: none; /*none; を設定することで設定した座標遷移を取り消せる。*/
+    /* ★navリストが下りてくる変化＝アニメーションを付ける。
+    transition:で一括に指定することも出来る。今回はallにしても対象は
+    transformプロパティだけ。
+    transition:
+        propateiy(何を変化させるか例：all、transform、background-color等
+        duration（何秒かけるか）
+        timing-function（どんなペースで変化するか）【省略可】
+            省略した場合は、自然な加速・減速をする ease という設定が自動で適用
+        delay? delay（いつから始めるか）【省略可】変化の「待ち時間」
+            クリックしてから0.2秒後に動かしたい、といった時に使います。
+            省略すると 0s（即時開始）*/
+    transition: all 0.5s;
+    }
+    /* ↓ハンバーガー中心線の変化の設定 */
+    header .menu-button:checked ~ .menu-icon .line{
+        /* opacity: 0;ではこれを元に作られる疑似クラスafter,before
+        も透明になってしまう＝３本も消えてしまうので、
+        背景色だけ透明にする。透明にするのはtranspaerntという
+        専用の設定値を使う。どんな意味？
+        CSSでは「完全に透明な色（見えない色）」**を指定する
+        専用のキーワードです。
+        語源: trans-（向こう側へ、通り抜けて）＋ parent（現れる、見える）。
+        つまり、向こう側の景色が見える＝「透明」という意味
+        なぜ背景色を透明にするのだと疑似クラスは消えないで済んだの？
+        opacity プロパティは、**「その要素自身と、その中に入っている
+        すべての子要素（疑似要素含む）を、丸ごと一つのレイヤーとして
+        透明にする」**という強力な性質を持っています。
+        一方で、background-color は**「自分自身の背景色だけを塗り替える」
+        **プロパティです。親の背景色を変えても、子要素や疑似要素には
+        影響（継承）しません。 */
+        background-color: transparent;
+    }
+    /* ↓ハンバーガーメニューが開かれ時のアイコンの上線 */
+    header .menu-button:checked ~ .menu-icon .line::before{
+        /* 回転だけでは三⇒〉とその場で45度回転してしまうので、
+        移動も必要になる。 */
+        transform: rotate(45deg);
+        /* header .menu-icon .line::before{で※y軸は下方向が正になる 
+        top: -10px;を設定してずらしていたので、これを戻して、
+        つまり↓中心線と同じ位置に戻せばOK！ */
+        top: 0;
+    }
+    /* ↓ハンバーガーメニューが開かれた時の下線 */
+    header .menu-button:checked ~ .menu-icon .line::after{
+        transform: rotate(-45deg);
+        top: 0;
+    }
+
+    /*---------------------------------
+    メインビジュアルの設定
+    -----------------------------------*/
+    #mainvisual {
+        /* height: 100%;　ではスマホ表示に設定した時に画像自体が消えてしまう。
+        %は親要素に対しての比率。mainvisualの親はmain＝0pxなのでつぶれてしまう。*/
+        height: calc(100vh - 60px); /*ヘッダーの高さを除いてビューポートの
+        高さに合わせる。単純に100vhと設定しただけではヘッダー分下にはみ出てしまう*/
+    }
+    #mainvisual img{
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        /* 下の@keyframeで設定したアニメーションの設定を適用する。 
+        今回はanimation:で一括に設定すると、3回書くことになり、
+        冗長なので、各animationプロパティを指定する方法にする*/
+        animation-name: dissolve-fade,slide;
+        animation-duration: 15s;
+        animation-iteration-count: infinite;
+        /* ↓ backwardsは再生前に@keyframeで設定した最初のスタイル、
+        この場合は、0%{opacity:0}？を適用して待機してくれる。
+        ちまり、backwardsがないとアニメーションの再生が開始されるまで
+        （最初の10秒が経過するまで）はopacity:1;のままになってしまう。 */
+        animation-fill-mode: backwards;
+    }
+    /* ↑の設定のままではmainvisula>li>imgの3枚が同時に変化してしまうので、
+    疑似クラス何番目の子どもかで指定できるセレクタで指定する。
+    nth-child(n)とnth-of-type(n)?との違いと使い分け方は？
+    ① :nth-child(n) ＝ 【純粋な配列のインデックス】
+    親要素の中から見て、**「タグの種類に関係なく、とにかく兄弟の中で
+    前からn番目」**の要素を選択します。
+    C言語的イメージ: 
+    parent->children[n-1]（メモリ上に並んでいる順番そのまま）
+    ② :nth-of-type(n) ＝ 【型でフィルタリングしたインデックス】
+    親要素の中から見て、**「指定した『タグの種類（型）』の中だけで
+    数えてn番目」**の要素を選択します。
+    C言語的イメージ: 構造体の配列をループで回し、
+    if (element.type == "p") のように特定の型だけでカウントアップして
+    n番目を探す処理です。
+    ❌ 現在の記述 
+    #mainvisual img:nth-child(1) { ... }
+    この書き方だと、ブラウザは**「親要素（li）の中で1番目の子供である
+     img」を探します。しかし、HTMLの構造を見ると、3つの img は
+     それぞれ別々の li という親の「一人っ子（1番目の子供）」です。
+     そのため、結局「3つの画像すべてが条件に当てはまり、
+     同時にアニメーションしてしまう」**ことになります。
+    【⭕ 正しい記述（ポインタの指し先を変える）】 
+    「何番目の li に入っている img か」という順番で指定する必要があります。 */
+    #mainvisual li:nth-child(1) img{
+        animation-delay: 0s;
+    }
+    #mainvisual li:nth-child(2) img{
+        animation-delay: 5s;
+    }
+    #mainvisual li:nth-child(3) img{
+        animation-delay: 10s;
+    }
+    /* ↓メインビジュアル写真のアニメーションの設定。
+     3つの写真を15秒間、各写真5秒ごと、フェードイン15秒の10％、
+     フェードアウト15秒の10％で設定して行く。
+     calc(15*0.1){}みたいにプロパティを指定することは出来ない？
+     ⇒ダメ。@keyframes の {} の前にあるパーセンテージ部分
+     （キーフレームセレクタ）には、calc() を使うことはできません。
+    仕様のルール: CSSの仕様では、キーフレームのタイミングを指定する部分は
+    純粋な <percentage>（固定の数値＋%）でなければならないと
+    厳格に定められています。
+    プロパティの値（width や top などの中身）には calc() が使えますが、
+    タイミングの指定場所には使えません。
+    システム的な理由（C言語的イメージ）: 
+    ブラウザのレンダリングエンジンは、アニメーションの「タイムライン
+    （時間割）」を、描画が始まる前のコンパイル段階で完全に静的に確定して
+    おきたいからです。ここに動的な計算式を入れることを許すと、
+    タイムラインの構築処理が複雑になりパフォーマンスに影響するため、
+    仕様としてブロックされています。*/
+    @keyframes dissolve-fade {
+        /* ↓透明な状態から開始して */
+        0%{opacity: 0;}
+        /* ↓再生時間の1/10時間掛けて不透明化し、
+        再生終了（他の2要素の表示完了）まで状態を維持する */
+        10%,
+        33.3%{opacity: 1;}
+        43.3%,
+        100%{opacity: 0;}
+    }
+    /*↓メインビジュアル画像がやや動きながら表示されるアニメーションの設定
+    画像はobject-fit:coverで実際の画像サイズからやや小さく、
+    表示枠にピッタリ当てはまってアスペクト比がゆがまない様に
+    トリミングされている。
+    トリミングされた画像の位置を指定するプロパティは、
+    object-position: x座標(ex:60%) y座標(ex:50%)これでやや左に表示される
+    のは何故だっけ？
+    object-position のパーセンテージ指定は、以下の非常に厳格なルールで
+    計算されます。 「『画像自身』の X%・Y% の座標点と、
+    『表示枠（箱）』の X%・Y% の座標点をピッタリ重ね合わせろ」
+    例えば object-position: 60% 50%; を指定した場合：
+    画像の横幅のうち、左から 60%（中央より少し右） のポイントを
+    ピン留めします。
+    表示枠（箱）の横幅のうち、左から 60%（中央より少し右） の
+    ポイントをピン留めします。
+    この2つのピンを重ね合わせます。
+    すると、画像の「右寄りの部分（60%）」が、箱の「右寄りの部分（60%）」
+    に固定されるため、画像全体としては**左方向に引っ張られる（はみ出す）
+    **ことになります。結果として、私たちが見る画面上では
+    「画像がやや左に寄って表示された」ように見えるのです。
+    ※箱と中身のサイズが違うから、パーセントの絶対値（ピクセル）に差が出る */
+    @keyframes slide {
+        0%{object-position: 0% 0%;}/* はじめは左上に合わせる */
+        43.3%,
+        100%{object-position: 100% 100%;}   /* 最後は右下に合わせる */
+    }
+    /* ---------------------------------
+    スキルリストのフレックスコンテンツの設定
+    -----------------------------------*/
+    /* .flex-container{ */
+        /* フレックスコンテナ設定。これでスマホで縦にスキル並ぶ筈。 */
+        /* flex-direction: column; */
+    /* } */
+
+    .flex-container > *{
+        flex-basis: auto; /*基準サイズを初期値に戻す（アイテムの高さをコンテンツに合わせる）*/
+    }
+    .flex-contents img{
+        /* 置換要素のコンテンツ設定 */
+        aspect-ratio: auto; /*アスペクト比を初期値に戻す（1列表示時では
+        アスペクトを統一する必要が無いため）*/
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
