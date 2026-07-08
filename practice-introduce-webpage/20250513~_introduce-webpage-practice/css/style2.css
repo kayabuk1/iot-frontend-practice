@@ -382,6 +382,7 @@ dd+dt1セットずつflexで扱う為に必要。 */
 }
 .flex-contents p{
     text-align: left;
+    object-fit: ;
 }
 #skills .content-title{
     display: flex;
