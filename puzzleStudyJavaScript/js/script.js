@@ -76,6 +76,8 @@ function handleStartBtnClick(e){
     // 返し、そうでなければ空文字列を返します。
     initPuzzle();
     // ↑パズル初期化関数の実行
+    // ↓79行目 initPuzzle()の下に shufflePieces()を追加する。
+    shufflePieces()
 }
 /**
  * 「お手本を開く/閉じる」ﾎﾞﾀﾝ押下時の処理
@@ -170,16 +172,333 @@ function initPuzzle(){
         puzzleBoard.appendChild(piece);
         console.log(piece)
 
+        //●173行目辺り ↓7/1 パズルピースがクリックされた時の移植した3つの関数を
+        // 呼び出す処理を記述する。各piece一枚一枚はforの中で
+        // 変数pieceによって管理されている。
+        piece.addEventListener('click', function(){
+            tryMovePiece(piece);
+            // tryMovePiece()が期待する仮引数は、動かしたいﾋﾟｰｽの
+            // そのものの番号stringだがJSは動的型付け言語なので、
+            // 引数の型はチェックしない。
+            // 探される側： pieces 配列（画面にある9個の li 要素のポインタの集まり）
+            // 探すもの： wantMovePiece（今まさにクリックされた li 要素のポインタ）
+            // DOM要素をそのまま渡してDOM要素を探す。という処理に自然に変わっている。
+            // ●これで中身の内部データとしてはパズルの動きが処理できるようになった。
+            // ●次に画面上のモデル上の動きに反映されるようにする。
+            // ●どのように実現するか？
+            // ●各ﾋﾟｰｽにはstyleプロパティがインラインでtransformが設定されている。
+            // ●→クリックされたときにその分移動させる処理を作っていくとのこと。 
+
+            //↓●ピースの画面表示位置を更新する処理関数をすぐに呼び出す
+            // console.log(getMovableIndices())デバッグ用
+            // console.log(piece)
+            // console.log(getMovableIndices().includes(piece))
+            // if(tryMovePiece(piece)===true){
+            // // ↑tryMovePiece(piece)
+            //     updatePiecePosition(piece,blankIndex);
+            // }●↑この書き方では、後でtryMove関数を経由しない処理
+            // （移動可能かどうかの判定が不要な処理）
+            // ピースのシャッフルをする時に、連動させることができない
+            // ので、movePieceの中にupdatePiecePosition関数を
+            // 組み込んでしまうほうが良いとのこと。
+        })
+
         // ↓ピース並び順管理配列にピースを追加※piece="li"作ったピース
         pieces.push(piece);
         
-        }
+        } //←for文の終わり
+
         // puzzleBoard.removeChild(document.querySelector('.puzzle-piece')) replaceChildren();を使うのでコメントアウト
         console.log(pieces); //並び順管理配列追加動作確認用
 
         // ↓空白ピースの位置を記録。totalpiecesは0始まりなので-1しておく
         blankIndex = totalPieces - 1;
         console.log(blankIndex);
+}
+// -----------------------------------------
+// 194行目辺り
+// ↓7/1㈬modele.jsで作ったパズル移動関数を移植
+// -----------------------------------------
+/**
+ * 移動可能なピース（空白ﾋﾟｰｽと隣接するﾋﾟｰｽ）の位置を配列で返す処理
+ * @returns {Array<number>}移動可能なピースの位置index配列
+ */ 
+function getMovableIndices()
+{   
+    let blanekNeigbers = [];
+
+    if(blankIndex % gridSize != 0){
+        blanekNeigbers.push(blankIndex-1);
+        console.log([blankIndex-1]);
+    }
+    if(blankIndex % gridSize != (gridSize-1)){
+        blanekNeigbers.push(blankIndex+1);
+        console.log([blankIndex+1]);
+    }
+    if(0 <= (blankIndex-gridSize)){
+        blanekNeigbers.push(blankIndex-gridSize);
+        console.log([blankIndex-gridSize]);
+    }
+    if((gridSize**2 - gridSize) > blankIndex){
+        blanekNeigbers.push(blankIndex+gridSize);
+        console.log([blankIndex+gridSize]);
+    }
+    // blanekNeigbers.unshift(blankIndex);
+    return blanekNeigbers
+}
+
+// ↓ ●7/6追加関数。
+/**
+ * 移動可能なピースをランダムに選択して複数回の移動を繰り返す処理
+ */
+function shufflePieces(){
+    const shuffleSteps = gridSize**2*4;
+    // ↑シャッフルの回数を保存しておく変数。難易度で変わる様にする。
+    // ↓このfor文上限に↑の数をセットして中でランダムにピースの移動を繰り返す。
+    for (let i=0; i<shuffleSteps; i++){
+        // ★中に書き込む必要な処理を細かく分けて書き込んでみる。
+
+        // １．移動可能なピースを取得する⇒getMovableIndicies()を使用する。
+        // let movableIndices = getMovableIndices();
+        // console.log(movableIndices);
+        // ２．乱数を生成して移動可能なピースのｲﾝﾃﾞｯｸｽのいずれかを選択する。
+
+        // ↓これでは無駄が多いので改良
+        // console.log(pieces.length);
+        // let randomChiceIndex = Math.floor(Math.random()*(pieces.length-1));
+        // console.log(randomChiceIndex);
+        // if(movableIndices.includes(randomChiceIndex)){
+        //     movePiece(randomChiceIndex,movableIndices);
+        // }else{
+        //     i--;
+        // }
+        // ３．選択されたピースを移動する⇒movePiece()を使う。
+        // movePiece();
+
+        // let randomResult = Math.random();
+        // let randomDelimiter = 1/movableIndices.length
+        // // ex:0.3なら、/2したら0.15
+        // // randomResult < randomDelimiter
+        // // randomDelimiter <= randomResult < randomDelimiter *2
+        // // randomDelimiter*2 <= randomResult < randomDelimiter *3
+        // // randomDelimiter*3 <= randomResult <randomDelimiter *4
+        // if(movableIndices.length>=4){
+        //     if(randomResult < randomDelimiter){movePiece(movableIndices[movableIndices.length-1],movableIndices);}
+        //     else if(randomDelimiter <= randomResult < randomDelimiter *2){movePiece(movableIndices[movableIndices.length-2],movableIndices);}
+        //     else if(randomDelimiter*2 <= randomResult < randomDelimiter *3){movePiece(movableIndices[movableIndices.length-3],movableIndices);}
+        //     else{movePiece(movableIndices[movableIndices.length-4],movableIndices);}
+        // }
+        // else if(movableIndices.length>=3){
+        //     if(randomResult < randomDelimiter){movePiece(movableIndices[movableIndices.length-1],movableIndices);}
+        //     else if(randomDelimiter <= randomResult < randomDelimiter *2){movePiece(movableIndices[movableIndices.length-2],movableIndices);}
+        //     else{movePiece(movableIndices[movableIndices.length-3],movableIndices);}
+        // }
+        // else {
+        //     if(randomResult < randomDelimiter){movePiece(movableIndices[movableIndices.length-1],movableIndices);}
+        //     else{movePiece(movableIndices[movableIndices.length-2],movableIndices);}
+        // }
+        // if文の地獄だがこれでもなんとか動いた、、、。がパズルの0行目が全く動かなかった。
+
+        // ↓★正解の一番すっきりしたコード
+        // １．移動可能なピースのインデックス配列（候補リスト）を取得する
+        let movableIndices = getMovableIndices();
+        
+        // ２．候補リストの「長さ」を掛けて切り捨てることで、
+        // 0 〜 (length-1) の安全なランダムポインタ（配列の要素番号）を生成する
+        let randomPointer = Math.floor(Math.random() * movableIndices.length);
+        
+        // ３．生成したポインタを使って、配列から「実際に動かすピースの番号」を抽出
+        let targetIndex = movableIndices[randomPointer];
+        
+        // ４．ピースを移動
+        movePiece(targetIndex, movableIndices);
+
+
+    }
+}
+
+
+
+/**
+ * 引数で指定されたピースが移動可能な場合のみ移動する処理
+ * @param {string} piece 移動対処ピースは文字列で渡すこと
+ */
+// const movalePieceStr = string(blanekNeigbers)
+// function tryMovePiece(movalePieceStr){
+//     for(let i=0; i < length(movalePieceStr); i++)
+//     {
+//     const movalePiecesClicker
+//     = document.querySelector(`.data-correct-index=${movalePieceStr[i]}`);
+//     }
+// }
+// ----------------------------------------------------
+// ↓前回独力で取り組んだが作ることは出来なかった。
+// 6月24日(水)はこの tryMovePiece関数の作成の続きから。
+// ----------------------------------------------------
+// const movalePieceStr = string(blanekNeigbers)
+// li.dataCorrectIndex.addEventListener('click' ,tryMovePiece);
+// function tryMovePiece(movalePieceStr){
+//     if (li.dataCorrectIndex === movalePieceStr) {
+//         // ↑クリックされたのが動かせる配列リストindexと一致するならと書きたいのだけれど、、、
+
+//         // ↑クリックされたピースと空白の位置を入れ替える
+//         blankIndex,movalePieceStr[動かせる配列index] = movalePieceStr[動かせる配列index],blankIndex;        
+//         // ↑blankとの配列番号を入れ替える。
+//     }
+// }
+function tryMovePiece(wantMovePiece){
+    // ●↓この関数を作る上で役に立つarrayｵﾌﾞｼﾞｪｸﾄメソッドの紹介
+    // includes()：配列の中に特定の要素が含まれているかどうかを
+    //             true or false で返してくれる。
+    // indexOf()：arrayの中から対象の要素の場所を教えてくれる。
+    //          対象の要素が含まれていないときは -1が返ってくる。
+    // ●↓どう使うか？
+    // １．indexOf()を使ってユーザーが動かしたい！と選択したピースが
+    //     ピースがピース管理配列上のどの位置にあるか＝インデックスを
+    // 取得する。
+    // ２．前回作ったgetMovablesIndices()を 使って、移動可能な
+    //     ﾋﾟｰｽｲﾝﾃﾞｯｸｽ配列を取得。
+    // ３．includes()を使って、移動可能ﾋﾟｰｽｲﾝﾃﾞｯｸｽ配列に、
+    //     移動させたいﾋﾟｰｽｲﾝﾃﾞｯｸｽが含まれるかを確認すれば良い。
+    // ４．含まれていた場合は、移動させたいピースと移動可能ﾋﾟｰｽｲﾝﾃﾞｯｸｽ
+    //     の位置をスワップすればOK。
+    console.log(`動かしたいピースは${wantMovePiece}`);
+    console.log(`piecesの１次元配列表示：${pieces}`);
+    let wantMovePieceIndex = pieces.indexOf(wantMovePiece);
+    console.log
+    (`選択されたピース(cp※chiced piece)は：${wantMovePieceIndex}`);
+    let movableIndexies = getMovableIndices();
+    console.log
+    (`動かせるピースの位置(movableIndexies)は：${movableIndexies}`);
+    if (movableIndexies.includes(wantMovePieceIndex)){
+        movePiece(wantMovePieceIndex,movableIndexies)
+        // movePiece(cpIndex);
+        // ↑ なぜ引数が足りないのに動く（エラーにならない）のか？
+// 呼び出し側（引数は1つだけ）
+// movePiece(cpIndex);
+// 定義側（引数は2つ待っている）
+// function movePiece(cpIndex, mov) { ... }
+// C言語であれば、コンパイル時に「引数の数が合わない！」と即座に弾かれます。しかし、JavaScriptは実行時にクラッシュしないように作られた言語であるため、引数の数が合わなくても一切エラーになりません。
+// 【裏側で起きている物理演算】 JavaScriptでは、関数を呼び出した時に「渡されなかった引数」があった場合、ブラウザが勝手に気を利かせて**「足りない仮引数には undefined（未定義）という特殊な値を代入しておく」**という処理を行います
+// 。
+// つまり、今回裏側では movePiece(7, undefined); という形で関数が実行されていたため、プログラムが停止することなく動いていたのです。
+    } else {
+        console.log("そのピースは動かせません。\
+            wantMovePieceに違うピースインデックスを代入してください。");
+        console.log(getMovableIndices());
+    }
+    printPuzzle();
+    console.log(`現在の動かせるピースは：${getMovableIndices()}`);
+}
+/**
+ * ﾋﾟｰｽ管理配列内で引数で指定されたｲﾝﾃﾞｯｸｽ要素と
+ * 空白ﾋﾟｰｽを交換する処理をする関数
+ * @param {number} index 移動ピースのｲﾝﾃﾞｯｸｽを渡す
+ */
+function movePiece(wantMovePieceIndex,movableIndexies){
+    // 「入れ子（2重関数定義）」になっていない独立した関数同士では、
+    // 必ず【実行時に実引数として渡し、仮引数で受け取る】必要がある。
+    [pieces[blankIndex], pieces[wantMovePieceIndex]] =
+        [pieces[wantMovePieceIndex], pieces[blankIndex]];
+    let movedpieceindex = wantMovePieceIndex
+    // ↑スワップ後にわかりやすい名前に変更
+
+    let movedPiece = pieces[blankIndex];
+    // updatePiecePosition()に渡すのはliというDOM要素自体にする
+    updatePiecePosition(movedPiece);
+    
+    blankIndex = movedpieceindex;
+    // ↑空白ピース位置ｲﾝﾃﾞｯｸｽ自体を更新する
+
+    console.log(`blankIndexを更新しました：${blankIndex}`);
+    console.log(wantMovePieceIndex,movableIndexies); 
+    console.log(pieces);//←デバック用
+    console.log("ピースを入れ替えました。");  
+}
+// ↑移植関数ここまで
+// -----------------------------------------
+function printPuzzle(){
+    console.log(pieces);
+    for (let i=0; i < gridSize**2; i+=gridSize){
+        let tempArray = [];
+        for(let j=0; j < gridSize; j++){
+            // console.log(pieces[i+j],end="");
+            tempArray.push(pieces[i+j]);
+        }
+        console.log(tempArray);
+    }
+}
+// ●313行目↑7/1printPuzzleも追加。
+// ◆【ステップ 4】アニメーションとスワップ処理
+// 配列の要素が入れ替わっただけでは、画面上のピースは動きません。
+// DOM要素の並び順を変えずに、CSSを使って滑らかなアニメーション移動を
+// 実現します。
+// 4.1 作業内容
+// パズルの各ピースのCSS位置移動を反映させる
+//  updatePiecePosition(index) 関数を作成
+
+/**345行目付近
+ * ﾋﾟｰｽ順番管理配列上で移動されたピースの表示位置を更新する
+ * （ﾋﾟｰｽ順番管理配列上の位置と画面表示上の位置を合わせる）
+ * ↓つまりこれを配列順序更新後に呼び出せばよい。
+ */
+function updatePiecePosition(movedPiece){
+    console.log(movedPiece);
+
+    // pieces[8].style.transform = 'translate(0%, 100%)';
+    // %単位で移動値を指定すると、「その要素自身の大きさ」
+    // に対して何%分動かすかという指示になるとのこと。
+    // ↑試しに1ピースだけ固定値でクリックしたら移動して見える様に
+    // 書くとこのようになるとこと。
+    // ↓画像の表示はこの配列のままだが、
+    //  中身のpiecesのindexはupdatePiecesPosition()が呼ばれた
+    //  段階ですでに入れ替わっているので[8]は↓
+    //  右図の元の5の位置のピースのstyleを操作していることになる。
+    // 
+    // 3_0_1_2 余列↓                      _____
+    // 0|０１２                           |０１２
+    // 1|３４５                           |３４[８]
+    // 2|６７８                           |６７５
+    // 商行→
+    // ●↑を元にピースを汎用的に動かす式を書くにはどうしたら良いか？
+    // ●右のピースが左のピースの位置に戻るように動かせれば達成出来る
+    // ●元のピース位置:5：行5/3 = ➊...2 ※0行始まり
+    //               　  列5/3 = 1...➋ ※0列始まり
+    // ●動かすピース位置8：行8/3 = ➋...1
+    //                  ：列8/3 = 2...➊
+    //  piece.dataset.correctIndex = i;forの中でピース生成時に
+    // correctIndexを追加しているので、それを利用すると良いとのこと。
+    // 
+    // blankIndexとcpIndexは使えそうだな。
+    // 考えるときは具体例を。今回の[8]にblankIndexが移動した後は、
+    // blankIndex=5, cpIndex=8
+    // pieces[cpIndex].style.transform = 
+    // `translate(calc(int(${cpIndex}/3) - int(${blankIndex}/3)*100)%,\
+    // calc(int(${cpIndex}%3) - int(${blankIndex}%3)*100)%);`;
+    // ●↑では間違い。
+    console.log(movedPiece.dataset.correctIndex);
+    console.log(`movedpiece：${movedPiece}`)
+    let currentIndex = pieces.indexOf(movedPiece);
+    console.log(currentIndex);
+    movedPiece.style.transform = 
+    `translate(
+        calc(
+                (${currentIndex%gridSize} 
+                - ${movedPiece.dataset.correctIndex%gridSize}
+                )*100%
+            ),
+        calc(
+                (${Math.floor(currentIndex/gridSize)} 
+                - ${Math.floor(movedPiece.dataset.correctIndex/gridSize)}
+                )*100%
+            )
+     )`;
+//●次： このままではクリックされた時に必ず実行されてしまう。
+// （元の位置－動かした位置が同じなので、ピースは動かないが、
+// 毎回重い処理の計算を行ってtranslate0%,0%が付与されてしまう。
+// それでは非効率なので、移動可能ピースがクリックされた時だけ
+// uodatePiecePosition関数が実行されるようにする。
+
 }
 
 // ↑毎回無名関数を記述するのは面倒なので、関数定義して、
@@ -903,10 +1222,202 @@ function getMovableIndices()
 空白ピースと位置を入れ替える（配列内の要素をスワップする）処理を
 記述してください。
 */
-/**
- * 引数で指定されたピースが移動可能な場合のみ移動する処理
- * @param {string} piece 移動対処ピースは文字列で渡すこと
- */
-function tryMovePiece(piece){
+// /**
+//  * 引数で指定されたピースが移動可能な場合のみ移動する処理
+//  * @param {string} piece 移動対処ピースは文字列で渡すこと
+//  */
+// function tryMovePiece(piece){
 
-}
+// }
+// -----------------------------------------
+// ●↓180行目に7/1㈬modele.jsで作ったパズル移動関数を移植
+// -----------------------------------------
+// /**
+//  * 移動可能なピース（空白ﾋﾟｰｽと隣接するﾋﾟｰｽ）の位置を配列で返す処理
+//  * @returns {Array<number>}移動可能なピースの位置index配列
+//  */ 
+// function getMovableIndices()
+// {   
+//     let blanekNeigbers = [];
+
+//     if(blankIndex % gridSize != 0){
+//         blanekNeigbers.push(blankIndex-1);
+//         console.log([blankIndex-1]);
+//     }
+//     if(blankIndex % gridSize != (gridSize-1)){
+//         blanekNeigbers.push(blankIndex+1);
+//         console.log([blankIndex+1]);
+//     }
+//     if(0 <= (blankIndex-gridSize)){
+//         blanekNeigbers.push(blankIndex-gridSize);
+//         console.log([blankIndex-gridSize]);
+//     }
+//     if((gridSize**2 - gridSize) > blankIndex){
+//         blanekNeigbers.push(blankIndex+gridSize);
+//         console.log([blankIndex+gridSize]);
+//     }
+//     // blanekNeigbers.unshift(blankIndex);
+//     return blanekNeigbers
+// }
+// /**
+//  * 引数で指定されたピースが移動可能な場合のみ移動する処理
+//  * @param {string} piece 移動対処ピースは文字列で渡すこと
+//  */
+// // const movalePieceStr = string(blanekNeigbers)
+// // function tryMovePiece(movalePieceStr){
+// //     for(let i=0; i < length(movalePieceStr); i++)
+// //     {
+// //     const movalePiecesClicker
+// //     = document.querySelector(`.data-correct-index=${movalePieceStr[i]}`);
+// //     }
+// // }
+// // ----------------------------------------------------
+// // ↓前回独力で取り組んだが作ることは出来なかった。
+// // 6月24日(水)はこの tryMovePiece関数の作成の続きから。
+// // ----------------------------------------------------
+// // const movalePieceStr = string(blanekNeigbers)
+// // li.dataCorrectIndex.addEventListener('click' ,tryMovePiece);
+// // function tryMovePiece(movalePieceStr){
+// //     if (li.dataCorrectIndex === movalePieceStr) {
+// //         // ↑クリックされたのが動かせる配列リストindexと一致するならと書きたいのだけれど、、、
+
+// //         // ↑クリックされたピースと空白の位置を入れ替える
+// //         blankIndex,movalePieceStr[動かせる配列index] = movalePieceStr[動かせる配列index],blankIndex;        
+// //         // ↑blankとの配列番号を入れ替える。
+// //     }
+// // }
+// let wantMovePiece = '８';
+// function tryMovePiece(wantMovePiece){
+//     // ●↓この関数を作る上で役に立つarrayｵﾌﾞｼﾞｪｸﾄメソッドの紹介
+//     // includes()：配列の中に特定の要素が含まれているかどうかを
+//     //             true or false で返してくれる。
+//     // indexOf()：arrayの中から対象の要素の場所を教えてくれる。
+//     //          対象の要素が含まれていないときは -1が返ってくる。
+//     // ●↓どう使うか？
+//     // １．indexOf()を使ってユーザーが動かしたい！と選択したピースが
+//     //     ピースがピース管理配列上のどの位置にあるか＝インデックスを
+//     // 取得する。
+//     // ２．前回作ったgetMovablesIndices()を 使って、移動可能な
+//     //     ﾋﾟｰｽｲﾝﾃﾞｯｸｽ配列を取得。
+//     // ３．includes()を使って、移動可能ﾋﾟｰｽｲﾝﾃﾞｯｸｽ配列に、
+//     //     移動させたいﾋﾟｰｽｲﾝﾃﾞｯｸｽが含まれるかを確認すれば良い。
+//     // ４．含まれていた場合は、移動させたいピースと移動可能ﾋﾟｰｽｲﾝﾃﾞｯｸｽ
+//     //     の位置をスワップすればOK。
+//     console.log(`動かしたいピースは${wantMovePiece}`);
+//     console.log(`piecesの１次元配列表示：${pieces}`);
+//     let cpIndex = pieces.indexOf(wantMovePiece);
+//     console.log(`選択されたピース(cp※chiced piece)は：${cpIndex}`);
+//     let movableIndexies = getMovableIndices();
+//     console.log
+//     (`動かせるピースの位置(movableIndexies)は：${movableIndexies}`);
+//     if (movableIndexies.includes(cpIndex)){
+//         movePiece(cpIndex,movableIndexies)
+//         // movePiece(cpIndex);
+//         // ↑ なぜ引数が足りないのに動く（エラーにならない）のか？
+// // 呼び出し側（引数は1つだけ）
+// // movePiece(cpIndex);
+// // 定義側（引数は2つ待っている）
+// // function movePiece(cpIndex, mov) { ... }
+// // C言語であれば、コンパイル時に「引数の数が合わない！」と即座に弾かれます。しかし、JavaScriptは実行時にクラッシュしないように作られた言語であるため、引数の数が合わなくても一切エラーになりません。
+// // 【裏側で起きている物理演算】 JavaScriptでは、関数を呼び出した時に「渡されなかった引数」があった場合、ブラウザが勝手に気を利かせて**「足りない仮引数には undefined（未定義）という特殊な値を代入しておく」**という処理を行います
+// // 。
+// // つまり、今回裏側では movePiece(7, undefined); という形で関数が実行されていたため、プログラムが停止することなく動いていたのです。
+//     } else {
+//         console.log("そのピースは動かせません。\
+//             wantMovePieceに違うピースインデックスを代入してください。");
+//         console.log(getMovableIndices());
+//     }
+//     printPuzzle();
+//     console.log(`現在の動かせるピースは：${getMovableIndices()}`);
+// }
+// /**
+//  * ﾋﾟｰｽ管理配列内で引数で指定されたｲﾝﾃﾞｯｸｽ要素と
+//  * 空白ﾋﾟｰｽを交換する処理をする関数
+//  * @param {number} index 移動ピースのｲﾝﾃﾞｯｸｽを渡す
+//  */
+// function movePiece(cpIndex,movableIndexies){
+//     // 「入れ子（2重関数定義）」になっていない独立した関数同士では、
+//     // 必ず【実行時に実引数として渡し、仮引数で受け取る】必要がある。
+//     [pieces[blankIndex], pieces[cpIndex]] =
+//         [pieces[cpIndex], pieces[blankIndex]];
+//     blankIndex = cpIndex;
+//     console.log(`blankIndexを更新しました：${blankIndex}`);
+//     console.log(cpIndex,movableIndexies); 
+//     console.log(pieces);//←デバック用
+//     console.log("ピースを入れ替えました。");  
+// }
+// // ↑移植関数ここまで
+// // -----------------------------------------
+// function printPuzzle(){
+//     console.log(pieces);
+//     for (let i=0; i < gridSize**2; i+=gridSize){
+//         let tempArray = [];
+//         for(let j=0; j < gridSize; j++){
+//             // console.log(pieces[i+j],end="");
+//             tempArray.push(pieces[i+j]);
+//         }
+//         console.log(tempArray);
+//     }
+// }
+// // ●313行目↑7/1printPuzzleも追加。
+/*
+//●173行目辺り ↓7/1 パズルピースがクリックされた時の移植した3つの関数を
+        // 呼び出す処理を記述する。各piece一枚一枚はforの中で
+        // 変数pieceによって管理されている。
+        piece.addEventListener('click', function(){
+            tryMovePiece(piece);
+            // tryMovePiece()が期待する仮引数は、動かしたいﾋﾟｰｽの
+            // そのものの番号stringだがJSは動的型付け言語なので、
+            // 引数の型はチェックしない。
+            // 探される側： pieces 配列（画面にある9個の li 要素のポインタの集まり）
+            // 探すもの： wantMovePiece（今まさにクリックされた li 要素のポインタ）
+            // DOM要素をそのまま渡してDOM要素を探す。という処理に自然に変わっている。
+        })
+// ●これで中身の内部データとしてはパズルの動きが処理できるようになった。
+// ●次に画面上のモデル上の動きに反映されるようにする。
+// ●どのように実現するか？
+// ●各ﾋﾟｰｽにはstyleプロパティがインラインでtransformが設定されている。
+// ●→クリックされたときにその分移動させる処理を作っていくとのこと。 
+◆334行目付近【ステップ 4】アニメーションとスワップ処理
+配列の要素が入れ替わっただけでは、画面上のピースは動きません。
+DOM要素の並び順を変えずに、CSSを使って滑らかなアニメーション移動を
+実現します。
+4.1 作業内容
+パズルの各ピースのCSS位置移動を反映させる
+ updatePiecePosition(index) 関数を作成してください。
+ピース要素が本来表示されるべき「初期位置（correctRow, correctCol）」
+と、現在のパズル配列内の「現在の位置（row, col）」の差分を
+計算してください。
+その差分をパーセンテージ（100% 単位）に変換し、
+ピース要素の style.transform に対し translate(X, Y) を動的に
+指定してください。
+4.2 ヒント
+例えば、現在の列（col）が 1 で、初期の列（correctCol）が 2 だった場合、
+左方向に1マス分ずれていることになります。
+移動量は (1 - 2) × 100% = -100% となります。
+CSSの transform プロプロティをJavaScriptから文字列テンプレート
+（バッククォート ` を使用）を用いて書き換える方法を調べてみましょう。
+
+// ----------------------------------------------------
+// ★7月8日(水)6，7限は↓ここから
+// しばらくpuzzleから離れて、JSの非同期処理について学習
+// 今回は、その学んだ内容を活かして、項目７．シャッフル処理について
+// やっていくとのこと。
+// ----------------------------------------------------
+⚠シャッフル時に本来なら移動できないピース同士を入れ替えてしまうと、
+　絶対にクリアできないパズルができてしまう。
+⇒乱数は利用するが、あくまで移動できる範囲内で移動を繰り返すことが大事。
+●シャッフル用の関数 shufflePieces(){}を作成。
+// ↓ ●7/6追加関数。tryMoveの上248行目辺り。
+// /**
+//  * 移動可能なピースをランダムに選択して複数回の移動を繰り返す処理
+//  */
+// function shufflePieces(){
+//     const shuffleSteps = gridSize**2*4;
+//     // ↑シャッフルの回数を保存しておく変数。難易度で変わる様にする。
+// }
+// */
+    // initPuzzle();
+    // // ↑パズル初期化関数の実行
+    // // ↓79行目 initPuzzle()の下に shufflePieces()を追加する。
+    // shufflePieces()
