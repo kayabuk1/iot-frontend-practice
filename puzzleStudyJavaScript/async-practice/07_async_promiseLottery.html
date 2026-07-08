@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7.Promiseによる非同期処理（抽選）</title>
+</head>
+<body>
+    <section>
+        <h1>7.Promiseによる非同期処理（抽選）</h1>
+        <p>1秒後に2分の1の確率で「当選」「落選」を出力する</p>
+        <button id="start">スタート</button>
+    </section>
+    <section>
+        <label for="console">コンソール</label><br>
+        <textarea name="console" id="console" rows="10" cols="100" readonly></textarea>
+        <button id="clear-console">クリア</button>
+    </section>
+
+    <script>
+        const console = {
+            // consoleを上書きして、id=consoleの値として出力するように
+            // している。JSでは{}で囲ったものがオブジェクトになり、今回は
+            // logというメソッドオブジェクトを指定している。
+            // =>はアロー演算子 function(str) と(str)=>は等価。
+            log: (str) =>{
+                document.querySelector('#console').value += `${str}\n`
+                // +=引数でもらった文字列自身をvalueに\n付で追加している。
+            }
+        };
+        document.querySelector('#clear-console').addEventListener
+        ('click', ()=>{       
+            document.querySelector('#console').value = '';
+            }
+        ); //valueの中身を今度は""で上書き＝クリア"
+        
+        document.querySelector('#start').addEventListener('click',
+        ()=>{
+            console.log(`抽選を開始しました。`);
+            let lotPromise = lottery(); //➊※実行順
+            // lottery()が実行された直後はまだPennding待機状態。
+            // 約束(Promiseｵﾌﾞｼﾞｪｸﾄ)が作られて変数で受け取っている。
+            lotPromise = lotPromise.then((result)=>{ //➍Promise内の処理が終わる
+            // 前に非同期的に、Promiseの結果が出たらどんな処理をするかということを
+            // 登録できる。
+                // thenメソッドで約束成功時の実行したい処理を登録する。
+                // まだ登録なのでpennding
+                // thenメソッドの戻り値もPromiseｵﾌﾞｼﾞｪｸﾄなので、
+                // ここでlotPromiseを上書きしている。
+                console.log(`当選しました。(${result})`); //➒
+                // thenメソッドが実行されて成功fulfilledの状態
+            });
+            lotPromise = lotPromise.catch((result)=>{ //➎
+                // catchメソッドには約束失敗時の実行したい処理を登録する。
+                // ●catch,thenというのはどんなニュアンスなのだろうか？
+                console.log(`落選しました。(${result})`); //➒
+                // 約束が実行されて失敗rejectedの状態。
+                // .catheもまたPromiseｵﾌﾞｼﾞｪｸﾄを返しlotPromiseを上書きする。
+                //.catchはpythonのtryのexceptに相当。
+            });
+            lotPromise = lotPromise.finally(()=>{ //➏
+                // 約束の結果が確定した時に実行したい処理を登録。
+                console.log(`抽選が終了しました。`) //➓
+                // 約束が実行されて成功or失敗の状態になっている。
+            })
+        });
+
+        // ●Promiseについて：モダンなJavaScriptで現代のフェッチAPIなど
+        // 非同期処理では必ず使われているとのこと。
+        // Promiseの意味は「約束」。その約束が果たされたかどうか確認する為の
+        // ｵﾌﾞｼﾞｪｸﾄがPromiseｵﾌﾞｼﾞｪｸﾄ。
+        /*●Promisでは3つの状態を持つ。
+        １．Pennding保留：非同期処理がまだ終わっていない。
+        ２．Fulfilled履行成功：resolve()が呼ばれた状態。.then()が実行される。
+        ３．Rejected拒否失敗：reject()が呼ばれた状態。.catch()が実行される。        
+        */
+        // ↓抽選用関数
+        function lottery(){
+            const lotPromise = new Promise( //➋Promiseの生成
+                // ↑Promiseｵﾌﾞｼﾞｪｸﾄの生成をしている。
+                (resolve, reject)=> //➌Promise内の処理を同期的に実行※即時
+                // ↑Promiseｵﾌﾞｼﾞｪｸﾄ生成時に渡す無名関数()=>{}
+                // こう言う処理をしてね。という約束の内容。
+                // resolv,rejectも関数。なので関数ｵﾌﾞｼﾞｪｸﾄを引き渡している。
+                {
+                    setTimeout(()=> //➐１秒後抽選処理の実行が開始される。
+                    {
+                        const num = Math.random();
+                        // ramdom()を実行すると0<=x<1の少数が返って来る。
+                        if (num >= 0.5){
+                            // 当選。⇒約束が果たされたとしてresolveを呼び出す。
+                            // resolveには引数を1つだけ渡す事が出来る。
+                            // ⇒成功した結果こんな数字numが出ましたよと通知する。
+                            resolve(num); //➑当選※Promiseの成功を通知
+                            // ●↑resolve,rejectも関数と聞いたけれど、どんな
+                            // 処理をするように設定されているの？
+                        }else{
+                            // 落選。⇒約束不履行としてrejectを呼び出す。
+                            reject(num); //➑落選※Promiseの失敗を通知
+                        }
+                    }, 1000);
+                }
+            );
+            return lotPromise;
+            // 約束の履行情報が入ったPromiseｵﾌﾞｼﾞｪｸﾄを変数で受け取る。
+        }
+    </script>
+</body>
+</html>

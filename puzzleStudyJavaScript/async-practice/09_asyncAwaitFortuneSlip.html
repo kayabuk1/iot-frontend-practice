@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>９.Promiseによる非同期処理（おみくじ）</title>
+</head>
+<body>
+    <section>
+        <h1>９.Promiseによる非同期処理（おみくじ）</h1>
+        <p>１秒間隔でおみくじ※大吉～大凶を引く非同期処理を３回実行し、
+            引き終わったら結果をログに出力する。
+        </p>
+        <button id="start">スタート</button>
+    </section>
+    <section>
+        <label for="console">コンソール</label><br>
+        <textarea name="console" id="console" rows="10" cols="100" readonly></textarea>
+        <button id="clear-console">クリア</button>
+    </section>
+
+    <script>
+        const console = {
+            // consoleを上書きして、id=consoleの値として出力するように
+            // している。JSでは{}で囲ったものがオブジェクトになり、今回は
+            // logというメソッドオブジェクトを指定している。
+            // =>はアロー演算子 function(str) と(str)=>は等価。
+            log: (str) =>{
+                document.querySelector('#console').value += `${str}\n`
+                // +=引数でもらった文字列自身をvalueに\n付で追加している。
+            }
+        };
+        document.querySelector('#clear-console').addEventListener
+        ('click', ()=>{       
+            document.querySelector('#console').value = '';
+            }
+        ); //valueの中身を今度は""で上書き＝クリア"
+        
+        document.querySelector('#start').addEventListener('click',
+        async ()=>{
+        // ↑★ここで async を使っている！
+            const results = []; //先ず空のarrayｵﾌﾞｼﾞｪｸﾄを作成。
+            // ↑３回引いたおみくじの結果を保持する配列
+
+            let time = 1; //←おみくじを引いた回数を管理する為の変数。ｲﾝｸﾘﾒﾝﾄしてく。
+
+            // ↓async/await を使う場合は普通のtryブロックを使う。
+            // try {
+            //     results.push(await fortuneSlip(
+            //         Math.floor(Math.random()*(fortunes.length+1))));
+            //     // ↑★ここに await が付いている！さらに一行めで ; を置いて処理を区切る ↑
+            //     console.log(`${time++}枚目のくじを引きました`);
+            //     results.push(await fortuneSlip(
+            //         Math.floor(Math.random()*(fortunes.length+1))));
+            //     // ↑★ここに await が付いている！さらに一行めで ; を置いて処理を区切る ↑
+            //     console.log(`${time++}枚目のくじを引きました`);
+            //     results.push(await fortuneSlip(
+            //         Math.floor(Math.random()*(fortunes.length+1))));
+            //     // ↑★ここに await が付いている！さらに一行めで ; を置いて処理を区切る ↑
+            //     console.log(`${time++}枚目のくじを引きました`);
+            // } catch(error) {
+            //     console.log(error);
+            // } finally {
+            //     console.log(`結果:${results.join(' => ')}`);
+            // }
+            // ↑おみくじを引くindexをランダムに生成してfortuneSlip関数に渡す。
+            // Math.random()は、0～1(0.999...)未満の数を生成するので、
+            // これに*7してやれば、範囲が0～7未満(6.999...)になる。
+            // ただ今回は 敢えて+1 して length=8 としてエラーになった時の処理が出る
+            // 様にしている。配列の要素数は１始まりなので注意。ｲﾝﾃﾞｯｸｽとは違う。
+
+            //----------------------------------------------------------
+            // async/await for文の書き方↓
+            // -------------------------------------------------------
+             try {
+                for(let i=1; i<4; i++){
+                    results.push(await fortuneSlip(
+                    Math.floor(Math.random()*(fortunes.length+1))));
+                    // ↑★ここに await が付いている！さらに一行めで ; を置いて処理を区切る ↑
+                    console.log(`${time++}枚目のくじを引きました`);
+                }
+                // ↑とても簡単に書き換えることができる。
+            } catch(error) {
+                console.log(error);
+            } finally {
+                console.log(`結果:${results.join(' => ')}`);
+            }
+        });
+
+        // ↓おみくじを引く処理をする関数
+        const fortunes = ['大吉','吉','中吉','小吉','末吉','凶','大凶',];
+        function fortuneSlip(index){
+            return new Promise((resolve, reject)=>{
+                setTimeout(()=>{
+                    if(index < fortunes.length){
+                        resolve(fortunes[index]);
+                    }else{
+                        reject(new Error('ｲﾝﾃﾞｯｸｽが有効範囲を超えた'));
+                    }
+                }, 1000);
+            });
+
+        }
+        
+    </script>
+</body>
+</html>

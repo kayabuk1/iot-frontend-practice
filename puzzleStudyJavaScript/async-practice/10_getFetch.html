@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10.FetchによるGETリクエストの送信</title>
+</head>
+<body>
+    <section>
+        <h1>10.FetchによるGETリクエストの送信</h1>
+        <p>サーバへ非同期でGETﾘｸｴｽﾄ(HTTP)を送信してJSONﾃﾞｰﾀを取得し、
+            それをログに出力する。</p>
+        <button id="start">スタート</button>
+    </section>
+    <section>
+        <label for="console">コンソール</label><br>
+        <textarea name="console" id="console" rows="10" cols="100" readonly></textarea>
+        <button id="clear-console">クリア</button>
+    </section>
+
+    <script>
+        const console = {
+            // consoleを上書きして、id=consoleの値として出力するように
+            // している。JSでは{}で囲ったものがオブジェクトになり、今回は
+            // logというメソッドオブジェクトを指定している。
+            // =>はアロー演算子 function(str) と(str)=>は等価。
+            log: (str) =>{
+                document.querySelector('#console').value += `${str}\n`
+                // +=引数でもらった文字列自身をvalueに\n付で追加している。
+            }
+        };
+        document.querySelector('#clear-console').addEventListener
+        ('click', ()=>{       
+            document.querySelector('#console').value = '';
+            }
+        ); //valueの中身を今度は""で上書き＝クリア"
+        
+
+
+        document.querySelector('#start').addEventListener('click',
+        // async
+         ()=>{
+            const url = '/async/user.json';
+        //     // ↑のURLの書き方はルート相対パス。この書き方をすると/ﾙｰﾄの左側が
+        //     // 補完される。なのでhttp://127.0.0.1:5500/async/user.json
+        //     // 例GO Liveを使った時(簡易的なサーバとして立ち上がっている)
+        //     // http://127.0.0.1:5500/10_getFetch.html となる。
+        //     // httpはスキーマ。127.0.0.1がホスト名。:5500がTCPﾎﾟｰﾄ番号。
+        //     // なので同じ階層にuser.jsonファイルを作ればアクセスできる。
+        //     const response = await fetch(url);
+        //     // ↑fetchにカーソルを合わせるとreturnでPromiseが返ってくることが分る。
+        //     // 返ってくるのは responseｵﾌﾞｼﾞｪｸﾄとのこと？
+        //     // (input:RequestInfo | URL, init?:RequestInit):Promise<Response>
+        //     // ●↑カーソル合わせた時の表示の読み方と各意味が知りたい。
+        //     const user = await response.json();
+
+        //     console.log(`名前：${user.name}`);
+        //     console.log(`年齢：${user.age}`);
+        //     console.log(`住所：${user.address}`);
+
+        //---------------------------------------------------------------------
+        // ↓ async/await を使わずに Promiseﾁｪｰﾝを使うとどんな書き方になるか？ 
+        // -------------------------------------------------------------------
+        // ※上部のasyncもコメントアウト。
+        fetch(url)
+            .then((response)=> response.json()) //省略系暗黙のreturn
+            .then((user)=>{
+            console.log(`名前：${user.name}`);
+            console.log(`年齢：${user.age}`);
+            console.log(`住所：${user.address}`);
+            })
+
+        });
+
+
+    </script>
+</body>
+</html>

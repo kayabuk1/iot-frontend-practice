@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6.非同期処理（カウントタイマー：インターバル処理）</title>
+</head>
+<body>
+    <section>
+        <h1>6.非同期処理（カウントタイマー：インターバル処理）</h1>
+        <p>1秒間隔でログを出力する非同期処理を繰り返し、3回実行されたら終了する
+            ※setinterval関数を使い、何秒おきにこの処理を繰り返せと記述する。
+            ※但し、回数上限を設けないとずっと実行されてしまうので注意
+        </p>
+        <button id="start">スタート</button>
+    </section>
+    <section>
+        <label for="console">コンソール</label><br>
+        <textarea name="console" id="console" rows="10" cols="100" readonly></textarea>
+        <button id="clear-console">クリア</button>
+    </section>
+
+    <script>
+        const console = {
+            // consoleを上書きして、id=consoleの値として出力するように
+            // している。JSでは{}で囲ったものがオブジェクトになり、今回は
+            // logというメソッドオブジェクトを指定している。
+            // =>はアロー演算子 function(str) と(str)=>は等価。
+            log: (str) =>{
+                document.querySelector('#console').value += `${str}\n`
+                // +=引数でもらった文字列自身をvalueに\n付で追加している。
+            }
+        };
+        document.querySelector('#clear-console').addEventListener
+        ('click', ()=>{       
+            document.querySelector('#console').value = '';
+            }
+        ); //valueの中身を今度は""で上書き＝クリア"
+        
+        document.querySelector('#start').addEventListener('click',
+        ()=>{
+            const countTime = 3;
+            let currentTime = 1; //←今何回実行していくか記録して行く変数
+            console.log(`${countTime}秒間のタイマーを開始しました。`);
+            const intervalID = setInterval(()=>{
+                // ↑setInterval()を実行すると、作成されたｲﾝﾀｰﾊﾞﾙｶｳﾝﾄｵﾌﾞｼﾞｪｸﾄの
+                // インターバルIDが毎回返されている。これは変わらない。
+                const nowString = new Date().toLocaleString();
+                console.log(`${currentTime++}秒経過しました。(${nowString})`)
+                // if (currentTime >countTime)clearInterval(intervalID);
+                // ●↑if文は1行なら{}が不要なのは他の言語と同じ。
+                currentTime >countTime && clearInterval(intervalID);
+                // ↑●論理演算子の短絡評価。左側がfalseの時点で評価が打ち切られる。
+                // currentTime >countTime ? clearInterval(intervalID): null;
+                // ↑●JSの三項演算子 pythonの 処理 if 条件 else 処理同じ。
+                // 条件 ? 処理 : 処理(else処理);今回はnullを右に書かないといけない。
+            }, 1000);
+            // 使い方はsetTimeoutとほぼ同じ。第一引数に実行して欲しい関数、
+            // 第二引数に何秒おきに実行してもらいたいか※ミリ秒単位。
+        });
+    </script>
+</body>
+</html>
