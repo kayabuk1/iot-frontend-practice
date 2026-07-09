@@ -264,7 +264,7 @@ function getMovableIndices()
 //         // ↑blankとの配列番号を入れ替える。
 //     }
 // }
-let wantMovePiece = '８';
+wantMovePiece = '８';
 function tryMovePiece(wantMovePiece){
     // ●↓この関数を作る上で役に立つarrayｵﾌﾞｼﾞｪｸﾄメソッドの紹介
     // includes()：配列の中に特定の要素が含まれているかどうかを
@@ -324,4 +324,4 @@ function movePiece(cpIndex,movableIndexies){
     console.log(pieces);//←デバック用
     console.log("ピースを入れ替えました。");  
 }
-*/
+
