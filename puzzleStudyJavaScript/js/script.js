@@ -252,9 +252,20 @@ function getMovableIndices()
 /**
  * 移動可能なピースをランダムに選択して複数回の移動を繰り返す処理
  */
-function shufflePieces(){
-    const shuffleSteps = gridSize**2*4;
+async function shufflePieces(){
+    const shuffleSteps = gridSize**2*4**8;
     // ↑シャッフルの回数を保存しておく変数。難易度で変わる様にする。
+// ----------------------------------------------------------------
+// 7/14 ↓ ピースのシャッフル時の移動を非同期的に目に見えるようにする追加
+// const delayTime = 100; //ミリ秒追加
+// ----------------------------------------------------------------
+    const delayTime = 10; //ミリ秒
+    // ↑そして、386行付近、movePiece(targetIndex)が実行された直後に、
+    // delayTimeミリ秒が経過したら、結果が返される Promise を作成し、
+    // その完了を awaitで待機する処理を追加する。
+
+
+
     // ↓このfor文上限に↑の数をセットして中でランダムにピースの移動を繰り返す。
     // for (let i=0; i<shuffleSteps; i++){
         // ★中に書き込む必要な処理を細かく分けて書き込んでみる。
@@ -326,28 +337,73 @@ function shufflePieces(){
             `movableIndices.indexOf(lastMovedIndex)：${movableIndices.indexOf(lastMovedIndex)}`);
         // ●↑前回移動したピースインデックスをmovableIndicesから削除する。
         console.log(movableIndices.includes(lastMovedIndex));
-        if (movableIndices.includes(lastMovedIndex)){
-                movableIndices.splice(
-                    movableIndices.indexOf(lastMovedIndex), 1);
+        // if (movableIndices.includes(lastMovedIndex)){
+        //         movableIndices.splice(
+        //             movableIndices.indexOf(lastMovedIndex), 1);
+        // }
+        const trueMovableIndices = movableIndices.filter(
+            (movableIndex)=>movableIndex!=lastMovedIndex);
+        console.log(
+            `filterを使った結果※trueMovableIndices:${trueMovableIndices}`);
+        //-------------------------------------------------------
+        //const result = words.filter((word) => word.length > 6);
+        // 7/14火 filterメソッドを使って↑の処理を書き換える。
+        //-------------------------------------------------------
+        /* filterメソッドの中身
+        const array = [];
+        for(i=0; i<movables.length; i++){
+            const movable = movables[i];
+            movables（移動可能なピース配列から1つ取り出して処理を繰り返す。）
+            if(func_x(movables)){
+                ↑のfunc_x = filterﾒｿｯﾄﾞに渡す関数の実行結果がboolean型で戻ってくる
+                array.push(movable);
+                ↑結果がTrueの場合のみ新たな配列arrayに値を追加する。
+            }
         }
-        console.log(`残ったピースインデックス：${movableIndices}`);
+        retrun array;
+        ↓ filetrメソッドに渡す関数
+        func_X(movable){
+            return ここがboolean型になる。
+        }
+        */
+        console.log(`残ったピースインデックス：${trueMovableIndices}`);
         // ２．候補リストの「長さ」を掛けて切り捨てることで、
         // 0 〜 (length-1) の安全なランダムポインタ（配列の要素番号）を生成する
         randomPointer =
-         Math.floor(Math.random() * movableIndices.length);
+         Math.floor(Math.random() * trueMovableIndices.length);
         console.log(`ランダムで選ばれたmovable中のﾋﾟｰｽｲﾝﾃﾞｸｯｽは${randomPointer}
-            動かすpiecesのピースインデックスは${movableIndices[randomPointer]}`
+            動かすpiecesのピースインデックスは${trueMovableIndices[randomPointer]}`
         );
         // ３．生成したポインタを使って、配列から「実際に動かすピースの番号」を抽出
-        let targetIndex = movableIndices[randomPointer];
+        let targetIndex = trueMovableIndices[randomPointer];
         console.log(`targetIndex：${targetIndex}`)
         // ４．ピースを移動
         lastMovedIndex = blankIndex;
         movePiece(targetIndex);
+        //-----------------------------------------
+        // ↑この直後に非同期的処理を追加する。
+        //-----------------------------------------
+        // ----------------------------------------------------------------
+        // 7/14 ↓ ピースのシャッフル時の移動を非同期的に目に見えるようにする追加
+        // const delayTime = 100; //ミリ秒追加
+        // ----------------------------------------------------------------
+        // ↑そして、386行付近、movePiece(targetIndex)が実行された直後に、
+        // delayTimeミリ秒が経過したら、結果が返される Promise を作成し、
+        // その完了を awaitで待機する処理を追加する。
+        try{
+            await wait();
+        }catch(error){;}
+        finally{;}
+        function wait(){return new Promise((resolve, reject)=>{
+            setTimeout(()=>{resolve();}, delayTime);
+        })}
+
+
+
         console.log(`targetIndex：ﾋﾟｰｽｲﾝﾃﾞｸｯｽ${targetIndex}は`)
         console.log(`lastMovedIndex：ﾋﾟｰｽｲﾝﾃﾞｸｯｽ${lastMovedIndex}に移動しました。`)
         console.log(`movableIndices[lastMovedIndex]：
-            ${movableIndices[lastMovedIndex]}`);
+            ${trueMovableIndices[lastMovedIndex]}`);
         // ↑移動したピースインデックスを記憶
         // このピースインデックスをmovableIndicesから除外する処理を追加すればOK
         console.log(`${i}回シャッフルしました。`)
@@ -1545,4 +1601,10 @@ CSSの transform プロプロティをJavaScriptから文字列テンプレー�
 // 昨日はパズル開始ボタン押下時にランダムシャッフル処理を実装
 // ◆しかし課題あまりシャッフルされないことがある
 // ⇒前回移動したピースが選ばれることがあるので、それ記憶させ除外する。
+// ----------------------------------------------------
+// ----------------------------------------------------
+// ★7月14日(火)1限は↓ここから
+// 前回：移動したピースをシャッフルから除外する処理を実装した。
+// しかし、じつはその処理を1行で書くことのできるメソッドがあるとのこと。
+// Array.prototype.filter()メソッド。
 // ----------------------------------------------------
