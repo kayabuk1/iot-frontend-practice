@@ -6,14 +6,15 @@ console.log("Hello World!!")
 // ↑の関数は良くデバッグに使うとのこと。
 // console画面の右端に script.js:4 とあるが、どのプログラムで実行されたかが
 // 表示されている。:4は4行目ということ。 
-const setupArea = document.querySelector('#setup-area');
-console.log(setupArea);
+// const setupArea = document.querySelector('#setup-area');
+// console.log(setupArea);
 
 // --------------------------------------------
 // ◆ステップ1：DOM要素の取得とイベントの設定
 // --------------------------------------------
 // JSで変数を宣言するときは可能な限り const で宣言した方が良いとのこと。
 // constで宣言してもオブジェクトのプロパティは変更できるとのこと。
+const setupArea = document.querySelector('#setup-area');
 const imageSelect = document.querySelector('#image-select');
 const imageFile = document.querySelector('#image-file');
 const imageFileLbl = document.querySelector('#image-file-lbl');
@@ -31,9 +32,23 @@ const clearArea = document.querySelector('#clear-area');
 const finalTime = document.querySelector('#final-time');
 const finalMoves = document.querySelector('#final-moves');
 const restartBtn = document.querySelector('#restart-btn');
+
 // documentはグローバル変数。
 // 何も操作しなくてもブラウザがDOMの操作を出来る様に、
 // ページを読み込んだ時に用意してくれるので宣言せずに使える。
+// -----------------------------------------------------------
+// 7/15水 ゲーム状態遷移制御の為の定数を作成
+// ↓ ゲームステータスを示す定数の定義
+// -----------------------------------------
+const statuses = { //←変数を宣言して{}をつけることでオブジェクトになる。
+    setuping: 0,    //設定中
+    shuffling: 1,   //シャッフル中
+    playing: 2,     //プレイ中
+    cleared: 9      //クリア後
+}
+// ※使い方例 設定中なら、
+//  gameStatus = 0;  にしておく。
+
 
 // -----------------------------------------
 // グローバル変数の宣言を↓にまとめる
@@ -42,6 +57,10 @@ let gridSize; //ピースの分割数を表す変数。(選択された難易度
 let imgUrl;//中身を後で書き換えるのでletに。
 let pieces; //シャッフル時のピース並び順管理用配列
 let blankIndex; //空白ピース位置（盤面上空白ピース位置管理用変数）
+let gameStatus = statuses.setuping; 
+// ↑ 7/15水 現在のゲームの状態を管理する変数。初期値として設定中を入れておく。
+let isShowingPreview = false;
+// ↑ 7/15水 お手本のプレビュー表示状態を管理する変数。初期はfalse。
 // --------------------------------------------
 // イベントリスナーの登録
 // --------------------------------------------
@@ -63,9 +82,12 @@ restartBtn.addEventListener('click', handleRestartBtnClick);
 // 合わせるとコメントを表示してくれる。
 // ⓶APIリファレンスを自動で表示してくれる？
 // ﾌﾟﾛｸﾞﾗﾑ設計書を用意する手間が省けるとのこと。
-function handleStartBtnClick(e){
-    // ↓log主力は画像選択実装時で不要になったのでコメントアウト
-    // console.log(`${e.target.textContent}がクリックされた`)
+async function handleStartBtnClick(e){
+    // e は Event（イベント）オブジェクト。
+    // そして、その中に入っている e.target が Element（HTML要素）。
+    
+        // ↓log主力は画像選択実装時で不要になったのでコメントアウト
+    console.log(`${e.target.textContent}がクリックされた`)
     gridSize = +gridSelect.value;
     // console.log(`gridSizeの型は${typeof gridSize}です`)
     imgUrl = imageSelect.value;
@@ -74,18 +96,53 @@ function handleStartBtnClick(e){
     // 文字列でこのフォームコントロールの値を反映します。
     // 選択されている option 要素があれば最初のものの value プロパティを
     // 返し、そうでなければ空文字列を返します。
+
+    // 7/15水：ゲームステータスの更新
+    gameStatus = statuses.shuffling;
+    console.log(`現在のgameStatusは${gameStatus}`);
+    updateStatusName();
+
+    // -7/15水曜日追記箇所：ステップ5画面切り替え処理----------------------------------------
+    switchArea(gameArea);
+    // -----------------------------------------
+
     initPuzzle();
     // ↑パズル初期化関数の実行
     // ↓79行目 initPuzzle()の下に shufflePieces()を追加する。
-    shufflePieces()
+    await shufflePieces()
+
+    // 7/15水：ゲームステータスをシャッフル中からプレイ中に
+    gameStatus = statuses.playing;
+    console.log(`現在のgameStatusは${gameStatus}`);
+    updateStatusName();
 }
 /**
  * 「お手本を開く/閉じる」ﾎﾞﾀﾝ押下時の処理
  * （お手本の表示/非表示を切り替える）
  * @param {Event} e 
  */
-function handlePreviewBtnClick(e){
+function handlePreviewBtnClick(){
     // console.log(`${e.target.textContent}がクリックされた`)
+    if(!isShowingPreview){
+        previewBtn.textContent = 'お手本を閉じる';
+        isShowingPreview = true;
+        originalPreview.className = '';
+        return;
+    }
+    // isShowingPreviewを切り替える。
+    // お手本(preview)が表示状態と
+        // お手本previewを表示する。
+        // ボタンの名前をお手本を閉じるに変更する
+    if(isShowingPreview){
+        previewBtn.textContent = 'お手本を開く';
+        isShowingPreview = false;
+        originalPreview.className = 'hidden';
+        return;
+    }
+    // お手本preview非表示状態に分ける
+        // お手本previewを非表示にする。
+        // ボタンの名前をお手本を開くに変更する。
+
 }
 /**
  * 「設定に戻る」ﾎﾞﾀﾝ押下時の処理
@@ -93,7 +150,17 @@ function handlePreviewBtnClick(e){
  * @param {Event} e 
  */
 function handleBackBtnClick(e){
-    // console.log(`${e.target.textContent}がクリックされた`)
+    if (isShowingPreview){
+        handlePreviewBtnClick();
+    }
+    console.log(`${e.target.textContent}がクリックされた`)
+
+    // 7/15水：ゲームステータスを設定中に戻す。
+    gameStatus = statuses.setuping;
+    console.log(`現在のgameStatusは${gameStatus}`);
+
+    // 7/15水 表示エリアの切り替え
+    switchArea(setupArea);
 }
 /**
  * 「もう一度遊ぶ」ﾎﾞﾀﾝ押下時の処理
@@ -101,7 +168,8 @@ function handleBackBtnClick(e){
  * @param {Event} e 
  */
 function handleRestartBtnClick(e){
-    // console.log(`${e.target.textContent}がクリックされた`)
+    console.log(`${e.target.textContent}がクリックされた`)
+    switchArea(gameArea);
 }
 /**
  * パズルの初期化処理（パズル盤面に動的にピースを追加する）
@@ -214,6 +282,8 @@ function initPuzzle(){
         // ↓空白ピースの位置を記録。totalpiecesは0始まりなので-1しておく
         blankIndex = totalPieces - 1;
         console.log(blankIndex);
+
+        
 }
 // -----------------------------------------
 // 194行目辺り
@@ -253,13 +323,47 @@ function getMovableIndices()
  * 移動可能なピースをランダムに選択して複数回の移動を繰り返す処理
  */
 async function shufflePieces(){
-    const shuffleSteps = gridSize**2*4**8;
+    const shuffleSteps = gridSize**2*4;
     // ↑シャッフルの回数を保存しておく変数。難易度で変わる様にする。
 // ----------------------------------------------------------------
 // 7/14 ↓ ピースのシャッフル時の移動を非同期的に目に見えるようにする追加
 // const delayTime = 100; //ミリ秒追加
 // ----------------------------------------------------------------
-    const delayTime = 10; //ミリ秒
+// ------------------------------------------------------------
+// ◆ 7/15水、次。難易度によってはシャフルする時間が長すぎるのを変更する。
+// ⇒262行付近delayTimeを固定値ではなくて、計算で求めるようにする。
+// ----------------------------------------------------------------------- 
+// 3*3の時のシャッフル回数＝36回＝3600ミリ秒、なので、
+const delayTime = 3000/shuffleSteps;
+// ⇒上級を選ぶと同時に何ピースも動いてしまっている。
+// ⇒実際にピースが動くに掛かる時間と、待機時間がずれてしまっているため。
+// ⇒実際にピースが動く時間はcssのカスタムプロパティで100msで管理している。
+// ⇒◆CSSのカスタムプロパティの値をJSから変更してやる必要がある。
+    //※documentElementでhtml全要素が取得できる
+    //※ ｶｽﾀﾑﾌﾟﾛﾊﾟﾃｨはID属性の様に自動でキャメルケース表記に
+    // 変換してくれないので、他の方法を使用する必要がある。
+    //● ⇒普通のプロパティはどのように選択、追加していたっけ？
+// 130行目あたりの initPuzzle()内の
+// document.documentElement.style.setProperty('--grid-size', gridsize)
+document.documentElement.style.setProperty(
+    '--piece-move-duration', `${delayTime}ms`)
+// ↑ これで難易度を変えてもシャフル時間が等しくなった。
+// ◆しかし、これによって高難易度では、ゲーム時のクリックの動きまで早くなってしまった。
+// シャフル処理終了後に ↓ の様に戻してやれば達成できるが、
+// もし後でカスタムプロパティを変更したい場合に2か所変更しないといけない。
+// それは、ハードコーディングと言い、保守性が低下して良くないとのこと。
+// document.documentElement.style.setProperty(
+    // '--piece-move-duration', `100ms`)
+// ★この時のHTMLの記述に注目　F12でみると、　
+// <!DOCTYPE html>
+// html lang syle"""~とhtml要素のインライン要素として上書きされている。
+// ⇒★なので設定したHTMLのstyle属性を削除してやれば、CSSの設定に戻る！
+// shufflePuzzle()のfor文を抜けた最後の1行に
+// document.documentElement.style.removeProperty('--piece-move-duration');
+// とプロパティを削除する記述を書いてOK！
+
+
+
     // ↑そして、386行付近、movePiece(targetIndex)が実行された直後に、
     // delayTimeミリ秒が経過したら、結果が返される Promise を作成し、
     // その完了を awaitで待機する処理を追加する。
@@ -312,10 +416,11 @@ async function shufflePieces(){
         // if文の地獄だがこれでもなんとか動いた、、、。がパズルの0行目が全く動かなかった。
 
         // ◆7/9↓ここから-----------------------------------------
-        let lastMovedIndex;
+    let lastMovedIndex;
         // ↑前回移動したピースを記憶するための変数を作成。
-        let randomPointer;
-        for (let i=0; i<shuffleSteps; i++){
+    let randomPointer;
+    for (let i=0; i<shuffleSteps; i++)
+    {
         console.log('------------------シャッフル処理区切り-------------------');
         let currentpiecesarray = {};
         for(let j=0; j < gridSize**2; j++){
@@ -390,6 +495,9 @@ async function shufflePieces(){
         // ↑そして、386行付近、movePiece(targetIndex)が実行された直後に、
         // delayTimeミリ秒が経過したら、結果が返される Promise を作成し、
         // その完了を awaitで待機する処理を追加する。
+        // ----------------------
+        // ↓自分で書いて見た結果。
+        //------------------------
         try{
             await wait();
         }catch(error){;}
@@ -397,8 +505,30 @@ async function shufflePieces(){
         function wait(){return new Promise((resolve, reject)=>{
             setTimeout(()=>{resolve();}, delayTime);
         })}
-
-
+        // -----------------------------------------
+        // 7/15水ここから
+        // waitなど関数を使わずに、直接Promiswを続けても良いとのこと
+        // ↓ 先生の書き方。
+        // -----------------------------------------
+        // delayTimeﾐﾘ秒経過したら、完了するPromiseを作成し、
+        // その完了を await で待機する。
+        // await new Promise((resolve, reject)=>{
+        //     // Promiseの中の処理には delayTimeミリ秒後に完了(成功)を通知する
+        //     // 処理を記述すれば良い。
+        //     setTimeout(() => {
+        //         // その為にはsetimeoutを記述し、その中でresolveを書けば良い。
+        //         // resolve()の引数を渡す時は、成功の通知と 一緒に 実行の結果など
+        //         // を使いたい場合に渡す。ただ、今回はただ待つだけで良いので
+        //         // 何も渡さなくて良い。
+        //         resolve();
+        //     }, delayTime);
+        // })
+        // // -------- ↓ 更に省略して書いたパターン---------------------------------
+        // await new Promise((resolve)=>setTimeout(resolve, delayTime));
+            // setTimeoutの第一引数には第二引数で指定した時間経過後に実行してほしい
+            // 関数を書くが、resolveしかしないので、関数自体を渡す形にしてしまってよい。
+            // 更にPromiseで完了したか判断する処理も1行にまとめて{}を省略して良い。
+            // 更に reject         
 
         console.log(`targetIndex：ﾋﾟｰｽｲﾝﾃﾞｸｯｽ${targetIndex}は`)
         console.log(`lastMovedIndex：ﾋﾟｰｽｲﾝﾃﾞｸｯｽ${lastMovedIndex}に移動しました。`)
@@ -406,7 +536,7 @@ async function shufflePieces(){
             ${trueMovableIndices[lastMovedIndex]}`);
         // ↑移動したピースインデックスを記憶
         // このピースインデックスをmovableIndicesから除外する処理を追加すればOK
-        console.log(`${i}回シャッフルしました。`)
+        console.log(`${i+1}回シャッフルしました。`)
         currentpiecesarray = {};
         for(let j=0; j < gridSize**2; j++){
             let ci = pieces[j].dataset.correctIndex;
@@ -419,6 +549,7 @@ async function shufflePieces(){
             `現在のピース配列※シャッフル前基準：${JSON.stringify(currentpiecesarray)}`);
         console.log(`現在の空白ピースインデックス：${blankIndex}`);
     }
+    document.documentElement.style.removeProperty('--piece-move-duration');
 }
 
 
@@ -604,12 +735,67 @@ function updatePiecePosition(movedPiece){
 // uodatePiecePosition関数が実行されるようにする。
 
 }
+// ------- ↓ 7/15水追加---------------------------------------
+/**
+ * ◆画面に表示するエリアの切替処理をする関数
+ * activeArea に指定されたエリアを画面に表示し、その他のエリアは非表示にする処理。
+ * ※各sectionにclass ="hidden"属性を付与する。 
+ * const setupArea = document.querySelector('#setup-area');
+ * const gameArea = document.querySelector('#game-area');
+ * const clearArea = document.querySelector('#clear-area');
+ * ↑コード上部で先に取得していたエリア要素を利用する。
+ * @param {Element} avtiveArea HTMLの要素＝画面に表示したいエリアを引数で受取る
+ */
+function switchArea(activeArea){
+    // ●１．handleStartBtnClick()内※スタートボタンが押された時に実行される
+    // 関数。これのinitPuzzle()の処理行前に、このswitcArea()が呼び出される様にする
+    // setupArea.className ="space-y hidden";
+    setupArea.classList.add("hidden");
+    gameArea.classList.add("hidden");
+    clearArea.classList.add("hidden");
+    console.log(activeArea);
+    activeArea.classList.remove("hidden");
+}
 
+/**
+    現在のゲームステータスをもとに画面に表示するステータス名を更新する処理。
+ * グローバル変数としてステータス変数は宣言しているので引数は無し。
+ */
+function updateStatusName(){
+    // ステータスがｼｬｯﾌﾙ中の場合はｽﾃｰﾀｽﾊﾞｰに「シャッフル中...」を表示
+    // ステータスがプレイ中の場合は、ｽﾃｰﾀｽﾊﾞｰに「プレイ中」を表示
+    // const text = e.target.textContent;
+    // const stautsLbl = document.querySelector('#status-lbl');
+    if (gameStatus===statuses.shuffling){
+        stautsLbl.textContent = 'シャッフル中...';
+        stautsLbl.className = 'status-shuffling';
+        // ↓ お手本を開くボタンを非活性化
+        //   <label for="emp">雇用:</label>
+        //   <select id="emp" name="emp" disabled></select>
+        // ↑ の様にHTML要素に disabledが設定される。
+        // disabledには論理値＝true/flase が格納される。
+        previewBtn.disabled = true;
+        puzzleBoard.style.pointerEvents = 'none';
+    }
+    else if (gameStatus===statuses.playing){
+        stautsLbl.textContent = 'プレイ中';
+        stautsLbl.className = 'status-playing';
+        // ↓お手本ボタン再活性化
+        previewBtn.disabled = false;
+        puzzleBoard.style.pointerEvents = 'auto';
+    }
+
+
+
+}
+
+//------関数エリアここまで---------------------------------------------------------------
 // ↑毎回無名関数を記述するのは面倒なので、関数定義して、
 // 引数に関数オブジェクト自体※()は付けると実行しろの意になってしまう。
 // を渡して、実行する。
 // 引数の関数名が関数定義より先に来ていても参照エラーにならない。
 
+/**/
 // ↓ボタンが押されたら文字が追加される簡単な処理を書く
 // ※addEventListener()内には実行仕手ほしい処理を書く
 let counter = 0;
@@ -1608,3 +1794,199 @@ CSSの transform プロプロティをJavaScriptから文字列テンプレー�
 // しかし、じつはその処理を1行で書くことのできるメソッドがあるとのこと。
 // Array.prototype.filter()メソッド。
 // ----------------------------------------------------
+//  // -----------------------------------------
+//         // 7/15水ここから
+//         // waitなど関数を使わずに、直接Promiswを続けても良いとのこと
+//         // ↓ 先生の書き方。
+//         // -----------------------------------------
+//         // delayTimeﾐﾘ秒経過したら、完了するPromiseを作成し、
+//         // その完了を await で待機する。
+//         await new Promise((resolve, reject)=>{
+//             // Promiseの中の処理には delayTimeミリ秒後に完了(成功)を通知する
+//             // 処理を記述すれば良い。
+//             setTimeout(() => {
+//                 // その為にはsetimeoutを記述し、その中でresolveを書けば良い。
+//                 // resolve()の引数を渡す時は、成功の通知と 一緒に 実行の結果など
+//                 // を使いたい場合に渡す。ただ、今回はただ待つだけで良いので
+//                 // 何も渡さなくて良い。
+//                 resolve();
+//             }, delayTime);
+//         })
+//         // -------- ↓ 更に省略して書いたパターン---------------------------------
+//         await new Promise((resolve)=>setTimeout(resolve, delayTime));
+//             // setTimeoutの第一引数には第二引数で指定した時間経過後に実行してほしい
+//             // 関数を書くが、resolveしかしないので、関数自体を渡す形にしてしまってよい。
+//             // 更にPromiseで完了したか判断する処理も1行にまとめて{}を省略して良い。
+//             // 更に reject は使っていないので、resolveだけ受け取れば良い。   
+// ------------------------------------------------------------
+// ◆ 7/15水、次。難易度によってはシャフルする時間が長すぎるのを変更する。
+// ⇒262行付近delayTimeを固定値ではなくて、計算で求めるようにする。
+// ----------------------------------------------------------------------- 
+// // 3*3の時のシャッフル回数＝36回＝3600ミリ秒、なので、
+// delayTime = 3000/shuffleSteps; としてみる。
+// ⇒上級を選ぶと同時に何ピースも動いてしまっている。
+// ⇒実際にピースが動くに掛かる時間と、待機時間がずれてしまっているため。
+// ⇒実際にピースが動く時間はcssのカスタムプロパティで100msで管理している。
+// ◆ 7/15水、次。難易度によってはシャフルする時間が長すぎるのを変更する。
+// ⇒262行付近delayTimeを固定値ではなくて、計算で求めるようにする。
+// ----------------------------------------------------------------------- 
+// 3*3の時のシャッフル回数＝36回＝3600ミリ秒、なので、
+// const delayTime = 3000/shuffleSteps;
+// ⇒上級を選ぶと同時に何ピースも動いてしまっている。
+// ⇒実際にピースが動くに掛かる時間と、待機時間がずれてしまっているため。
+// ⇒実際にピースが動く時間はcssのカスタムプロパティで100msで管理している。
+// ⇒◆CSSのカスタムプロパティの値をJSから変更してやる必要がある。
+    //※documentElementでhtml全要素が取得できる
+    //※ ｶｽﾀﾑﾌﾟﾛﾊﾟﾃｨはID属性の様に自動でキャメルケース表記に
+    // 変換してくれないので、他の方法を使用する必要がある。
+    //● ⇒普通のプロパティはどのように選択、追加していたっけ？
+// 130行目あたりの initPuzzle()内の
+// document.documentElement.style.setProperty('--grid-size', gridsize)
+// document.documentElement.style.setProperty(
+//     '--piece-move-duration', `${delayTime}ms`)
+// ↑ これで難易度を変えてもシャフル時間が等しくなった。
+// ◆しかし、これによって高難易度では、ゲーム時のクリックの動きまで早くなってしまった。
+// シャフル処理終了後に ↓ の様に戻してやれば達成できるが、
+// もし後でカスタムプロパティを変更したい場合に2か所変更しないといけない。
+// それは、ハードコーディングと言い、保守性が低下して良くないとのこと。
+// document.documentElement.style.setProperty(
+    // '--piece-move-duration', `100ms`)
+// ★この時のHTMLの記述に注目　F12でみると、　
+// <!DOCTYPE html>
+// html lang syle"""~とhtml要素のインライン要素として上書きされている。
+// ⇒★なので設定したHTMLのstyle属性を削除してやれば、CSSの設定に戻る！
+// shufflePuzzle()のfor文を抜けた最後の1行に
+// document.documentElement.style.removeProperty('--piece-move-duration');
+// とプロパティを削除する記述を書いてOK！
+//-----------------------------------------------------------------------
+// ◆次ステップ5
+//   ゲームステータス管理と表示画面の切り替えを出来るようにする。
+// ----------------------------------------------------------------
+// function handleStartBtnClick(e){
+//     // ↓log主力は画像選択実装時で不要になったのでコメントアウト
+//     console.log(`${e.target.textContent}がクリックされた`)
+//     gridSize = +gridSelect.value;
+//     // console.log(`gridSizeの型は${typeof gridSize}です`)
+//     imgUrl = imageSelect.value;
+//     // ↑グローバル変数に画像のURLを代入。
+//     // HTMLSelectElement.valueとは：
+//     // 文字列でこのフォームコントロールの値を反映します。
+//     // 選択されている option 要素があれば最初のものの value プロパティを
+//     // 返し、そうでなければ空文字列を返します。
+
+//     // -7/15水曜日追記箇所：ステップ5画面切り替え処理----------------------------------------
+//     switchArea(gameArea);
+    // ------- ↓ 7/15水追加---------------------------------------
+// /**
+//  * ◆画面に表示するエリアの切替処理をする関数
+//  * activeArea に指定されたエリアを画面に表示し、その他のエリアは非表示にする処理。
+//  * ※各sectionにclass ="hidden"属性を付与する。 
+//  * const setupArea = document.querySelector('#setup-area');
+//  * const gameArea = document.querySelector('#game-area');
+//  * const clearArea = document.querySelector('#clear-area');
+//  * ↑コード上部で先に取得していたエリア要素を利用する。
+//  * @param {Element} avtiveArea HTMLの要素＝画面に表示したいエリアを引数で受取る
+//  */
+// function switchArea(activeArea){
+//     // ●１．handleStartBtnClick()内※スタートボタンが押された時に実行される
+//     // 関数。これのinitPuzzle()の処理行前に、このswitcArea()が呼び出される様にする
+//     // setupArea.className ="space-y hidden";
+//     setupArea.classList.add("hidden");
+//     gameArea.classList.add("hidden");
+//     clearArea.classList.add("hidden");
+//     console.log(activeArea);
+//     activeArea.classList.remove("hidden");
+// }
+// ◆↑思いつかなかったなぁ。全部一度非表示にして。引数をswitchAreaに渡す時に
+//   startbtnで呼び出されたから、e からどうやって目的のエリアに行くかと、
+//   うんうんうなって詰まってしまったなぁ、、、。
+//-----------------------------------------------------------------------
+// ◆次
+//   シャフル中にピースをクリックして移動出来てしまはないようにする。
+// 　⇒その為にステータス(状態)の管理が必要になる。
+// ----------------------------------------------------------------
+// ●グローバル変数30行目くらいに
+// let gameStatus; を追加。
+// 状態を管理する時は、変数に何の値を入れるかは決まっていないが、
+// 数字を入れて管理するのが一般的とのこと。
+// ※ただし数字だけでは、その数字が何を意味するかをソースコード上できちんと
+// 定義しておかないといけない。
+// ●ほかの言語では enum関数など番号に名前を振る機能が用意されているが、
+//  JSでは無いので、ステータスと名前を管理するオブジェクトを別に用意する。
+// -----------------------------------------------------------
+// 7/15水 ゲーム状態遷移制御の為の定数を作成
+// ↓ ゲームステータスを示す定数の定義
+// -----------------------------------------
+// const statuses = { //←変数を宣言して{}をつけることでオブジェクトになる。
+//     setuping: 0,    //設定中
+//     shuffling: 1,   //シャッフル中
+//     playing: 2,     //プレイ中
+//     cleared: 9      //クリア後
+// }
+// ※使い方例 設定中なら、
+//  gameStatus = 0;  にしておく。
+// ----↓追記内容-----------------------------------------
+// function handleStartBtnClick(e){
+//     // ↓log主力は画像選択実装時で不要になったのでコメントアウト
+//     console.log(`${e.target.textContent}がクリックされた`)
+//     gridSize = +gridSelect.value;
+//     // console.log(`gridSizeの型は${typeof gridSize}です`)
+//     imgUrl = imageSelect.value;
+//     // ↑グローバル変数に画像のURLを代入。
+//     // HTMLSelectElement.valueとは：
+//     // 文字列でこのフォームコントロールの値を反映します。
+//     // 選択されている option 要素があれば最初のものの value プロパティを
+//     // 返し、そうでなければ空文字列を返します。
+
+//     // 7/15水：ゲームステータスの更新
+//     gameStatus = statuses.shuffling;
+//     console.log(`現在のgameStatusは${gameStatus}`);
+
+//     // -7/15水曜日追記箇所：ステップ5画面切り替え処理----------------------------------------
+//     switchArea(gameArea);
+//     // -----------------------------------------
+
+//     initPuzzle();
+//     // ↑パズル初期化関数の実行
+//     // ↓79行目 initPuzzle()の下に shufflePieces()を追加する。
+//     shufflePieces()
+
+//     // 7/15水：ゲームステータスをシャッフル中からプレイ中に
+//     gameStatus = statuses.playing;
+//     console.log(`現在のgameStatusは${gameStatus}`);
+// }
+// -----------------------------------------
+// ◆課題：shuffleを非同期にしてしまったので、
+//   shuffle処理が終わる前にステータスが変わってしまう。
+// ⇒async function handleStartBtnClick自体をasyncにして 
+// awasit shufflePiece();にしてやればよい。
+// ---------------------------------------
+// async function handleStartBtnClick(e){
+//     // ↓log主力は画像選択実装時で不要になったのでコメントアウト
+//     console.log(`${e.target.textContent}がクリックされた`)
+//     gridSize = +gridSelect.value;
+//     // console.log(`gridSizeの型は${typeof gridSize}です`)
+//     imgUrl = imageSelect.value;
+//     // ↑グローバル変数に画像のURLを代入。
+//     // HTMLSelectElement.valueとは：
+//     // 文字列でこのフォームコントロールの値を反映します。
+//     // 選択されている option 要素があれば最初のものの value プロパティを
+//     // 返し、そうでなければ空文字列を返します。
+
+//     // 7/15水：ゲームステータスの更新
+//     gameStatus = statuses.shuffling;
+//     console.log(`現在のgameStatusは${gameStatus}`);
+
+//     // -7/15水曜日追記箇所：ステップ5画面切り替え処理----------------------------------------
+//     switchArea(gameArea);
+//     // -----------------------------------------
+
+//     initPuzzle();
+//     // ↑パズル初期化関数の実行
+//     // ↓79行目 initPuzzle()の下に shufflePieces()を追加する。
+//     await shufflePieces()
+
+//     // 7/15水：ゲームステータスをシャッフル中からプレイ中に
+//     gameStatus = statuses.playing;
+//     console.log(`現在のgameStatusは${gameStatus}`);
+// }
