@@ -61,6 +61,17 @@ let gameStatus = statuses.setuping;
 // ↑ 7/15水 現在のゲームの状態を管理する変数。初期値として設定中を入れておく。
 let isShowingPreview = false;
 // ↑ 7/15水 お手本のプレビュー表示状態を管理する変数。初期はfalse。
+let moveCount;
+// ↑ 7/21火 ゲーム時に動かしたピースの数を数えるカウンター変数を設置。
+// ↓ 7/21火 ｽﾃｰﾀｽﾊﾞｰ経過時間表示の為のｸﾞﾛｰﾊﾞﾙ変数を追加。
+let elapsedSeconds;
+let timerTntervalID = null;
+//👆先生の記述。インターバルIDをnullで初期化する。
+// let elapsedMinutes;不要に
+// let strElMi;
+// let strElSec;
+// let timeString; これら3つも constで関数内で宣言して使い捨てられるようにする。
+
 // --------------------------------------------
 // イベントリスナーの登録
 // --------------------------------------------
@@ -102,6 +113,10 @@ async function handleStartBtnClick(e){
     console.log(`現在のgameStatusは${gameStatus}`);
     updateStatusName();
 
+    // -7/22水追記----------------------------------------
+    // resetTimer(); //117行目
+    // 128行目にif (!await shufflePieces()) return;を追加したのでコメントアウト
+
     // -7/15水曜日追記箇所：ステップ5画面切り替え処理----------------------------------------
     switchArea(gameArea);
     // -----------------------------------------
@@ -109,7 +124,11 @@ async function handleStartBtnClick(e){
     initPuzzle();
     // ↑パズル初期化関数の実行
     // ↓79行目 initPuzzle()の下に shufflePieces()を追加する。
-    await shufflePieces()
+    if (!await shufflePieces()) return;
+    // 👆7/22水シャッフルが中断された時は下の処理が実行されないように追加。
+
+    // 7/22水追記カウンター処理
+    startTimer();
 
     // 7/15水：ゲームステータスをシャッフル中からプレイ中に
     gameStatus = statuses.playing;
@@ -155,6 +174,9 @@ function handleBackBtnClick(e){
     }
     console.log(`${e.target.textContent}がクリックされた`)
 
+    // 7/22水 追記
+    resetTimer();
+
     // 7/15水：ゲームステータスを設定中に戻す。
     gameStatus = statuses.setuping;
     console.log(`現在のgameStatusは${gameStatus}`);
@@ -175,6 +197,12 @@ function handleRestartBtnClick(e){
  * パズルの初期化処理（パズル盤面に動的にピースを追加する）
  */
 function initPuzzle(){
+    // ↓ 7/21火 追記箇所ｽﾃｰﾀｽﾊﾞｰ手数カウンターをパズル初期化時に同時に初期化-------
+    // moveCount = 0;
+    // moveCounter.textContent = moveCount;⇒関数化の為コメントアウト
+    upadateMoveCount();
+    // ------------------------------------------------------------------
+
     // ↓追加するそうピース数(1辺の分割数の2乗でｓ算出)
     const totalPieces = gridSize ** 2;
     // console.log(`パズルピース総数は${totalPieces}枚です`)もういらないのでコメントアウト
@@ -323,7 +351,7 @@ function getMovableIndices()
  * 移動可能なピースをランダムに選択して複数回の移動を繰り返す処理
  */
 async function shufflePieces(){
-    const shuffleSteps = gridSize**2*4;
+    const shuffleSteps = 1 ;//gridSize**2*4;
     // ↑シャッフルの回数を保存しておく変数。難易度で変わる様にする。
 // ----------------------------------------------------------------
 // 7/14 ↓ ピースのシャッフル時の移動を非同期的に目に見えるようにする追加
@@ -420,7 +448,10 @@ document.documentElement.style.setProperty(
         // ↑前回移動したピースを記憶するための変数を作成。
     let randomPointer;
     for (let i=0; i<shuffleSteps; i++)
-    {
+    {   
+        // -----7/21火曜日ここから↓設定に戻るで二重シャッフルされている処理を中断させる------------------
+        if(gameStatus!==statuses.shuffling) return false; //👈false7/22水追加。
+
         console.log('------------------シャッフル処理区切り-------------------');
         let currentpiecesarray = {};
         for(let j=0; j < gridSize**2; j++){
@@ -550,6 +581,9 @@ document.documentElement.style.setProperty(
         console.log(`現在の空白ピースインデックス：${blankIndex}`);
     }
     document.documentElement.style.removeProperty('--piece-move-duration');
+
+    // ↓ 7/22水追記箇所
+    return true;
 }
 
 
@@ -582,6 +616,20 @@ document.documentElement.style.setProperty(
 //     }
 // }
 function tryMovePiece(wantMovePiece){
+    if(moveCount===0){
+        console.log('-----------------------ゲーム開始---------------------------');
+    }
+    let currentpiecesarray = {};
+    for(let j=0; j < gridSize**2; j++){
+        let ci = pieces[j].dataset.correctIndex;
+        let str = ci.replace(/[0-9]/g, function(char){
+        return String.fromCharCode(char.charCodeAt(0)+0xFEE0);
+        });
+        currentpiecesarray[j] = str;
+        }
+        console.log(
+            `現在のピース配列
+            ※ﾋﾟｰｽｲﾝﾃﾞｯｸｽ：ピース番号：${JSON.stringify(currentpiecesarray)}`);    
     // ●↓この関数を作る上で役に立つarrayｵﾌﾞｼﾞｪｸﾄメソッドの紹介
     // includes()：配列の中に特定の要素が含まれているかどうかを
     //             true or false で返してくれる。
@@ -607,6 +655,12 @@ function tryMovePiece(wantMovePiece){
     (`動かせるピースの位置(movableIndexies)は：${movableIndexies}`);
     if (movableIndexies.includes(wantMovePieceIndex)){
         movePiece(wantMovePieceIndex,movableIndexies)
+        // --↓ 7/21火 -追加箇所------
+        // moveCount++;
+        // moveCounter.textContent = moveCount;⇒関数化の為コメントアウト
+        upadateMoveCount();
+        // -------------------------
+
         // movePiece(cpIndex);
         // ↑ なぜ引数が足りないのに動く（エラーにならない）のか？
 // 呼び出し側（引数は1つだけ）
@@ -622,9 +676,29 @@ function tryMovePiece(wantMovePiece){
             wantMovePieceに違うピースインデックスを代入してください。");
         console.log(getMovableIndices());
     }
-    printPuzzle();
+    // printPuzzle();
     console.log(`現在の動かせるピースは：${getMovableIndices()}`);
+
+ currentpiecesarray = {};
+        for(let j=0; j < gridSize**2; j++){
+            let ci = pieces[j].dataset.correctIndex;
+            let str = ci.replace(/[0-9]/g, function(char){
+                return String.fromCharCode(char.charCodeAt(0)+0xFEE0);
+            });
+            currentpiecesarray[j] = str;
+        }
+        console.log(
+            `現在のピース配列※シャッフル前基準：${JSON.stringify(
+                currentpiecesarray)}`);
+        console.log(`現在の空白ピースインデックス：${blankIndex}`); 
+
+//ゲームクリアチェックを毎回一手動かすごとにチェックしていく。 
+checkGameClear();
+console.log('----------------------------１手終了-------------------------');
 }
+
+
+
 /**
  * ﾋﾟｰｽ管理配列内で引数で指定されたｲﾝﾃﾞｯｸｽ要素と
  * 空白ﾋﾟｰｽを交換する処理をする関数
@@ -735,6 +809,8 @@ function updatePiecePosition(movedPiece){
 // uodatePiecePosition関数が実行されるようにする。
 
 }
+
+
 // ------- ↓ 7/15水追加---------------------------------------
 /**
  * ◆画面に表示するエリアの切替処理をする関数
@@ -788,7 +864,54 @@ function updateStatusName(){
 
 
 }
+/**
+ * ピースの移動させた手数を記録させる関数
+ * @param {*} 
+ */
+function upadateMoveCount(){
+     if((gameStatus===statuses.setuping)||(gameStatus===statuses.shuffling))
+        {
+         moveCount = 0;
+         moveCounter.textContent = moveCount;
+         console.log(`moveCount：${moveCount}`)
+         return;
+     }
+     else if(gameStatus===statuses.playing){
+         moveCount++;
+         moveCounter.textContent = moveCount;
+         console.log(`moveCount：${moveCount}`)
+         return;
+     }
+}
 
+/**
+ * 
+ */
+function startTimer(){
+     elapsedSeconds = 57;
+     renderTimer(elapsedSeconds);
+     timerTntervalID = setInterval(updateTimer, 1000);
+    }
+function updateTimer(){
+    elapsedSeconds++;
+    renderTimer(elapsedSeconds);
+    }
+function resetTimer(){
+    clearInterval(timerTntervalID);
+    elapsedSeconds = 0;
+    renderTimer(elapsedSeconds);
+}
+function renderTimer(Seconds){
+    const strMi = Math.floor(Seconds/60).toString().padStart(2, '0');
+    const strSec = (Seconds%60).toString().padStart(2, '0');
+    const timeString = `${strMi}：${strSec}`;
+    timer.textContent = timeString;
+}
+
+
+
+
+// ----------------------------------------------------------------------------------
 //------関数エリアここまで---------------------------------------------------------------
 // ↑毎回無名関数を記述するのは面倒なので、関数定義して、
 // 引数に関数オブジェクト自体※()は付けると実行しろの意になってしまう。
@@ -1990,3 +2113,319 @@ CSSの transform プロプロティをJavaScriptから文字列テンプレー�
 //     gameStatus = statuses.playing;
 //     console.log(`現在のgameStatusは${gameStatus}`);
 // }
+
+// -----------------------------------------------------------
+// 7/21火 午前授業内容ここから
+// ●設定に戻るでシャッフル2重処理がおこなわれてしまうのを止める
+// ◆【手数の更新】
+// ●手数を数える為のグローバル変数を作成。
+// 64行目辺り、let moveCount;
+// ↑ 7/21火 ゲーム時に動かしたピースの数を数えるカウンター変数を設置。
+// ・ゲームが開始されたらmoveCountを0に初期化
+//   ⇒handleStartBtn(e){}中(initPuzzleなどが呼ばれる)で、moveCount = 0;
+//     と言う初期化処理をする。function initPuzzleの中で
+//     Piec.addEventListener('click'),fnciton(){tryMovePiece(piece)で
+// 　　 }ピースを動かす処理が記載されているので、この中で一つの処理＝ピースを
+//     動かす処理が終わったら moveCountをインクリメントしてやれば良い。
+// 　　※そう言えばなぜinitPuzzleの中でピースを動かす処理も組み込んでいるのだっけ？
+// 　　⇒tryMoveの中のmovePiece処理が終わった段階で moveCountをインクリメントするの
+// 　　　のが良さそう。
+// 　　⇒このすぐ次に  <p>手数: <span id="move-counter">0</span>回</p>
+//      なので、moveCounter.textContent = str(moveCount):？
+//      str()ではundefineとなる✖。moveCounter.textContent = '${moveCount}';
+// 　　 では、手数: ${moveCount}回となってしまう⇒失敗。
+// 　　⇒moveCounter.textContent = moveCount;シンプルにこれで良かった。
+// 　　⇒関数化がまだ出来ていない。また、設定に戻る⇒ゲーム開始ボタン押下時に、
+//      ｽﾃｰﾀｽﾊﾞｰのカウントがまだ9回のままなので、
+//      moveCount.textContent =  moveCount;をmoveCount = 0;の直下に合わせて記述
+// 　　 してｽﾃｰﾀｽﾊﾞｰも初期化をする。
+// ・クリックによってピースが移動されたらmoveCountをインクリメント
+// ・moveCountの更新と同じタイミングでステータスバーの手数の表示を更新。
+// ・updateMoveCount(count)関数を作り、その中でｽﾃｰﾀｽﾊﾞｰの手数の表示を更新。
+// ⇒より汎用的に手数の更新を変えられるようにするには、呼び出し時のgamestatusによって
+// 　処理が変わるステートマシンとして記述する？gamestatusはグローバル変数だから、
+// 　引数として受け取る必要は無いのかな。
+// ⇒upadateMoveCount(✖moveCount){
+//      if(gamestatus===statuses.setuuping){
+//          moveCount = 0;
+//          moveCounter.textContent = moveCount;
+//      }
+//      else if(gamestatus===statuses.playing){
+//          moveCount++;
+//          moveCounter.textContent = moveCount;
+//      }
+// }
+// ⇒function upadateMoveCount(){moveCountはグローバル変数なのでシャドーイングが
+// 　起きないように、グローバル変数をいじる関数は引数でグローバル変数を渡さない。
+
+// ◆【時間の更新】の記述方針
+// ・グローバル変数：elapsedSeconds（経過時間）を宣言する。
+//   ⇒66行目辺り let elapsedSeconds;
+// ・ゲーム開始がされたら、elapsedScondsを0に初期化。
+// ・シャッフルが終わったらstartTimer()関数を実行
+// ・startTimer関数を作り、その中でインターバル処理を使って1秒おきに
+// 　elapsedSecondsをインクリメント。
+// ・elapsedSecondsの更新と同じタイミングでupdateTimer(seconds)関数を実行。
+// ・upadateTimer(seconds)関数を作り、その中でｽﾃｰﾀｽﾊﾞｰの時間にsecondsを反映する。
+// ⇒全て関数化するとして処理を記述してみる。
+// 
+// 67行目let elapsedSeconds;
+// 68行目let intervalID;
+// 
+// --↓ 7/22水曜日ここから---------------------------------------
+// 833行目辺り function startTimer(){
+//      elapsedSeconds = 0;
+//      timer.textContent = elapsedSeconds;
+//      intervalID = setInterval(updateTimer, 1000);
+//     }
+// function updateTimer(){
+//          ++elapsedSeconds;
+//          timer.textContent = elapsedSeconds;
+//         }
+// function resetTimer(){
+//     clearInterval(intervalID);
+//     elapsedSeconds = 0;
+//     timer.textContent = elapsedSeconds;
+// }
+// }
+// ↓ 91行目
+// async function handleStartBtnClick(e){
+//     // e は Event（イベント）オブジェクト。
+//     // そして、その中に入っている e.target が Element（HTML要素）。
+    
+//         // ↓log主力は画像選択実装時で不要になったのでコメントアウト
+//     console.log(`${e.target.textContent}がクリックされた`)
+//     gridSize = +gridSelect.value;
+//     // console.log(`gridSizeの型は${typeof gridSize}です`)
+//     imgUrl = imageSelect.value;
+//     // ↑グローバル変数に画像のURLを代入。
+//     // HTMLSelectElement.valueとは：
+//     // 文字列でこのフォームコントロールの値を反映します。
+//     // 選択されている option 要素があれば最初のものの value プロパティを
+//     // 返し、そうでなければ空文字列を返します。
+
+//     // 7/15水：ゲームステータスの更新
+//     gameStatus = statuses.shuffling;
+//     console.log(`現在のgameStatusは${gameStatus}`);
+//     updateStatusName();
+
+//     // -7/22水追記----------------------------------------
+//     resetTimer();
+
+//     // -7/15水曜日追記箇所：ステップ5画面切り替え処理----------------------------------------
+//     switchArea(gameArea);
+//     // -----------------------------------------
+
+//     initPuzzle();
+//     // ↑パズル初期化関数の実行
+//     // ↓79行目 initPuzzle()の下に shufflePieces()を追加する。
+//     await shufflePieces()
+
+//     // 7/22水追記カウンター処理
+//     startTimer();
+
+//     // 7/15水：ゲームステータスをシャッフル中からプレイ中に
+//     gameStatus = statuses.playing;
+//     console.log(`現在のgameStatusは${gameStatus}`);
+//     updateStatusName();
+// }
+// ----------------------------------------------------------------------------------
+// 60秒で1分に切り替わる＆0埋め＆00分00秒表記になるように調整。
+// ----------------------------------------------------------------------------------
+// let elapsedSeconds;
+// let intervalID;
+// 69行目let elapsedMinutes;を追加。
+// let strElMi;
+// let strElSec;
+// let timeString;
+
+// function startTimer(){
+//      elapsedSeconds = 57;
+//      elapsedMinutes = 0;
+//      strElMi = elapsedMinutes.toString().padStart(2, 0);
+//      strElSec = elapsedSeconds.toString().padStart(2, 0);
+//      timeString = `${strElMi}分${strElSec}秒`;
+//      timer.textContent = timeString;
+//      intervalID = setInterval(updateTimer, 1000);
+//     }
+// function updateTimer(){
+//     elapsedSeconds++;
+//     if(elapsedSeconds >= 60){
+//         elapsedMinutes++;
+//         elapsedSeconds = 0;
+//     }
+//     strElMi = elapsedMinutes.toString().padStart(2, 0);
+//     strElSec = elapsedSeconds.toString().padStart(2, 0);
+//     timeString = `${strElMi}分${strElSec}秒`;
+//     timer.textContent = timeString;
+//     }
+// function resetTimer(){
+//     clearInterval(intervalID);
+//     elapsedSeconds = 0;
+//     elapsedMinutes = 0;
+//     strElMi = elapsedMinutes.toString().padStart(2, 0);
+//     strElSec = elapsedSeconds.toString().padStart(2, 0);
+//     timeString = `${strElMi}分${strElSec}秒`;
+//     timer.textContent = timeString;
+// }
+// ----------------------------------------------------------------------------------
+// --↓ 7/22水 分用の変数を用意せず割り算でやってみる。---------
+// function startTimer(){
+//      elapsedSeconds = 57;
+//      renderTimer(elapsedSeconds);
+//      intervalID = setInterval(updateTimer, 1000);
+//     }
+// function updateTimer(){
+//     elapsedSeconds++;
+//     renderTimer(elapsedSeconds);
+//     }
+// function resetTimer(){
+//     clearInterval(intervalID);
+//     elapsedSeconds = 0;
+//     renderTimer(elapsedSeconds);
+// }
+// function renderTimer(elapsedSeconds){
+//     strElMi = (elapsedSeconds%60).toString().padStart(2, '0');
+//     strElSec = Math.floor(elapsedSeconds/60).toString().padStart(2, '0');
+//     timeString = `${strElMi}分${strElSec}秒`;
+//     timer.textContent = timeString;
+// }
+// ◆なぜシャッフル中に戻るを押すとタイマーが二重に起動してしまうのか。
+// なぜ「戻る」を押すと startTimer が実行されてしまうのか？
+// 原因は、先日実装した**「シャッフルを中断する処理」**にあります。
+// // shufflePieces() の中身
+// if(gameStatus !== statuses.shuffling){
+//     return; // ← ★これが原因！
+// }
+// 
+// --- ↓ 7/22水 先生の模範解答--------------------------------------
+// /**
+//  * 1秒置きに経過時間を更新する処理
+//  */
+// function startTimer(){
+//     setInterval(() => updateTimer(++elapsedSeconds), 1000);
+// }
+
+// /**
+//  * 実行中の経過時間表示用のインターバルを停止する処理
+//  * もしインターバルが走っていない時に呼ばれた時もエラーにならないようにする。
+//  * 使うタイミング2パターンある。
+//  * 設定戻る押下時に呼び出す:handleBackBtn()内に記述。
+//  * 
+//  */
+// function stopTimer(){
+//     if(timerTntervalID===null) return; //何もしないで呼出元に戻る。
+//     clearInterval(timerTntervalID);
+//     timerTntervalID = null; //インターバルIDをnullに戻しておく。
+// }
+
+// /**
+//  * 経過時間をステータスバーの時間に表示する処理
+//  * @param {number} seconds 経過時間（秒）
+//  */
+// function updateTimer(seconds){
+//     timer.textContent = formatTime(seconds);
+// }
+// /**
+//  * secondsを分と秒のフォーマットに変換する処理
+//  * @param {number} seconds 
+//  * @returns {string} 分と秒を'00:00'の形式に変換した文字列
+//  * 👆戻り値がある場合はJSDOCsでこの様に書く。データ型は{}に。
+//  */
+// function formatTime(seconds){
+//     // let min = Math.floor(seconds/60);
+//     // let sec = (seconds%60);
+//     // min = String(min); //String関数を使う場合は戻り値が返って来るので変数で受け取る
+//     // sec = String(sec); //この関数内だけの処理なのでmin,secを上書きしてしまう。
+//     // min = min.padStart(2, '0'); //str.padStart()メソッドも戻り値を返すので、また上書き
+//     // sec = sec.padStart(2, '0');
+//     // return `${min}:${sec}`; //👈この戻り値を画面に表示させればよい。
+//     // のでtimer.textContent = formatTime(seconds);と記述すればよい。
+//     //-----↓ 👆を省略系で書く場合-----------------------------------------
+//     const min = String(Math.floor(seconds / 60)).padStart(2, '0');
+//     const sec = String(seconds % 60).padStart(2, '0');
+//     return `${min}:${sec}`; //👈この戻り値を画面に表示させればよい。
+// }
+// //--◆ ↓ シャッフル中に戻るボタンを押すと裏でタイマーが動き続けてしまう問題を
+// // ---shufflePieces()が最後まで実行したか中断か分かる戻り値を返す様にする------------------------------------
+// // 455行 if(gameStatus!==statuses.shuffling) return false; //👈false7/22水追加。
+//     //583行 ↓ 7/22水追記箇所
+//     // return true;
+// // 122行目
+//     // if (!await shufflePieces()) return;
+//     // 👆7/22水シャッフルが中断された時は下の処理が実行されないように追加。
+
+// // -7/22水追記----------------------------------------
+// // // resetTimer(); //117行目    
+// // 128行目にif (!await shufflePieces()) return;を追加したのでコメントアウト
+
+//---------------------------------------------------------------------------
+// //◆次ゲームのクリア判定処理を実装していく 7/22水14時12分～
+// checkGameClear関数を作成していく。
+// --------------------------------------------------------------------------
+/**
+ * 
+ */
+function checkGameClear()
+{
+    let matchCount = 0;
+    let currentIndexies = [];
+    let correctIndexies = [];
+    for (let i=0; i<pieces.length; i++){
+        let ci = pieces[i].dataset.correctIndex;
+        currentIndexies[i] = Number(ci).toString();
+        correctIndexies[i] = i.toString();
+    }
+    console.log(currentIndexies);
+    console.log(correctIndexies);
+    for(let j=0; j < pieces.length; j++){
+        if(currentIndexies[j]===correctIndexies[j]){
+            matchCount++;
+        }
+    }
+    if (matchCount >= pieces.length){
+        console.log(`ゲームクリア`);
+    }
+    if (currentIndexies.toString() === correctIndexies.toString())
+    {
+	alert('ゲームクリア');
+    } else {
+	alert('ゲーム続行');
+    }
+    console.log(pieces)
+    // ----------------------------------------------------------
+    // ◆7/22水 次、配列を作らずにゲームクリアをする方法を考えてほしいとのこと。
+    // ----------------------------------------------------------    
+    let mcount = 0;
+    for(let k=0; k < pieces.length; k++){
+        if(k!==Number(pieces[k].dataset.correctIndex)){
+            break;
+        }else{
+            mcount++;
+            console.log(mcount);
+            if(mcount >= pieces.length)alert(`クリア`);
+        }
+    }
+    // -----------------------------------------
+    // 7/22水 先生のお手本の書き方
+    // クリア判定のよく使う手法としては先にクリアフラグを立てておくとのこと。
+    //-----------------------------------------
+    let cleard = true;
+    for (let l=0; l < pieces.length; l++){
+        if(l !== +pieces[l].dataset.correctIndex){
+            // 👆+を付けるだけで型変換が出来るとのこと。
+            cleard = false;
+            break;
+        }
+    }
+    if(cleard) console.log(`ゲームクリア！！！`);
+    // -----------------------------------------
+    // 7/22水 先生のお手本の書き方 ２
+    // 更に、every()を使った、よりJavaScriptらしい書き方があるとのこと。
+    //-----------------------------------------
+    const game_cleard = pieces.every(
+        (elem, index)=> index=== +elem.dataset.correctIndex);
+    if(game_cleard) console.log(`くりあ！！！`);
+
+
+}
