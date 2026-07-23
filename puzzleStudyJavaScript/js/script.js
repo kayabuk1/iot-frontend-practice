@@ -190,8 +190,10 @@ function handleBackBtnClick(e){
  * @param {Event} e 
  */
 function handleRestartBtnClick(e){
-    console.log(`${e.target.textContent}がクリックされた`)
-    switchArea(gameArea);
+    // console.log(`${e.target.textContent}がクリックされた`)
+    gameStatus = statuses.setuping;
+    switchArea(setupArea);
+    updateStatusName();
 }
 /**
  * パズルの初期化処理（パズル盤面に動的にピースを追加する）
@@ -200,7 +202,7 @@ function initPuzzle(){
     // ↓ 7/21火 追記箇所ｽﾃｰﾀｽﾊﾞｰ手数カウンターをパズル初期化時に同時に初期化-------
     // moveCount = 0;
     // moveCounter.textContent = moveCount;⇒関数化の為コメントアウト
-    upadateMoveCount();
+    updateMoveCount();
     // ------------------------------------------------------------------
 
     // ↓追加するそうピース数(1辺の分割数の2乗でｓ算出)
@@ -351,7 +353,7 @@ function getMovableIndices()
  * 移動可能なピースをランダムに選択して複数回の移動を繰り返す処理
  */
 async function shufflePieces(){
-    const shuffleSteps = 1 ;//gridSize**2*4;
+    const shuffleSteps = 1;//gridSize**2*4;
     // ↑シャッフルの回数を保存しておく変数。難易度で変わる様にする。
 // ----------------------------------------------------------------
 // 7/14 ↓ ピースのシャッフル時の移動を非同期的に目に見えるようにする追加
@@ -658,7 +660,7 @@ function tryMovePiece(wantMovePiece){
         // --↓ 7/21火 -追加箇所------
         // moveCount++;
         // moveCounter.textContent = moveCount;⇒関数化の為コメントアウト
-        upadateMoveCount();
+        updateMoveCount();
         // -------------------------
 
         // movePiece(cpIndex);
@@ -859,6 +861,14 @@ function updateStatusName(){
         // ↓お手本ボタン再活性化
         previewBtn.disabled = false;
         puzzleBoard.style.pointerEvents = 'auto';
+    }else if (gameStatus===statuses.cleared){
+        puzzleBoard.style.pointerEvents = 'none';
+        previewBtn.disabled = true;
+        backBtn.disabled = true;
+    }else if (gameStatus===statuses.setuping){
+        puzzleBoard.style.pointerEvents = 'auto';
+        previewBtn.disabled = false;
+        backBtn.disabled = false;
     }
 
 
@@ -868,7 +878,7 @@ function updateStatusName(){
  * ピースの移動させた手数を記録させる関数
  * @param {*} 
  */
-function upadateMoveCount(){
+function updateMoveCount(){
      if((gameStatus===statuses.setuping)||(gameStatus===statuses.shuffling))
         {
          moveCount = 0;
@@ -901,18 +911,130 @@ function resetTimer(){
     elapsedSeconds = 0;
     renderTimer(elapsedSeconds);
 }
+function stopTimer(){
+    clearInterval(timerTntervalID);
+    renderTimer(elapsedSeconds);
+}
 function renderTimer(Seconds){
     const strMi = Math.floor(Seconds/60).toString().padStart(2, '0');
     const strSec = (Seconds%60).toString().padStart(2, '0');
     const timeString = `${strMi}：${strSec}`;
     timer.textContent = timeString;
+    return timeString;
+}
+
+/**
+ * ｹﾞｰﾑｸﾘｱ判定とゲームクリアエリアの表示を行う関数
+ * ※ピース動かした後毎度クリア判定を行う。
+ */
+function checkGameClear()
+{
+    // ◆↓ゲームクリア処理試作、配列作成バージョン-----------------------------
+    // let matchCount = 0;
+    // let currentIndexies = [];
+    // let correctIndexies = [];
+    // for (let i=0; i<pieces.length; i++){
+    //     let ci = pieces[i].dataset.correctIndex;
+    //     currentIndexies[i] = Number(ci).toString();
+    //     correctIndexies[i] = i.toString();
+    // }
+    // console.log(currentIndexies);
+    // console.log(correctIndexies);
+    // for(let j=0; j < pieces.length; j++){
+    //     if(currentIndexies[j]===correctIndexies[j]){
+    //         matchCount++;
+    //     }
+    // }
+    // if (matchCount >= pieces.length){
+    //     console.log(`ゲームクリア`);
+    // }
+    // if (currentIndexies.toString() === correctIndexies.toString())
+    // {
+	// alert('ゲームクリア');
+    // } else {
+	// alert('ゲーム続行');
+    // }
+    // console.log(pieces)
+    // ----------------------------------------------------------
+    // ◆7/22水 次、配列を作らずにゲームクリアをする方法を考えてほしいとのこと。
+    // ----------------------------------------------------------    
+    // let mcount = 0;
+    // for(let k=0; k < pieces.length; k++){
+    //     if(k!==Number(pieces[k].dataset.correctIndex)){
+    //         break;
+    //     }else{
+    //         mcount++;
+    //         console.log(mcount);
+    //         if(mcount >= pieces.length)alert(`クリア`);
+    //     }
+    // }
+    // -----------------------------------------
+    // 7/22水 先生のお手本の書き方
+    // クリア判定のよく使う手法としては先にクリアフラグを立てておくとのこと。
+    //-----------------------------------------
+    let cleard = true;
+    for (let l=0; l < pieces.length; l++){
+        if(l !== +pieces[l].dataset.correctIndex){
+            // 👆+を付けるだけで型変換が出来るとのこと。
+            cleard = false;
+            break;
+        }
+    }
+    if(cleard){
+         console.log(`ゲームクリア！！！`);
+         stopTimer();
+         gameStatus = statuses.cleared;
+         console.log(gameStatus);
+         pieces[(pieces.length - 1)].classList.remove("hidden");
+         updateStatusName();
+         showClearArea();
+    }
+    // -----------------------------------------
+    // 7/22水 先生のお手本の書き方 ２
+    // 更に、every()を使った、よりJavaScriptらしい書き方があるとのこと。
+    //-----------------------------------------
+    const game_cleard = pieces.every(
+        (elem, index)=> index=== +elem.dataset.correctIndex);
+    if(game_cleard) console.log(`くりあ！！！`);
+}
+// ---- ↓ 7/23木追加関数
+
+async function showClearArea(){
+    const clearTime = renderTimer(elapsedSeconds);
+    await new Promise((resolve)=>setTimeout(resolve, 2000));
+    switchArea(clearArea);
+    finalTime.textContent = clearTime;
+    finalMoves.textContent = moveCount;
+// ◆参考switchArea---------------------------
+// function switchArea(activeArea)
+//     setupArea.classList.add("hidden");
+//     gameArea.classList.add("hidden");
+//     clearArea.classList.add("hidden");
+//     console.log(activeArea);
+//     activeArea.classList.remove("hidden");
+// --------------------------------------------
+// ◆参考htmlゲームクリアエリア
+// // <!-- 結果発表ボックス -->
+//             <p class="score-box">
+//                 かかった時間: <span id="final-time">00:00</span><br>
+//                 かかった手数: <span id="final-moves">0</span>回
+//             </p>
+//             <button id="restart-btn" class="btn-primary">
+//                 もう一度遊ぶ（設定に戻る）</button>
+// ------------------------------------------------------
+// ◆参考
+// function renderTimer(Seconds){
+//     const strMi = Math.floor(Seconds/60).toString().padStart(2, '0');
+//     const strSec = (Seconds%60).toString().padStart(2, '0');
+//     const timeString = `${strMi}：${strSec}`;
+//     timer.textContent = timeString;
+//     return timeString;👈retrunを追加
 }
 
 
-
-
-// ----------------------------------------------------------------------------------
+// ===========================================================================
 //------関数エリアここまで---------------------------------------------------------------
+// ===========================================================================
 // ↑毎回無名関数を記述するのは面倒なので、関数定義して、
 // 引数に関数オブジェクト自体※()は付けると実行しろの意になってしまう。
 // を渡して、実行する。
@@ -921,14 +1043,14 @@ function renderTimer(Seconds){
 /**/
 // ↓ボタンが押されたら文字が追加される簡単な処理を書く
 // ※addEventListener()内には実行仕手ほしい処理を書く
-let counter = 0;
+// let counter = 0;
 // カウンター変数はグローバルにしないと駄目。
 // もしaddEventListener内に記述した場合は、毎回呼び出された時、
 // 初期化が行われてしまう。
 // constで宣言すると、Uncaught TypeError: 
 // Assignment to constant variable は、const で宣言した定数
 // （変数）に対して、後から別の値を 再代入しようとしたこと が原因。
-startBtn.addEventListener('click', function(e){
+// startBtn.addEventListener('click', function(e){
     // ('click', (e)=>{} 又は、
     // ('click', (e)=>console.log(`${e.target.textContent}が
     // ${++counter}回クリックされた`));とすれば、
@@ -937,7 +1059,7 @@ startBtn.addEventListener('click', function(e){
     // この場合はfunctionがイベントハンドラー？
     // (e) はEventオブジェクト、発生したイベントに付随する色々な情報が
     // eventオブジェクトの中に書き込まれる。
-    const text = e.target.textContent;
+    // const text = e.target.textContent;
     // targetにはイベント開始ボタンが入る。
     // e.target==startBtn
     // e.targetという書き方でオブジェクトが生成される？
@@ -957,9 +1079,9 @@ startBtn.addEventListener('click', function(e){
     // A.LinuxのBashなどで変数を展開するときに $VAR_NAME や
     //  ${VAR_NAME} と書くのと全く同じ概念。
     // ブラウザに対して「ここからここまでの括弧の中身はただの
-    // 文字じゃなくて変数や計算式（評価される式）として処理して」と指示。
-    console.log(`${e.target.textContent}が${++counter} \
-        回クリックされた`);
+    // // 文字じゃなくて変数や計算式（評価される式）として処理して」と指示。
+    // console.log(`${e.target.textContent}が${++counter} \
+    //     回クリックされた`);
         //と記述すればtext変数宣言も不要とのこと。
     // console.log(text+'が'+ counter +10 +'回クリックされた');
     // // ↑ゲーム開始が010回クリックされた。
@@ -971,7 +1093,7 @@ startBtn.addEventListener('click', function(e){
     // ゲーム開始
     // script.js:42 ゲーム開始クリックされた
     // script.js:43 btn-primary
-});
+// });
 // ↑関数定義の時と違い実行なので最後に;が必要
 // 文字列の結合は + で行える。
 /*
@@ -2363,69 +2485,97 @@ CSSの transform プロプロティをJavaScriptから文字列テンプレー�
 // //◆次ゲームのクリア判定処理を実装していく 7/22水14時12分～
 // checkGameClear関数を作成していく。
 // --------------------------------------------------------------------------
-/**
- * 
- */
-function checkGameClear()
-{
-    let matchCount = 0;
-    let currentIndexies = [];
-    let correctIndexies = [];
-    for (let i=0; i<pieces.length; i++){
-        let ci = pieces[i].dataset.correctIndex;
-        currentIndexies[i] = Number(ci).toString();
-        correctIndexies[i] = i.toString();
-    }
-    console.log(currentIndexies);
-    console.log(correctIndexies);
-    for(let j=0; j < pieces.length; j++){
-        if(currentIndexies[j]===correctIndexies[j]){
-            matchCount++;
-        }
-    }
-    if (matchCount >= pieces.length){
-        console.log(`ゲームクリア`);
-    }
-    if (currentIndexies.toString() === correctIndexies.toString())
-    {
-	alert('ゲームクリア');
-    } else {
-	alert('ゲーム続行');
-    }
-    console.log(pieces)
-    // ----------------------------------------------------------
-    // ◆7/22水 次、配列を作らずにゲームクリアをする方法を考えてほしいとのこと。
-    // ----------------------------------------------------------    
-    let mcount = 0;
-    for(let k=0; k < pieces.length; k++){
-        if(k!==Number(pieces[k].dataset.correctIndex)){
-            break;
-        }else{
-            mcount++;
-            console.log(mcount);
-            if(mcount >= pieces.length)alert(`クリア`);
-        }
-    }
-    // -----------------------------------------
-    // 7/22水 先生のお手本の書き方
-    // クリア判定のよく使う手法としては先にクリアフラグを立てておくとのこと。
-    //-----------------------------------------
-    let cleard = true;
-    for (let l=0; l < pieces.length; l++){
-        if(l !== +pieces[l].dataset.correctIndex){
-            // 👆+を付けるだけで型変換が出来るとのこと。
-            cleard = false;
-            break;
-        }
-    }
-    if(cleard) console.log(`ゲームクリア！！！`);
-    // -----------------------------------------
-    // 7/22水 先生のお手本の書き方 ２
-    // 更に、every()を使った、よりJavaScriptらしい書き方があるとのこと。
-    //-----------------------------------------
-    const game_cleard = pieces.every(
-        (elem, index)=> index=== +elem.dataset.correctIndex);
-    if(game_cleard) console.log(`くりあ！！！`);
-
-
-}
+// /**●916行目辺りに移植
+//  * 
+//  */
+// function checkGameClear()
+// {
+//     let matchCount = 0;
+//     let currentIndexies = [];
+//     let correctIndexies = [];
+//     for (let i=0; i<pieces.length; i++){
+//         let ci = pieces[i].dataset.correctIndex;
+//         currentIndexies[i] = Number(ci).toString();
+//         correctIndexies[i] = i.toString();
+//     }
+//     console.log(currentIndexies);
+//     console.log(correctIndexies);
+//     for(let j=0; j < pieces.length; j++){
+//         if(currentIndexies[j]===correctIndexies[j]){
+//             matchCount++;
+//         }
+//     }
+//     if (matchCount >= pieces.length){
+//         console.log(`ゲームクリア`);
+//     }
+//     if (currentIndexies.toString() === correctIndexies.toString())
+//     {
+// 	alert('ゲームクリア');
+//     } else {
+// 	alert('ゲーム続行');
+//     }
+//     console.log(pieces)
+//     // ----------------------------------------------------------
+//     // ◆7/22水 次、配列を作らずにゲームクリアをする方法を考えてほしいとのこと。
+//     // ----------------------------------------------------------    
+//     let mcount = 0;
+//     for(let k=0; k < pieces.length; k++){
+//         if(k!==Number(pieces[k].dataset.correctIndex)){
+//             break;
+//         }else{
+//             mcount++;
+//             console.log(mcount);
+//             if(mcount >= pieces.length)alert(`クリア`);
+//         }
+//     }
+//     // -----------------------------------------
+//     // 7/22水 先生のお手本の書き方
+//     // クリア判定のよく使う手法としては先にクリアフラグを立てておくとのこと。
+//     //-----------------------------------------
+//     let cleard = true;
+//     for (let l=0; l < pieces.length; l++){
+//         if(l !== +pieces[l].dataset.correctIndex){
+//             // 👆+を付けるだけで型変換が出来るとのこと。
+//             cleard = false;
+//             break;
+//         }
+//     }
+//     if(cleard) console.log(`ゲームクリア！！！`);
+//     // -----------------------------------------
+//     // 7/22水 先生のお手本の書き方 ２
+//     // 更に、every()を使った、よりJavaScriptらしい書き方があるとのこと。
+//     //-----------------------------------------
+//     const game_cleard = pieces.every(
+//         (elem, index)=> index=== +elem.dataset.correctIndex);
+//     if(game_cleard) console.log(`くりあ！！！`);
+// }
+//---------------------------------------------------------------------------
+// //◆7/23 木 午後2時間のみここから
+// 【ｹﾞｰﾑｸﾘｱ後に行う処理】まとめ
+// 済・タイマーを止める
+// 済・空白ピースの非表示を解除
+// 済・「お手本を開く」「設定に戻る」ボタンの非活性化⇒再活性化
+// 済・ゲームステータスをクリア後に更新
+// 済・一定の時間待ってからｹﾞｰﾑｸﾘｱ画面に切り替える
+// 済  ⇒showClearArea関数の中で「手数・時間」の反映と「エリア」切り替え処理
+// --------------------------------------------------------------------------
+// ↓ ◆先生の書き方
+// checkGameClear(){続きから
+//     ～～
+// if (cleard){
+//     console.log("ゲームクリア");
+//     stopTimer();
+//     pieces[blankIndex].classList.remove("hidden");
+//     //pieces.length -1 でも良いが、そも空白ピースインデックスを作ってあった筈
+//     previewBtn.disabled = true;
+//     backBtn.disabled = true;
+//     gameStatus = statuses.cleared;
+//     setTimeout(showClearArea, 1000);
+//     }
+// }
+// function showClearArea(){
+//     switchArea(clearArea);
+//     //👆クリックされた要素ではなくそのまま対象エリアを渡せばOK
+//     finalMoves.textContent = moveCount;
+//     finalTime.textContent = formatTime(elapsedSeconds);
+// }
