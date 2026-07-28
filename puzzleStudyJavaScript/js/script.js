@@ -80,6 +80,10 @@ startBtn.addEventListener('click', handleStartBtnClick);
 previewBtn.addEventListener('click', handlePreviewBtnClick);
 backBtn.addEventListener('click', handleBackBtnClick);
 restartBtn.addEventListener('click', handleRestartBtnClick);
+
+// 7/28火 画像ファイル選択イベントのイベントリスナーへの登録
+// imageFile.addEventListener('change', handleFileSelect);
+
 /**
  * 「ｹﾞｰﾑ開始」ボタン押下時の処理(パズル盤面の作成とシャッフルを行って、
  * ｹﾞｰﾑを開始する。)
@@ -123,6 +127,10 @@ async function handleStartBtnClick(e){
 
     initPuzzle();
     // ↑パズル初期化関数の実行
+    // 👇7/28 火 追加箇所。
+    originalPreview.style.backgroundImage = `url(${imgUrl})`;
+    // CSSの世界では、背景画像を指定するときに background-image: url("画像のパス"); というルール（文法）
+
     // ↓79行目 initPuzzle()の下に shufflePieces()を追加する。
     if (!await shufflePieces()) return;
     // 👆7/22水シャッフルが中断された時は下の処理が実行されないように追加。
@@ -618,6 +626,7 @@ document.documentElement.style.setProperty(
 //     }
 // }
 function tryMovePiece(wantMovePiece){
+    if (gameStatus !== statuses.playing || isShowingPreview) return;
     if(moveCount===0){
         console.log('-----------------------ゲーム開始---------------------------');
     }
@@ -2579,3 +2588,404 @@ CSSの transform プロプロティをJavaScriptから文字列テンプレー�
 //     finalMoves.textContent = moveCount;
 //     finalTime.textContent = formatTime(elapsedSeconds);
 // }
+//---------------------------------------------------------------------------
+// //◆カーソルキーによるピース移動の処理 7/24 金 午前ここから
+// ・押されたキーの種類を取得(e.key)
+// ・空白ピースの位置（blankIndex）から行インデックスと列インデックスを取得
+// ・キーが上だったら空白ピースの行インデックスを基に下のピースを特定する
+// ・キーが下だったら空白ピースの行インデックスを基に上のピースを特定する
+// ・キーが左だったら空白ピースの列インデックスを基に右のピースを特定する
+// ・キーが右だったら空白ピースの列インデックスを基に左のピースを特定する
+// ・特定したピースが存在する場合
+//      ⇒・特定したピースの行列インデックスからピース管理配列のインデックスを
+//          求め、そのピースを移動する。
+// ◆４：[1][1]に空白ピースがある場合
+// 列_0__1___2__行
+// 0|０　１　２　↓：行[1]列[0]
+//  |　　↓
+// 1|３⇒➃⇐５　
+//  |　　↑
+// 2|６　７　８
+// --------------------------------------------------------------------------
+window.addEventListener('keydown', handleKeyDown);
+function handleKeyDown(e){
+    console.log(`${e}キーが押されました。`)
+    console.log(`${e.key}キーが押されました。`)
+    // ex:ArrowUpキーが押されました。
+    if (gameStatus !== statuses.playing || isShowingPreview) return;
+    if (e.repeat) return;
+    // 早期リターン(ガード節)でｼｬｯﾌﾙ中と長押し操作を回避。
+    e.preventDefault();
+
+    let targetPiecePointer;
+    if(e.key==="ArrowUp"){
+        const wantMovePiece = (blankIndex +gridSize);
+        targetPiecePointer = pieces[wantMovePiece];
+        console.log(`wantMovePiece${targetPiecePointer}`)
+        tryMovePiece(targetPiecePointer);
+    }
+    else if(e.key==="ArrowDown"){
+        const wantMovePiece = (blankIndex -gridSize);
+        targetPiecePointer = pieces[wantMovePiece];
+        console.log(`wantMovePiece${targetPiecePointer}`)
+        tryMovePiece(targetPiecePointer);
+    }
+    else if(e.key==="ArrowLeft"){
+        const wantMovePiece = (blankIndex +1);
+        targetPiecePointer = pieces[wantMovePiece];
+        console.log(`wantMovePiece${targetPiecePointer}`)
+        tryMovePiece(targetPiecePointer);
+    }
+    else if(e.key==="ArrowRight"){
+        const wantMovePiece = (blankIndex -1);
+        targetPiecePointer = pieces[wantMovePiece];
+        console.log(`wantMovePiece${targetPiecePointer}`)
+        tryMovePiece(targetPiecePointer);
+    }else{
+        return;
+        // 矢印以外のキーが押されたら呼び出し元に戻る。
+    }
+    //◆ピース事態の文字列番号、ピース管理配列番号インデックス、ピースli要素ポインタ
+    //  この3つが区別出来ていないまま、引数名を書いてしまった所があるのが問題。
+    //  きちんと整理して、引数名を変えて解りやすくしたい。
+    //◆ピースの移動はできたが、シャッフル中の移動を禁止したい。
+    // 　⇒gamestatusのifで囲むか？
+    //◆そういえばチャタリング処理必要ないのはなぜ？⇒ブラウザ、ハードウェアが吸収済
+    // 　⇒e.repeat：長押しをreturnするだけでＯＫ
+    // ◆
+}
+//---------------------------------------------------------------------------
+// //◆7/28 火 午前ここから
+// ↓ キーボード移動処理先生のお手本
+// --------------------------------------------------------------------------
+
+// function handleWindowKeyDown(e){
+//     // e.preventDefault();
+//     // 👆この位置にスクロール防止をpreventDefaultを入れてしまうと他の操作も
+//     //   できなくなってしまうので注意。なのでif文の中※条件付きでブロックする
+//     const blankRow = Math.floor
+//     const blankCol =
+//     let targetRow = blankRow;
+//     let targetCol = blankCol;
+
+//     switch (e.key){
+//         // ﾀｰｹﾞｯﾄであるのは動かしたいピースでなく空白ピースなのを忘れずに
+//         case 'ArrowUp':
+//             targetRow++;
+//             break;
+//         case 'ArrowDown':
+//             targetRow--;
+//             break;
+//         case 'ArrowLeft':
+//             targetCol++;
+//             break;
+//         case 'ArrowRight':
+//             targetCol--;
+//             break;
+//         default:
+//             return;
+//             // 他のキーを押された時、例外処理を用意する。
+//     }
+//     if (targetRow>=0 && targetRow<gridSize &&
+//          targetCol>=0 && targetCol<gridSize)
+//         {
+//         const targetIndex = targetRow*gridSize + targetCol;
+//         tryMovePiece(pieces[targetIndex]);
+//         e.preventDefault();
+//     }
+//         // 動かしたいピースが移動可能かフィルターしてtrueなら
+//         // movePiece(targetIndex);
+//         // すでに用意していたmovePiece関数に渡せばピースは動かせる。
+//         // ◆⇒しかし、これでは完成イベントや手数がカウントされない。
+//         // 　⇒なぜか？⇒ゲーム中のピースの移動処理はtryMovePiece()で管理していた為
+//         // ◆⇒しかし関数が変わると注意。引数の渡し方が異なるため。
+//         //   ⇒tryMovePiece()には対象HTML要素へのポインタを渡す設計※Element自体を渡す
+
+//         // ◆他問題：お手本中にピース移動が出来てしまう。
+//         //   ⇒お手本状態を管理する変数 isShowingPreviewの状態がtrueならreturnする。
+//         //     if (gameStatus !== statuses.playing || !isShowingPreview) return;
+//         //     👆をtryMovePiece関数内頭に追加する。
+//         // ◆キーボード操作すると、画面がスクロールされてしまう。
+//         // if()に{ e.preventDefault();}を追加する。
+// }
+//---------------------------------------------------------------------------
+// //◆7/28 火 次の内容
+// ローカル画像でパズルができるようにする。
+// 今までの内容とだいぶ違って難しいとのこと。
+// ファイルピッカーなどを使うとのこと。ファイルピッカーとは？
+// --------------------------------------------------------------------------
+// ◆まず画像ファイル選択イベントのイベントリスナーへの登録を行う。
+// ファイルピッカーはHTMLの
+//  <input type="file" name="image-file" id="image-file"
+                //  accept="image/*">
+                //  <!-- input要素がtypeで選択した値によって変わるのすっかり忘れて
+                //   しまっていた、、、。そもそもinput要素についての知識があやふやだ。
+                //   input要素と選択できるtypeについて詳しく解説してほしい。 -->
+                // <!-- accept属性とは？マイム？とはで
+                //  ユーザーに選択して欲しいファイルの分類を記述？
+                //  /の後ろに画像のさらに種類、拡張子を指定することも出来る -->
+                //   <label for="image-file" id="image-file-lbl">
+                //     <!-- labelのidがforと異なっているのはどこかで使っているのだろうか。
+                //      デフォルトの部品は非表示にしてラベルだけ表示にしているとのこと。 -->
+                //     ローカルの画像ファイル<br>
+                //     （クリックして選択 または ドラッグ＆ドロップ）
+                // </label>
+// に記述されているので id image-fileをイベントリスナーにしていく、とのこと。
+// 7/28火 画像ファイル選択イベントのイベントリスナーへの登録
+imageFile.addEventListener('change', handleFileSelect);
+// 👆新しいイベントへの引数？'change'イベント。フォームなどで使うとのこと。
+
+/**
+ * ファイルピッカーで画像が選択された時の処理
+ * @param {*Event} e 👈入力値変更イベント…とは？
+ */
+function handleFileSelect(e){
+    console.log('ファイルが選択された。');
+    console.log(imageFile);
+    // 👆ファイルピッカーをそのままログに出してみるとのこと。
+    // 画像ファイル自体がファイルピッカーとは？？
+    // ↓●実行結果
+    // ファイルが選択された。
+    // script.js:2740 <input type=​"file" name=​"image-file" id=​"image-file"
+    //  accept=​"image/​*">
+    console.log(imageFile.files);
+    // .filesでファイルピッカーの持つ情報にアクセスすることが出来るとのこと。
+    //     FileList {0: File, length: 1}
+    // 👆JSでファイルを管理するファイルオブジェクトの形でまず表示される。
+    // 0: File {name: 'dog.jpg', lastModified: 1780551204668,
+    // 👆0は配列のインデックス。
+    //  lastModifiedDate: Thu Jun 04 2026 14:33:24 GMT+0900 (日本標準時),
+    //  webkitRelativePath: '', size: 544392, …}
+    // length:  1
+    // [[Prototype]]:  FileList
+    const file = imageFile.files[0];
+    console.log(`ファイル名:${file.name}`);
+    console.log(`ファイルサイズ:${file.size}`);
+    console.log(`MIMEタイプ:${file.type}`);
+    // 👆あれ？typeが上のlogには無い？そもそもMIMEオブジェクトって何だっけ？
+    console.log(`更新日時:${file.lastModifiedDate}`);
+    // ファイル名:dog.jpg
+    // script.js:2759 ファイルサイズ:544392
+    // script.js:2760 MIMEタイプ:image/jpeg
+    // script.js:2762 更新日時:Thu Jun 04 2026 14:33:24 GMT+0900 (日本標準時)
+
+    // ◆次：選択されたファイルを[画像選択]プルダウンへの追加処理を記述
+    // 　⇒ほかでもプルダウンへの追加を行うことがあるので、関数化する。
+    addToImageSelect(file);
+}
+// ↓関数定義※後で関数エリアへ移動させる。
+/**
+ * 指定されたファイル情報をプルダウンに追加する処理
+ * @param {File} file 👈引数追加対象のファイル
+ */
+function addToImageSelect(file){
+    // 指定されたファイルのMIMEタイプが画像ファイル(image/~))
+    // 以外の時は処理を終了。
+    // MIMEタイプは文字列で、文字列一致を調べる方法があるとのこと
+    if(!file.type.startsWith("image/")){
+        console.log(`データタイプが画像と違います。`)
+        return;
+    }
+    // ◆先生の別解：正規表現を使う方法書き写し途中
+    //if (file.type.search(/^image))
+
+
+
+    console.log(`retrunされていたらこれは表示されない。`)
+                // ※参考：HTMLの記述
+                //     <label for="image-select">画像の選択</label>
+                // <select name="image-select" id="image-select">
+                //     <!-- なぜlbelとの紐づけでlabel側はidでなくてforと、
+                //      言葉が異なっているのだっけ？nameはサーバにデータ送信
+                //      時の辞書のキー？にみたいになっているのだっけ？ -->
+                //     <option value="images/dog.jpg">犬</option>
+                //     <!-- optionタグは初めて見たな、詳しく解説して欲しい。
+                //      valudeのファイルパスは同じにならないとダメとのこと。 -->
+                // </select>
+// 👆プルダウンに追加するのはDOM操作なので、
+// これまでやった方法である程度対応できるとのこと。
+// プルダウン＝select要素とoption要素の組み合わせとのこと。
+// ◆やる必要があること
+// ●新しい<option>要素を生成。
+// ●<option>要素のテキストに対象ファイルの名前を設定。
+// ●<select>要素に<option>要素を追加。
+const option = document.createElement('option');
+// .createElement("")で作成した要素は戻り値がで受け取らないと、
+// そのあと使用できない。
+option.textContent = file.name;
+// option.setAttribute("selected", "");
+// 👆setAttribute(name, value)は引数どちらもstr=""で囲う。
+//   追加する属性が論理属性(true,false)の時はvalueは空か"name"と繰り返す。
+// ↓◆先生の書き方。optionにもともとselected属性を持っているのでこれでＯＫとのこと
+option.selected = true;
+// imageSelect.appendChild(option);
+// 👇appendChild()では最後に追加されてしまうので、先頭に追加する書き方
+// insertBefore(newNode, referenceNode)とのことです。
+// そもそもノードとはHTML要素と同義みたいな意味？違いは？
+imageSelect.insertBefore(option, imageSelect.firstElementChild);
+// firstChild：一番最初の子要素が持っているプロパティ。
+// firstElementChild:HTML要素だけに限定して数える※タブなどがカウントされない
+
+//-----------------------------------------7/28 火 午後ここから
+// セキュリティ上の観点から(クロスサイトスクリプティングなどJSはセキュリティリスク)
+// があるので、ストレージ内のファイル自体の情報を扱うには制限があるとのこと。
+// URLオブジェクトとしてJS内でURLは扱われる。
+// ストレージ内にのファイル自体の情報を扱う方法、URLを追加する方法はいくつかあるが、
+// 今回は URL.createObjectURL(file);を使うとのこと。
+// 選択されたファイルのURLをJSで追加する。
+option.value = 'value1';
+// これで👆F12でvalue属性に value1が追加されたのが分かったので、value1の値を
+// 生成されるURLにしてやれば良いとのこと。
+const url = URL.createObjectURL(file);
+option.value = url;
+// <option value=
+// "blob:http://127.0.0.1:5500/960d3e9b-59cd-41d0-b0a0-9d008122f597">
+// IMG20251130093645ハオルチア桜水晶.jpg</option>
+// 👆この様なURLが生成される。blobからのURLをブラウザに貼り付けると画像が見れる。
+// ◆先生の説明：
+// GoLiveでHTMLを見るときはVS上で簡易的だが実際のサーバが立ち上がっている。
+// その時のURLはhttp://127.0.0.1:5500/puzzle/puzzle.htmlのローカルURL
+// デフォルトの犬画像は http://127.0.0.1:5500/puzzle/images/dog.jpg
+// それで、今回の blob:から始まるURLは👆の普通のURLとは違うルールでつけられている
+// ファイルピッカーで選択した画像ファイルは、サーバにアップロードされるわけでなく、
+// あくまでローカルPCのメモリ上に存在している。
+// blob:の後ろはローカル上のPCのメモリの番地=画像がある場所を無理やりURL化したもの。
+// ブラウザは blob: という記述を見ると同じローカルPC上にファイルを探しに行く仕様。
+// :5500/960d3e9b-59cd-41d0-b0a0-9d008122f597"👈後ろの英数字は一意に特定する
+// 為のランダムに生成される識別子。仮に同じ画像を再度選択しても生成されるIDは異なる。
+// ⇒つまりURL.createObjectURL()を実行する度に新たにメモリ上にファイルオブジェクトが
+// 生成されて、それをもとに新たに識別子を付けるので、同じ画像でも異なる。
+// UUID（Universally Unique Identifier：汎用一意識別子）と呼ぶ。
+// 生成されるURLは一時的なものなので、ページが更新されるとメモリ領域も開放され、
+// 再確保されるので、そのURLで画像にアクセスできなくなる。
+// ◆次：お手本にも選んだ画像が表示されるようにすること。
+// handleStartBtnClick内のinitPuzzle();の後に追加する。
+// originalPreview.style.backgroundImage = `url(${imgUrl})`;
+// CSSの世界では、背景画像を指定するときに background-image: url("画像のパス"); というルール（文法）
+console.log(`imageSelect:${imageSelect}`);
+/*◆補足：
+砂場（ブラウザ）の中にいるJSは、外の世界（ローカルPC）のファイルを
+直接見ることができません。 しかしユーザーが「ファイルピッカー」で画像を選んだ瞬間、
+OSが**「この画像データのバイナリ（0と1の塊）だけは、
+特別に砂場の中にコピー（または参照の許可）をしてあげるよ」**と
+ブラウザのメモリ上にデータを配置してくれます。
+このバイナリデータの塊を、IT用語で BLOB（Binary Large Object） と呼びます。
+そして URL.createObjectURL(file) は、メモリ上に配置された
+その BLOB データのアドレス（ポインタ）に対して、
+blob:http://127.0.0.1:5500/960d... という**「一時的な仮想URL（文字列）」を
+発行するシステムコール**なのです。
+C言語で例えるなら、**「メモリ上に確保した画像データへのポインタ void* を
+、HTML（<img> タグ）が読み取れるように char*（文字列のURL形式）に
+キャストしてあげた」**状態です。
+*/
+}
+// -----------------------------------------
+// ◆次：ドラッグアンドドロップによる画像ファイル追加を可能にする
+// -----------------------------------------
+// ●まず、ドラッグアンドドロップ操作用のイベントを4つ登録する。
+imageFileLbl.addEventListener('dragenter', handleDragEnter);
+// ↑要素内にドラッグ中のカーソルが入った時。
+imageFileLbl.addEventListener('dragleave', handleDragLeave);
+// 要素内からドラッグ中のカーソルが出た時
+imageFileLbl.addEventListener('dragover', handleDragOver);
+// 要素内にドラッグ中のカーソルが移動した時
+imageFileLbl.addEventListener('drop', handleDrop);
+// 要素内にドロップされた時
+
+// ●次のこの4つのイベントに対応するhandler関数を4つ作っていく。
+// ◆次：ファイルピッカーから画像ファイルデータを引き渡す時とは、
+// 　ドラッグアンドドロップでデータを引き渡す時はまた別の記述の仕方が必要とのこと
+// 　ファイルピッカーが選ばれた時と違い、eにはドラッグイベント自体が入ってしまう。
+// 　⇒ドラッグイベントの dataTransferオブジェクトのアトリビュートを見るとのこと。
+// handleDrop()内：
+//     const file = e.dataTransfer.files[0];
+//     console.log(`file:${file}`);
+//     console.log(`e.dataTransfer.files:${e.dataTransfer.files}`)
+// ●実行結果：
+// file:[object File]　👈ファイル
+// script.js:2941 e.dataTransfer.files:[object FileList]
+// script.js:2892 dragenterが起きた[object DragEvent]
+// 20script.js:2928 dragoverが起きた[object DragEvent]
+// script.js:2936 dropが起きた[object DragEvent]
+// script.js:2940 file:undefined　👈テキスト
+// script.js:2941 e.dataTransfer.files:[object FileList]
+// ドロップされるものはファイルに限らないので、それを考慮した例外処理を書いておく。
+//◆2871行目あたり追加：
+//  function addToImageSelect(file){
+//     // 指定されたファイルのMIMEタイプが画像ファイル(image/~))
+//     // 以外の時は処理を終了。
+//     // MIMEタイプは文字列で、文字列一致を調べる方法があるとのこと
+//     if(!file.type.startsWith("image/")){
+//         console.log(`データタイプが画像と違います。`)
+//         return;
+//     }
+//     console.log(`retrunされていたらこれは表示されない。`)
+/**
+ * ファイル選択要素内にドラッグが入った時の処理
+ * @param {Event} e dragenterイベント
+ */
+function handleDragEnter(e){
+    console.log(`dragenterが起きた${e}`)
+    // ●やることドロップ箇所の背景色を変える。
+    // ◆参考：👇CSSの記述。:hoverは疑似クラスがあるが、
+    // 　ドラッキングは疑似クラスは無いので、クラスを動的に設定する。
+    /* ドラッグ＆ドロップゾーンのホバー時、ドラッグ中の設定 */
+    // #image-file-lbl:hover,
+    // #image-file-lbl.dragging {
+    //     background-color: #e0e7ff;
+    // }
+    /* JavaScriptで、動的にクラス.draggingを生成する様に記述するとのこと。
+    画像ファイルを上にドラッグした時はhoverではないとのこと。 */
+    // ◆参考：HTMLの記述
+    //  <label for="image-file" id="image-file-lbl">
+    //                 <!-- labelのidがforと異なっているのはどこかで使っているのだろうか。
+    //                  デフォルトの部品は非表示にしてラベルだけ表示にしているとのこと。 -->
+    //                 ローカルの画像ファイル<br>
+    //                 （クリックして選択 または ドラッグ＆ドロップ）
+    //             </label>
+    imageFileLbl.classList.add('dragging');
+}
+/**
+ * ファイル選択要素内からドラッグが出た時の処理
+ * @param {Event} e drageleaveイベント
+ */
+function handleDragLeave(e){
+    console.log(`drageleaveが起きた${e}`)
+    // ●やることドロップ箇所背景色をもとに戻す。
+    imageFileLbl.classList.remove('dragging');
+}
+/**
+ * ファイル選択要素内でドラッグが✖移動した〇載っている間中ずっとの時処理
+ * @param {Event} e dragoverイベント
+ */
+function handleDragOver(e){
+    e.preventDefault();
+    // ↑DragOverのデフォルトイベントをキャンセルするとDropが発生する。なぜ？
+    console.log(`dragoverが起きた${e}`)
+}
+/**
+ * ファイル選択要素内にドロップされた時の処理
+ * @param {Event} e dropイベント
+ */
+function handleDrop(e){ 
+    e.preventDefault();
+    console.log(`dropが起きた${e}`)
+    // ●画像がドロップされた時も色が変わる様にする
+    imageFileLbl.classList.remove('dragging');
+    const file = e.dataTransfer.files[0];
+    console.log(`file:${file}`);
+    console.log(`e.dataTransfer.files:${e.dataTransfer.files}`);
+    // ファイルだった場合のみ addToImageSelct()に引き渡す。
+    // ●ただこれでは画像ファイル以外も選べてしまうので、それを除外したい。
+    // 　ファイルピッカーの場合はMIMEタイプで accept="images/*"の様に制限してる
+    //  ⇒addToImageSelect()内に弾く処理を記述するとのこと。
+    if (file !== undefined){
+        addToImageSelect(file);
+    }
+}
+// 👇console.logだけ記述のコンソールの様子。
+// dragenterが起きた[object DragEvent]
+// 16script.js:2902 dragoverが起きた[object DragEvent]
+// script.js:2895 drageleaveが起きた[object DragEvent]
+// ◆ファイルピッカーを開いて、そこからドラッグすると、色が変わらないとのこと。
+// 　ログには流れるが、画面描画停止しているのではとのこと。
